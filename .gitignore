@@ -23,3 +23,6 @@ gen/
 .idea/libraries
 **/build/
 !gradle-wrapper.jar
+*.iml
+*.iws
+*.ipr
