@@ -1,11 +1,11 @@
 <idea-plugin>
     <id>uk.ac.hud.team.2.0.ObjectWorkbench</id>
     <name>Objects Workbench</name>
-    <vendor email="support@unimail.hud.ac.uk" url="http://www.yourcompany.com">University of Huddersfield</vendor>
+    <vendor email="support@unimail.hud.ac.uk" url="http://www.hud.ac.uk">University of Huddersfield</vendor>
 
     <description><![CDATA[
-    Enter short description for your plugin here.<br>
-    <em>most HTML tags may be used</em>
+    Short Description of a plugin.<br>
+    <em>by team 2.0</em>
     ]]></description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
@@ -16,6 +16,12 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
+        <toolWindow id="Class Graphs" anchor="right" icon="/GraphIcon.svg"
+                    factoryClass="uk.ac.hud.objectworkbench.ui.GraphWindowFactory"
+                    secondary="true" order="first" />
+        <toolWindow id="Objects Workbench" anchor="bottom" icon="/ObjectsIcon.svg"
+                    factoryClass="uk.ac.hud.objectworkbench.ui.ObjectsWindowFactory"
+                    secondary="true" order="first" />
     </extensions>
 
     <actions>
