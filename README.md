@@ -1,4 +1,4 @@
 ## ObjectWorkbench
-IntelliJ Plugin for utilizing a GUI Object Workbench to visualize and manipulate code interactively. 
+IntelliJ plugin for utilising a GUI Object Workbench to visualise and manipulate code dynamically. 
 
 a private repo
