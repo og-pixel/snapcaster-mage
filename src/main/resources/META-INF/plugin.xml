@@ -12,20 +12,12 @@
     <!-- uncomment to enable plugin in all products
     <depends>com.intellij.modules.lang</depends>
     -->
-
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Project Graph" icon="/img/icon13.png" anchor="right"
                     factoryClass="ac.uk.teamWorkbench.graphWorkbench.GraphWindowFactory"/>
         <toolWindow id="Object Workbench" icon="/img/icon13.png" anchor="bottom"
                     factoryClass="ac.uk.teamWorkbench.objectWorkbench.ObjectsWindowFactory"/>
-
-<!--        &lt;!&ndash; Add your extensions here &ndash;&gt;-->
-<!--        <toolWindow id="Class Graphs" anchor="right" icon="/GraphIcon.svg"-->
-<!--                    factoryClass="uk.ac.hud.objectworkbench.ui.GraphWindowFactory"-->
-<!--                    secondary="true" order="first" />-->
-<!--        <toolWindow id="Objects Workbench" anchor="bottom" icon="/ObjectsIcon.svg"-->
-<!--                    factoryClass="uk.ac.hud.objectworkbench.ui.ObjectsWindowFactory"-->
-<!--                    secondary="true" order="first" />-->
+<!--                    conditionClass="ac.uk.teamWorkbench.objectWorkbench.ObjectsWindowFactory"/>-->
     </extensions>
 
     <actions>
