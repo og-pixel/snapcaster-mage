@@ -4,23 +4,54 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
-public class ObjectDisplayWindow  {
+public class ObjectDisplayWindow {
 
     private Project project;
     private ToolWindow toolWindow;
 
-    private JPanel content;
-    private JTabbedPane tabbedPane1;
+    private JPanel contentWindow;
+    private JPanel leftPane;
+    private JPanel rightPane;
+    private JSplitPane splitPane;
+    private JTabbedPane tabbedPane;
+
+    private JLabel plus = new JLabel();
+
+    private JDialog dialog;
+    private JFrame dialogFrame;
 
     public ObjectDisplayWindow(Project project, ToolWindow toolWindow) {
         this.project = project;
         this.toolWindow = toolWindow;
+        this.init();
     }
 
-    public JPanel getContent() {
-        return content;
+    private void init()
+    {
+        this.addLabelToTab();
+    }
+
+    private void addLabelToTab()
+    {
+        this.tabbedPane.addTab("+", this.plus);
+    }
+
+    private void onPlusTabClick()
+    {
+        plus.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                System.out.println("CLick!");
+            }
+        });
+    }
+
+
+    public JPanel getContentWindow() {
+        return contentWindow;
     }
 }
