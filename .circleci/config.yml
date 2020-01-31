@@ -1,0 +1,8 @@
+version: 2
+job:
+  build:
+    docker:
+      - image: circleci/java:8
+    steps:
+      - checkout
+      - notacommand

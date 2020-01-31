@@ -1,4 +1,4 @@
-package co.uk.team2.objectWorkbench.workbench
+package ac.uk.teamWorkbench
 
 import com.intellij.ide.BrowserUtil
 import com.intellij.lang.Language

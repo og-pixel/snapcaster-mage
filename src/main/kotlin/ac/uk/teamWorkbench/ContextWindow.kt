@@ -1,4 +1,4 @@
-package co.uk.team2.objectWorkbench.workbench
+package ac.uk.teamWorkbench
 
 class ContextWindow: Window {
 
