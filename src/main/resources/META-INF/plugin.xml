@@ -3,10 +3,9 @@
     <name>Objects Workbench</name>
     <vendor email="support@unimail.hud.ac.uk" url="http://www.hud.ac.uk">University of Huddersfield</vendor>
 
-    <description><![CDATA[
-    Short Description of a plugin.<br>
-    <em>by team 2.0</em>
-    ]]></description>
+    <description>Graphical Workshop plugin allowing to
+    instantiate and inspect objects from the "workbench"
+    </description>
 
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
@@ -15,6 +14,11 @@
     -->
 
     <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="Project Graph" icon="/img/icon32.png" anchor="right"
+                    factoryClass="ac.uk.teamWorkbench.graphWorkbench.GraphWindowFactory"/>
+        <toolWindow id="Object Workbench" icon="/img/icon32.png" anchor="bottom"
+                    factoryClass="ac.uk.teamWorkbench.objectWorkbench.ObjectsWindowFactory"/>
+
         <!-- Add your extensions here -->
         <toolWindow id="Class Graphs" anchor="right" icon="/GraphIcon.svg"
                     factoryClass="uk.ac.hud.objectworkbench.ui.GraphWindowFactory"
@@ -26,5 +30,6 @@
 
     <actions>
         <!-- Add your actions here -->
+
     </actions>
 </idea-plugin>
