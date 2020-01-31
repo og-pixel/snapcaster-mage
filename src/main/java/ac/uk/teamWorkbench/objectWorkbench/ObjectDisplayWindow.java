@@ -10,16 +10,18 @@ public class ObjectDisplayWindow {
     private Project project;
     private ToolWindow toolWindow;
 
-    private JPanel content;
-    private JLabel text;
-    private JButton button1;
+    private JPanel contentWindow;
+    private JPanel leftPane;
+    private JPanel rightPane;
+    private JSplitPane splitPane;
+    private JTabbedPane tabbedPane;
 
     public ObjectDisplayWindow(Project project, ToolWindow toolWindow) {
         this.project = project;
         this.toolWindow = toolWindow;
     }
 
-    public JPanel getContent() {
-        return content;
+    public JPanel getContentWindow() {
+        return contentWindow;
     }
 }
