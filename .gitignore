@@ -17,14 +17,17 @@ build/
 /out/
 gen/
 
-# gradle related stuff
-.gradle/*
-.idea/gradle.xml
-.idea/libraries
-**/build/
+### Gradle ###
+.gradle
+/build/
+# Ignore Gradle GUI config
+gradle-app.setting
+# Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
-gradlew
-gradlew.bat
+# Cache of project
+.gradletasknamecache
+
+# IntelliJ
 *.iml
 *.iws
 *.ipr
