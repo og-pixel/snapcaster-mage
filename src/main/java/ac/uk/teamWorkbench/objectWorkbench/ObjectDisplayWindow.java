@@ -13,7 +13,6 @@ public class ObjectDisplayWindow  {
     private ToolWindow toolWindow;
 
     private JPanel content;
-    private JLabel text;
     private JTabbedPane tabbedPane1;
 
     public ObjectDisplayWindow(Project project, ToolWindow toolWindow) {
