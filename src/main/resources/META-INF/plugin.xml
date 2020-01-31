@@ -14,18 +14,18 @@
     -->
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Project Graph" icon="/img/icon32.png" anchor="right"
+        <toolWindow id="Project Graph" icon="/img/icon13.png" anchor="right"
                     factoryClass="ac.uk.teamWorkbench.graphWorkbench.GraphWindowFactory"/>
-        <toolWindow id="Object Workbench" icon="/img/icon32.png" anchor="bottom"
+        <toolWindow id="Object Workbench" icon="/img/icon13.png" anchor="bottom"
                     factoryClass="ac.uk.teamWorkbench.objectWorkbench.ObjectsWindowFactory"/>
 
-        <!-- Add your extensions here -->
-        <toolWindow id="Class Graphs" anchor="right" icon="/GraphIcon.svg"
-                    factoryClass="uk.ac.hud.objectworkbench.ui.GraphWindowFactory"
-                    secondary="true" order="first" />
-        <toolWindow id="Objects Workbench" anchor="bottom" icon="/ObjectsIcon.svg"
-                    factoryClass="uk.ac.hud.objectworkbench.ui.ObjectsWindowFactory"
-                    secondary="true" order="first" />
+<!--        &lt;!&ndash; Add your extensions here &ndash;&gt;-->
+<!--        <toolWindow id="Class Graphs" anchor="right" icon="/GraphIcon.svg"-->
+<!--                    factoryClass="uk.ac.hud.objectworkbench.ui.GraphWindowFactory"-->
+<!--                    secondary="true" order="first" />-->
+<!--        <toolWindow id="Objects Workbench" anchor="bottom" icon="/ObjectsIcon.svg"-->
+<!--                    factoryClass="uk.ac.hud.objectworkbench.ui.ObjectsWindowFactory"-->
+<!--                    secondary="true" order="first" />-->
     </extensions>
 
     <actions>

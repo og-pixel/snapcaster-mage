@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/ObjectWorkbench.iml" filepath="$PROJECT_DIR$/.idea/ObjectWorkbench.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ObjectWorkbench.main.iml" filepath="$PROJECT_DIR$/.idea/modules/ObjectWorkbench.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ObjectWorkbench.test.iml" filepath="$PROJECT_DIR$/.idea/modules/ObjectWorkbench.test.iml" />
     </modules>
   </component>
 </project>

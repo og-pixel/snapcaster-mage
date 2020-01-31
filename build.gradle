@@ -27,7 +27,7 @@ compileTestKotlin {
 }
 
 intellij {
-    version '2018.2.4'
+    version '2019.3.2'
 }
 
 patchPluginXml {
