@@ -1,16 +1,14 @@
 package ac.uk.teamWorkbench.objectWorkbench;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.openapi.wm.ToolWindow;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 
 public class ObjectDisplayWindow {
 
@@ -46,8 +44,32 @@ public class ObjectDisplayWindow {
 
                 if (tabTitle.equals("+")) {
                     //Add a new tab before the '+' tab
-                    addTab(tabPosition);
+//                    addTab(tabPosition);
+                    addTab(tabbedPane.getTabCount() - 1);
+//                    DialogBuilder db = new DialogBuilder();
+//                    db.
+
+                    new ObjectWindow(true).showAndGet();
                 }
+            }
+        });
+
+        tabbedPane.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent keyEvent) {
+                   if(keyEvent.getKeyChar() == 'p'){
+                       addTab(tabbedPane.getTabCount() - 1);
+                   }
+            }
+
+            @Override
+            public void keyPressed(KeyEvent keyEvent) {
+
+            }
+
+            @Override
+            public void keyReleased(KeyEvent keyEvent) {
+
             }
         });
 
@@ -60,5 +82,6 @@ public class ObjectDisplayWindow {
         tabbedPane.addTab("Tab", new JPanel());
         //Re-add '+' tab to end of tabbed pane
         tabbedPane.addTab("+", new JPanel());
+        tabbedPane.move(2,2);
     }
 }
