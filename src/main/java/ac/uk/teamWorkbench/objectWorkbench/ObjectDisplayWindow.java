@@ -29,6 +29,7 @@ public class ObjectDisplayWindow {
     private JPopupMenu rightClickMenu;
     private JMenuItem closer;
     private JMenuItem allCloser;
+    private JMenuItem adder;
 
     public ObjectDisplayWindow(Project project, ToolWindow toolWindow) {
         this.project = project;
@@ -60,6 +61,15 @@ public class ObjectDisplayWindow {
                     if(SwingUtilities.isRightMouseButton(e)) {
                         rightClickMenu = new JPopupMenu();
 
+                        adder = new JMenuItem(new AbstractAction("Add Tab...")
+                        {
+                            @Override
+                            public void actionPerformed(ActionEvent e)
+                            {
+                                appendTabToEnd();
+                            }
+                        });
+
                         allCloser = new JMenuItem(new AbstractAction("Close All Tabs...")
                         {
                             @Override
@@ -76,10 +86,11 @@ public class ObjectDisplayWindow {
                             }
                         });
                         // Add menuitem to list
+                        rightClickMenu.add(adder);
+                        rightClickMenu.addSeparator();
                         rightClickMenu.add(allCloser);
                         rightClickMenu.add(closer);
                         // Show menu item on list
-                        rightClickMenu.show(tabbedPane, e.getX(), e.getY());
                         rightClickMenu.show(tabbedPane, e.getX(), e.getY());
                     }
                 } catch(Exception ex) {
@@ -118,6 +129,20 @@ public class ObjectDisplayWindow {
         removeTab(index);
         addTab();
         addNewTabButton();
+    }
+
+    /**
+     * Appends a new tab to the end of the tab list
+     */
+    private void appendTabToEnd() {
+        int count = tabbedPane.getTabCount();
+        for(int i = 0; i < count; i++) {
+            if(tabbedPane.getTitleAt(i).equals("+")) {
+                tabbedPane.removeTabAt(i);
+                addTab();
+                addNewTabButton();
+            }
+        }
     }
 
     /**
