@@ -26,6 +26,8 @@ public class ObjectDisplayWindow {
     private JPanel rightPane;
     private JSplitPane splitPane;
     private JTabbedPane tabbedPane;
+    private JPopupMenu rightClickMenu;
+    private JMenuItem closer;
 
     public ObjectDisplayWindow(Project project, ToolWindow toolWindow) {
         this.project = project;
@@ -55,8 +57,8 @@ public class ObjectDisplayWindow {
                 try {
                     // Open menu on right mouse click
                     if(SwingUtilities.isRightMouseButton(e)) {
-                        JPopupMenu rightClickMenu = new JPopupMenu();
-                        JMenuItem closer = new JMenuItem(new AbstractAction("Close...") {
+                        rightClickMenu = new JPopupMenu();
+                        closer = new JMenuItem(new AbstractAction("Close Tab...") {
                             @Override
                             public void actionPerformed(ActionEvent actionEvent) {
                                 removeTab(getSelectedTabIndex());
