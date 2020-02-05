@@ -42,29 +42,39 @@ public class ObjectDisplayWindow {
     }
 
     /**
-     * Adds a new tab to the tabbed pane
+     * Adds mouse listeners to the tabbed pane
      */
     private void addMousePressedListener() {
         tabbedPane.addMouseListener(new MouseAdapter() {
+            /**
+             * Checks for mousePressed Events if right-click open menu
+             * @param e - the event
+             */
             @Override
             public void mousePressed(MouseEvent e) {
-                if(SwingUtilities.isRightMouseButton(e)) {
-                    JPopupMenu rightClickMenu = new JPopupMenu();
-                    JMenuItem closer = new JMenuItem(new AbstractAction("Close") {
-                        @Override
-                        public void actionPerformed(ActionEvent actionEvent) {
-                            removeTab(getSelectedTabIndex());
-                        }
-                    });
-                    rightClickMenu.add(closer);
-                    rightClickMenu.show(tabbedPane, e.getX(), e.getY());
+                try {
+                    // Open menu on right mouse click
+                    if(SwingUtilities.isRightMouseButton(e)) {
+                        JPopupMenu rightClickMenu = new JPopupMenu();
+                        JMenuItem closer = new JMenuItem(new AbstractAction("Close...") {
+                            @Override
+                            public void actionPerformed(ActionEvent actionEvent) {
+                                removeTab(getSelectedTabIndex());
+                            }
+                        });
+                        rightClickMenu.add(closer);
+                        rightClickMenu.show(tabbedPane, e.getX(), e.getY());
+                    }
+                } catch(Exception ex) {
+                    ex.printStackTrace();
                 }
+
                 try {
                     int tabIndex = getSelectedTabIndex();
                     String tabTitle = getSelectedTabTitle(tabIndex);
                     if (isValidAddRequest(tabTitle)) {
                         removeTab(tabIndex);
-                        addTab(tabIndex);
+                        addTab();
                         addNewTabButton();
                     }
                 } catch (Exception ex) {
@@ -86,20 +96,22 @@ public class ObjectDisplayWindow {
     }
 
     /**
-     *
-     * @param tabPosition - position to add tab.
+     * Add a new Tab with specified title
      * @param title - the label of the tab.
      */
-    private void addTab(int tabPosition, String title){
+    private void addTab(String title){
         tabbedPane.addTab(title, new JPanel());
+        int newIndex = tabbedPane.getTabCount()-1;
+        setTabIndex(newIndex);
     }
 
     /**
-     * Adds a new tab
-     * @param tabPosition
+     * Adds a new untitled tab
      */
-    private void addTab(int tabPosition) {
+    private void addTab() {
         tabbedPane.addTab("Untitled", new JPanel());
+        int newIndex = tabbedPane.getTabCount()-1;
+        setTabIndex(newIndex);
     };
 
     /**
@@ -118,8 +130,21 @@ public class ObjectDisplayWindow {
         return tabbedPane.getSelectedIndex();
     }
 
-    private String getSelectedTabTitle(int tabIndex) {
-        return tabbedPane.getTitleAt(tabIndex);
+    /**
+     * Set the selected tab index
+     * @param index - the index to set
+     */
+    public void setTabIndex(int index) {
+        tabbedPane.setSelectedIndex(index);
+    }
+
+    /**
+     * Get selected tab title
+     * @param index - the tab index
+     * @return title - the selected tabs title
+     */
+    private String getSelectedTabTitle(int index) {
+        return tabbedPane.getTitleAt(index);
     }
 
     /**
