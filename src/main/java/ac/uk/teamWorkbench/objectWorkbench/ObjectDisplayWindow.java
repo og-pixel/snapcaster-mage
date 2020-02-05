@@ -28,6 +28,7 @@ public class ObjectDisplayWindow {
     private JTabbedPane tabbedPane;
     private JPopupMenu rightClickMenu;
     private JMenuItem closer;
+    private JMenuItem allCloser;
 
     public ObjectDisplayWindow(Project project, ToolWindow toolWindow) {
         this.project = project;
@@ -58,13 +59,27 @@ public class ObjectDisplayWindow {
                     // Open menu on right mouse click
                     if(SwingUtilities.isRightMouseButton(e)) {
                         rightClickMenu = new JPopupMenu();
+
+                        allCloser = new JMenuItem(new AbstractAction("Close All Tabs...")
+                        {
+                            @Override
+                            public void actionPerformed(ActionEvent e)
+                            {
+                                removeAllTabs();
+                            }
+                        });
+                        // Close menu item
                         closer = new JMenuItem(new AbstractAction("Close Tab...") {
                             @Override
                             public void actionPerformed(ActionEvent actionEvent) {
                                 removeTab(getSelectedTabIndex());
                             }
                         });
+                        // Add menuitem to list
+                        rightClickMenu.add(allCloser);
                         rightClickMenu.add(closer);
+                        // Show menu item on list
+                        rightClickMenu.show(tabbedPane, e.getX(), e.getY());
                         rightClickMenu.show(tabbedPane, e.getX(), e.getY());
                     }
                 } catch(Exception ex) {
@@ -74,10 +89,9 @@ public class ObjectDisplayWindow {
                 try {
                     int tabIndex = getSelectedTabIndex();
                     String tabTitle = getSelectedTabTitle(tabIndex);
-                    if (isValidAddRequest(tabTitle)) {
-                        removeTab(tabIndex);
-                        addTab();
-                        addNewTabButton();
+                    if(isValidAddRequest(tabTitle))
+                    {
+                        newAddTabTask(tabIndex);
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -89,12 +103,21 @@ public class ObjectDisplayWindow {
 
     /**
      * Checks the addTab request is to a valid tab
-     * @param tabTitle
-     * @return
+     * @param tabTitle - title of tab
+     * @return true if tabtitle is "+" else false
      */
     private boolean isValidAddRequest(String tabTitle) {
-        if(!tabTitle.equals("+")) { return false; }
-        return true;
+        return tabTitle.equals("+");
+    }
+
+    /**
+     * Performs necessary tasks to create a new tab
+     * @param index - index of the tab
+     */
+    private void newAddTabTask(int index) {
+        removeTab(index);
+        addTab();
+        addNewTabButton();
     }
 
     /**
@@ -114,7 +137,7 @@ public class ObjectDisplayWindow {
         tabbedPane.addTab("Untitled", new JPanel());
         int newIndex = tabbedPane.getTabCount()-1;
         setTabIndex(newIndex);
-    };
+    }
 
     /**
      * @param tabPosition - the position of the tab to remove
@@ -122,6 +145,17 @@ public class ObjectDisplayWindow {
      */
     private void removeTab(int tabPosition) {
         tabbedPane.removeTabAt(tabPosition);
+    }
+
+    /**
+     * Closes all tabs
+     */
+    private void removeAllTabs() {
+        int i = 0;
+        while(!tabbedPane.getTitleAt(i).equals("+"))
+        {
+            tabbedPane.removeTabAt(i);
+        }
     }
 
     /**
