@@ -12,6 +12,9 @@ import javax.swing.*;
 public class ObjectsWindowFactory implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+        //TODO delete, just so it compiles
+        ObjectObject oo = new ObjectObject();
+
         ObjectDisplayWindow objectDisplayWindow = new ObjectDisplayWindow(project, toolWindow);
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();

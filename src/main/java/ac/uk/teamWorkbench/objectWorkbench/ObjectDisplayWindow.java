@@ -1,13 +1,9 @@
 package ac.uk.teamWorkbench.objectWorkbench;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogBuilder;
 import com.intellij.openapi.wm.ToolWindow;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-import java.awt.*;
 import java.awt.event.*;
 
 public class ObjectDisplayWindow {
@@ -49,7 +45,7 @@ public class ObjectDisplayWindow {
 //                    DialogBuilder db = new DialogBuilder();
 //                    db.
 
-                    new ObjectWindow(true).showAndGet();
+                    new ObjectCreationWindow(true, project).showAndGet();
                 }
             }
         });
@@ -82,6 +78,6 @@ public class ObjectDisplayWindow {
         tabbedPane.addTab("Tab", new JPanel());
         //Re-add '+' tab to end of tabbed pane
         tabbedPane.addTab("+", new JPanel());
-        tabbedPane.move(2,2);
+        tabbedPane.setLocation(2,2);
     }
 }
