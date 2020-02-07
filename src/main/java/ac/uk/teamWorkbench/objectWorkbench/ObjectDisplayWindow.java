@@ -168,7 +168,7 @@ public class ObjectDisplayWindow {
                 "Title",
                 JOptionPane.PLAIN_MESSAGE,
                 null, null,
-                "Untitled");
+                getSelectedTabTitle(getSelectedTabIndex()));
     }
 
     /**
@@ -289,9 +289,8 @@ public class ObjectDisplayWindow {
      */
     private boolean hasProtectedCharacter(String x) {
         boolean result = false;
-        String[] word = new String[x.length()];
-        for(String letter : word) {
-            if(isProtectedCharacter(letter)) {
+        for(String character : protectedCharacters) {
+            if(x.contains(character)) {
                 result = true;
             }
         }
