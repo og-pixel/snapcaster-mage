@@ -1,11 +1,16 @@
 package ac.uk.teamWorkbench.objectWorkbench;
 
 /**
- * Author Matthew Lavene
+ * Original Author Matthew Lavene
  * Date: 27/02/2020
  *
  * Refactor: Luke McCann
  * Date: 05/02/2020
+ *
+ * Functions added: Luke McCann
+ * Date: 05/02/2020 - 07/02/2020
+ *
+ * The GUI class for the ObjectWorkbench display window.
  */
 
 import com.intellij.openapi.project.Project;
