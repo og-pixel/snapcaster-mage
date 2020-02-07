@@ -20,6 +20,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 
 public class ObjectDisplayWindow {
 
@@ -29,15 +30,18 @@ public class ObjectDisplayWindow {
     private JPanel rightPane;
     private JSplitPane splitPane;
     private JTabbedPane tabbedPane;
+    private ArrayList<String> protectedCharacters = new ArrayList<>();
     // Right-Click Menu items
     private JPopupMenu rightClickMenu;
     private JMenuItem closer;
     private JMenuItem allCloser;
     private JMenuItem adder;
+    private JMenuItem nameChanger;
 
     public ObjectDisplayWindow(ToolWindow toolWindow) {
         // Project items
         addMousePressedListener();
+        protectedCharacters.add("+");
     }
 
     /**
@@ -63,7 +67,13 @@ public class ObjectDisplayWindow {
                     // Open menu on right mouse click
                     if(SwingUtilities.isRightMouseButton(e)) {
                         rightClickMenu = new JPopupMenu();
-
+                        nameChanger = new JMenuItem(new AbstractAction("Change Tab Name...") {
+                            @Override
+                            public void actionPerformed(ActionEvent actionEvent) {
+                                String title = changeTabNameDialog();
+                                setTabTitle(getSelectedTabIndex(), title);
+                            }
+                        });
                         adder = new JMenuItem(new AbstractAction("Add Tab...")
                         {
                             @Override
@@ -94,10 +104,7 @@ public class ObjectDisplayWindow {
                             }
                         });
                         // Add menuitem to list
-                        rightClickMenu.add(adder);
-                        rightClickMenu.addSeparator();
-                        rightClickMenu.add(allCloser);
-                        rightClickMenu.add(closer);
+                        populateRightClickMenu();
                         // Show menu item on list
                         rightClickMenu.show(tabbedPane, e.getX(), e.getY());
                     }
@@ -148,7 +155,30 @@ public class ObjectDisplayWindow {
      */
     private int getUserConfirmation(Component parent, String message, String title) {
         return JOptionPane.showConfirmDialog(parent,
-                message, title,JOptionPane.YES_NO_CANCEL_OPTION);
+                message, title,JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE);
+    }
+
+    /**
+     * Dialog for changing the name of a tab
+     * @return the new name of the tab (String)
+     */
+    private String changeTabNameDialog() {
+        return (String)JOptionPane.showInputDialog(tabbedPane,
+                "Enter New Title: ",
+                "Title",
+                JOptionPane.PLAIN_MESSAGE,
+                null, null,
+                "Untitled");
+    }
+
+    /**
+     * Displays a warning dialog
+     * @param parent - the parent of the dialog
+     * @param message - the message in the dialog
+     * @param title - the title of the dialog
+     */
+    private void displayWarningMessage(Component parent, String message, String title) {
+        JOptionPane.showMessageDialog(parent, message, title, JOptionPane.WARNING_MESSAGE);
     }
 
     /**
@@ -234,6 +264,14 @@ public class ObjectDisplayWindow {
      * @param title - the title to set
      */
     private void setTabTitle(int index, String title) {
+        if(hasProtectedCharacter(title) || isProtectedCharacter(title)) {
+            JOptionPane.showMessageDialog(tabbedPane,
+                    "Please ensure there are no protected characters. \n" +
+                    "\nProtected characters include:\n" +
+                    "       - '+'", "Warning: Use of protected characters is prohibited.",
+                    JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         tabbedPane.setTitleAt(index, title);
     }
 
@@ -242,5 +280,42 @@ public class ObjectDisplayWindow {
      */
     private void addNewTabButton() {
         tabbedPane.addTab("+", new JPanel());
+    }
+
+    /**
+     * Checks if a string contains a protected character
+     * @param x - the character
+     * @return true if the string contains a protected character, else false
+     */
+    private boolean hasProtectedCharacter(String x) {
+        boolean result = false;
+        String[] word = new String[x.length()];
+        for(String letter : word) {
+            if(isProtectedCharacter(letter)) {
+                result = true;
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Adds items to rightClickMenu JPopupDialog
+     */
+    private void populateRightClickMenu() {
+        rightClickMenu.add(adder);
+        rightClickMenu.addSeparator();
+        rightClickMenu.add(nameChanger);
+        rightClickMenu.addSeparator();
+        rightClickMenu.add(allCloser);
+        rightClickMenu.add(closer);
+    }
+
+    /**
+     * Checks if a string is a protected character
+     * @param x - the string to check
+     * @return true if the character is protected, else false
+     */
+    private boolean isProtectedCharacter(String x) {
+        return protectedCharacters.contains(x);
     }
 }
