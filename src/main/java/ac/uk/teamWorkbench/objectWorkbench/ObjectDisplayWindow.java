@@ -1,16 +1,15 @@
 package ac.uk.teamWorkbench.objectWorkbench;
+/*
+  Original Author Matthew Lavene
+  Date: 27/02/2020
 
-/**
- * Original Author Matthew Lavene
- * Date: 27/02/2020
- *
- * Refactor: Luke McCann
- * Date: 05/02/2020
- *
- * Functions added: Luke McCann
- * Date: 05/02/2020 - 07/02/2020
- *
- * The GUI class for the ObjectWorkbench display window.
+  Refactor: Luke McCann
+  Date: 05/02/2020
+
+  Functions added: Luke McCann
+  Date: 05/02/2020 - 07/02/2020
+
+  The GUI class for the ObjectWorkbench display window.
  */
 
 import com.intellij.openapi.project.Project;
@@ -24,22 +23,20 @@ import java.awt.event.MouseEvent;
 
 public class ObjectDisplayWindow {
 
-    private Project project;
-    private ToolWindow toolWindow;
-
+    // Main pane items
     private JPanel contentWindow;
     private JPanel leftPane;
     private JPanel rightPane;
     private JSplitPane splitPane;
     private JTabbedPane tabbedPane;
+    // Right-Click Menu items
     private JPopupMenu rightClickMenu;
     private JMenuItem closer;
     private JMenuItem allCloser;
     private JMenuItem adder;
 
-    public ObjectDisplayWindow(Project project, ToolWindow toolWindow) {
-        this.project = project;
-        this.toolWindow = toolWindow;
+    public ObjectDisplayWindow(ToolWindow toolWindow) {
+        // Project items
         addMousePressedListener();
     }
 
@@ -246,5 +243,4 @@ public class ObjectDisplayWindow {
     private void addNewTabButton() {
         tabbedPane.addTab("+", new JPanel());
     }
-
 }

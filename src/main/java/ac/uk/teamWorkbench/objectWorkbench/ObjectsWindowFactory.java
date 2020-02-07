@@ -7,12 +7,10 @@ import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-
 public class ObjectsWindowFactory implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        ObjectDisplayWindow objectDisplayWindow = new ObjectDisplayWindow(project, toolWindow);
+        ObjectDisplayWindow objectDisplayWindow = new ObjectDisplayWindow(toolWindow);
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(objectDisplayWindow.getContentWindow(),"",false);
