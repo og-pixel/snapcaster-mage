@@ -6,8 +6,6 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/ObjectWorkbench.main.iml" filepath="$PROJECT_DIR$/.idea/modules/ObjectWorkbench.main.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/ObjectWorkbench.test.iml" filepath="$PROJECT_DIR$/.idea/modules/ObjectWorkbench.test.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/ac.uk.teamWorkbench.ObjectWorkbench.iml" filepath="$PROJECT_DIR$/.idea/modules/ac.uk.teamWorkbench.ObjectWorkbench.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ac.uk.teamWorkbench.ObjectWorkbench.main.iml" filepath="$PROJECT_DIR$/.idea/modules/ac.uk.teamWorkbench.ObjectWorkbench.main.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/ac.uk.teamWorkbench.ObjectWorkbench.test.iml" filepath="$PROJECT_DIR$/.idea/modules/ac.uk.teamWorkbench.ObjectWorkbench.test.iml" />
     </modules>
   </component>
 </project>

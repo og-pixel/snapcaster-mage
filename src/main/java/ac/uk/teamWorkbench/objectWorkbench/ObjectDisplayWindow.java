@@ -12,6 +12,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -69,12 +70,14 @@ public class ObjectDisplayWindow {
                                 appendTabToEnd();
                             }
                         });
-
                         allCloser = new JMenuItem(new AbstractAction("Close All Tabs...")
                         {
                             @Override
                             public void actionPerformed(ActionEvent e)
                             {
+                                if(getUserConfirmation(tabbedPane,
+                                        "Are you sure you want to do this? (This action cannot be undone)",
+                                        "Close All Tabs?") != 0) { return; }
                                 removeAllTabs();
                             }
                         });
@@ -82,6 +85,9 @@ public class ObjectDisplayWindow {
                         closer = new JMenuItem(new AbstractAction("Close Tab...") {
                             @Override
                             public void actionPerformed(ActionEvent actionEvent) {
+                                if(getUserConfirmation(tabbedPane,
+                                        "Are you sure you want to do this? (This action cannot be undone)",
+                                        "Close This Tab?") != 0) { return; }
                                 removeTab(getSelectedTabIndex());
                             }
                         });
@@ -129,6 +135,18 @@ public class ObjectDisplayWindow {
         removeTab(index);
         addTab();
         addNewTabButton();
+    }
+
+    /**
+     * Gets user confirmation - 0 = yes, 1 = no, 2 = cancel
+     * @param parent - The parent component of the dialog
+     * @param message - The message in the dialog
+     * @param title - The title of the dialog
+     * @return answer from the user
+     */
+    private int getUserConfirmation(Component parent, String message, String title) {
+        return JOptionPane.showConfirmDialog(parent,
+                message, title,JOptionPane.YES_NO_CANCEL_OPTION);
     }
 
     /**
