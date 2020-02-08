@@ -1,40 +1,31 @@
 package ac.uk.teamWorkbench.graphWorkbench;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.tree.project.ProjectFileTreeModel;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.uiDesigner.core.GridConstraints;
 
 import javax.swing.*;
 
 public class GraphDisplayWindow {
 
     private Project project;
+    private ToolWindow toolWindow;
 
     private JPanel content;
-    private JLabel awaiting_text;
+    private GraphPanel graphPanel;
 
-    public GraphDisplayWindow(Project project) {
+    public GraphDisplayWindow(Project project, ToolWindow toolWindow) {
         this.project = project;
+        this.toolWindow = toolWindow;
+        graphPanel = new GraphPanel();
+        graphPanel.build();
+        graphPanel.setSize(toolWindow.getComponent().getSize());
+        content.add(graphPanel, new GridConstraints());
     }
 
     public JPanel getContent() {
-        getAllClassesFromProject();
+        graphPanel.setSize(toolWindow.getComponent().getSize());
         return content;
     }
 
-    private void getAllClassesFromProject() {
-        try {
-            ProjectFileTreeModel projectFileTreeModel = new ProjectFileTreeModel(project);
-
-            String test = projectFileTreeModel.getRoot().toString();
-            System.out.printf("test getRoot(): " + test);
-//            StringBuilder stringBuilder = new StringBuilder();
-//            for (String name :
-//                    names) {
-//                stringBuilder.append(name).append(" \n");
-//            }
-//            content.add(new JTextArea(stringBuilder.toString()));
-        } catch (Exception e) {
-            awaiting_text.setText("Indexing need to be finish before displaying graph");
-        }
-    }
 }
