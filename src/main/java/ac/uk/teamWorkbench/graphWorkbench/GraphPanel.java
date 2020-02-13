@@ -1,5 +1,6 @@
 package ac.uk.teamWorkbench.graphWorkbench;
 
+import com.intellij.openapi.project.Project;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
@@ -11,10 +12,16 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 
 public class GraphPanel extends JPanel {
 
     private ArrayList<Object> graphElements;
+    private Project project;
+
+    public GraphPanel(Project project) {
+        this.project = project;
+    }
 
     public void build() {
         setSize(750, 750);
@@ -76,9 +83,10 @@ public class GraphPanel extends JPanel {
     }
 
     private void createAnVertexes(@NotNull mxGraph graph, Object parent) {
+
         graphElements.add(graph.insertVertex(parent,
                 "1",            // id of vertex
-                "Test",      // Text in the square
+                Objects.requireNonNull(project.getProjectFile()).getName(),      // Text in the square
                 25,             // x position of top left corner
                 25,             // y position of top left corner
                 100,         // width of box
