@@ -13,7 +13,7 @@ public class GraphWindowFactory implements ToolWindowFactory {
         GraphDisplayWindow graphDisplayWindow = new GraphDisplayWindow(project);
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content content = contentFactory.createContent(graphDisplayWindow.getContent(),project.getName(),false);
+        Content content = contentFactory.createContent(graphDisplayWindow.getContent(), "Class diagram for : " + project.getName(), false);
         toolWindow.getContentManager().addContent(content);
     }
 }
