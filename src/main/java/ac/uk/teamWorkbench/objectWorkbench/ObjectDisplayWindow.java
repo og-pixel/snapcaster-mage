@@ -37,11 +37,18 @@ public class ObjectDisplayWindow {
     private JMenuItem allCloser;
     private JMenuItem adder;
     private JMenuItem nameChanger;
+    // Project and Toolwindow elements
+    private ToolWindow toolWindow;
+    private Project project;
 
-    public ObjectDisplayWindow(ToolWindow toolWindow) {
+    public ObjectDisplayWindow(ToolWindow toolWindow, Project project) {
         // Project items
         addMousePressedListener();
         protectedCharacters.add("+");
+        //TODO added by Milosz, constructor from factory needs to pass project as well, I've made it so
+        // it saves the reference
+        this.toolWindow = toolWindow;
+        this.project = project;
     }
 
     /**
@@ -212,6 +219,8 @@ public class ObjectDisplayWindow {
         tabbedPane.addTab("Untitled", new JPanel());
         int newIndex = tabbedPane.getTabCount()-1;
         setTabIndex(newIndex);
+        //TODO added by Milosz, I think here a dialog window (Object Creation Window) needs to be added
+        new ObjectCreationWindow(true, project).showAndGet();
     }
 
     /**
