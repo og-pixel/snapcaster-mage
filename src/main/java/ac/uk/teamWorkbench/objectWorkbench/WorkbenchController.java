@@ -8,6 +8,12 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * WorkbenchController
+ *
+ * The main controller for the ObjectWorkbench.
+ * Handles logic and updates the GUI.
+ */
 public class WorkbenchController {
 
     private ObjectDisplayWindow GUI;

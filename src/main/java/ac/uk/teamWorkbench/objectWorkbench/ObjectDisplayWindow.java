@@ -3,6 +3,11 @@ package ac.uk.teamWorkbench.objectWorkbench;
 import com.intellij.openapi.wm.ToolWindow;
 import javax.swing.*;
 
+/**
+ * ObjectDisplayWindow
+ *
+ * The main GUI form for the ObjectWorkbench.
+ */
 public class ObjectDisplayWindow {
 
     private JPanel contentWindow;

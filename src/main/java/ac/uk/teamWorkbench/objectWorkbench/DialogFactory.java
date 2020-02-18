@@ -3,6 +3,11 @@ package ac.uk.teamWorkbench.objectWorkbench;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * DialogFactory
+ *
+ * Provides various quick-use dialog window builders for the ObjectWorkbench.
+ */
 public class DialogFactory {
 
     public DialogFactory() {

@@ -2,6 +2,11 @@ package ac.uk.teamWorkbench.objectWorkbench;
 
 import java.util.ArrayList;
 
+/**
+ * Validator
+ *
+ * Handles validation logic for requests for the ObjectWorkbench.
+ */
 public class Validator {
 
     private ArrayList<String> protectedCharacters;
