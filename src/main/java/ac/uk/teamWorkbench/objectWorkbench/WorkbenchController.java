@@ -127,7 +127,7 @@ public class WorkbenchController {
         StringBuilder out = new StringBuilder();
         if(validator.hasProtectedCharacter(title) || validator.isProtectedCharacter(title)) {
             for(String item : protectedCharacters) {
-                out.append("       -").append(item).append("\n");
+                out.append("       - ").append("'"+ item + "'").append("\n");
             }
             dialogFactory.displayWarningDialog(GUI.getTabbedPane(),
                     "Please ensure there are not protected characters. \n" +
