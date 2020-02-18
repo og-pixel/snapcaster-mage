@@ -1,6 +1,6 @@
 package ac.uk.teamWorkbench;
 /*
- * @Author: Matt
+ * @Author: Matt, Milosz
  */
 
 import com.intellij.openapi.project.Project;
@@ -13,8 +13,11 @@ import java.util.Collection;
 //Utility class for querying the java source files in the project tree.
 public class SourceFileUtils {
 
+    //TODO delete
     private static final String extension = "java";
 
+    //TODO remove if nobody uses it, version below is more flexible and searches in correct project scope
+    @Deprecated
     public static Collection<VirtualFile> getAllFilesByExt(Project project){
         return FilenameIndex.getAllFilesByExt(project, extension);
     }

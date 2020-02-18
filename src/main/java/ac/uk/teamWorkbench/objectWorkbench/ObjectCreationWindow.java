@@ -9,11 +9,11 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.io.File;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 /**
  * Author: Milosz Jakubanis
@@ -22,54 +22,46 @@ import java.util.List;
  */
 public class ObjectCreationWindow extends DialogWrapper {
 
+    //TODO logic will go there
+    //Window Creation Controller
+    private ObjectCreationController controller = new ObjectCreationController();
+    private Project project;
+
     //Pane items
     private JPanel content;
     private JLabel text;
 
+    //Lists displaying Classes information
     private JBList classListJBList;
     private JBList methodListJBList;
+    private JBList variableListJBList;
 
-    //List for JList
+    //Default list models for JBList to add data into
+    private DefaultListModel<String> javaClassListModel;
+    private DefaultListModel<String> javaMethodsListModel;
+    private DefaultListModel<String> javaVariablesListModel;
+
+    //HashMap of classes in the Project
+    // It should be fine with unique key as
+    // classes should have unique names anyway
+    // (IntelliJ disallows creation anyway)
+    private Map<String, ClassReflection> projectClassList = new HashMap<>();
+
     private List<VirtualFile> javaClassFilesList;
 
-    //TODO these are for revision
-    private Project project;
-    private List<String> objectMethodList;
-    private DefaultListModel<String> javaClassListModel;
-    private DefaultListModel<String> javaMethodListModel;
+    //Loads classes
+    private URLClassLoader classLoader;
+    private Class loadedClass = null;
 
     protected ObjectCreationWindow(boolean canBeParent, Project project) {
         super(canBeParent);
+        this.project = project;
         init();
         setTitle("Object Creator");
-        this.project = project;
 
-        // Find all files by class extension in the project and get their path
-        javaClassFilesList = (ArrayList<VirtualFile>)
-                SourceFileUtils.getAllFilesByExtensionsInLocalScope(project, "class");
-
-//        File allFiles = new File(javaClassFilesList.get(0).getParent().getCanonicalPath());
-//        URLClassLoader loader;
-//        try {
-//            loader = URLClassLoader.newInstance(new URL[]{allFiles.toURI().toURL()});
-//            Class loadedClass = loader.loadClass(javaClassFilesList.get(0).getNameWithoutExtension());
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-        for (VirtualFile virtualFile : javaClassFilesList) {
-            javaClassListModel.addElement(virtualFile.getNameWithoutExtension());
-        }
-
-        //TODO works nicely, but twice for some reason
-        classListJBList.addListSelectionListener(e -> {
-            if(classListJBList.getSelectedValue() != null){
-                javaMethodListModel.clear();
-                ArrayList<String> methods = getClassMethods(classListJBList.getSelectedValue());
-                //TODO null check
-                javaMethodListModel.addAll(methods);
-                System.out.println("selected: " + classListJBList.getSelectedValue());
-            }
-        });
+        findProjectClasses();
+        populateClassList();
+        addListeners();
     }
 
     @Nullable
@@ -78,56 +70,123 @@ public class ObjectCreationWindow extends DialogWrapper {
         return content;
     }
 
+    /**
+     * Instantiate GUI elements before constructor is called.
+     * It makes sure JBList have default list models assigned to them.
+     */
     private void createUIComponents() {
         javaClassListModel = new DefaultListModel<>();
-        javaMethodListModel = new DefaultListModel<>();
+        javaMethodsListModel = new DefaultListModel<>();
+        javaVariablesListModel = new DefaultListModel<>();
 
-        javaClassFilesList = new ArrayList<>();
-
-
-        //TODO add variable inside jblist
-        objectMethodList = new ArrayList<>();
         classListJBList = new JBList(javaClassListModel);
-        methodListJBList = new JBList(javaMethodListModel);
+        methodListJBList = new JBList(javaMethodsListModel);
+        variableListJBList = new JBList(javaVariablesListModel);
     }
 
-    //TODO this name is stupid and it should be in controller
-    // This method checks if there are any class files that do not
-    // exists as java files.
-    private void checkForFakeClasses(){
-
-    }
-
-
-    //TODO return methods belonging to the class, used
-    // by the event listener
-    private ArrayList<String> getClassMethods(Object object){
-        // Find all files by class extension in the project and get their path
+    //TODO I need to extract what is in the constructor to
+    // not repeat code
+    private void findProjectClasses() {
+        //Find all class files
         javaClassFilesList = (ArrayList<VirtualFile>)
                 SourceFileUtils.getAllFilesByExtensionsInLocalScope(project, "class");
 
+        //Instantiate loader and get all files
         File allFiles = new File(javaClassFilesList.get(0).getParent().getCanonicalPath());
-        URLClassLoader loader;
-        Class loadedClass = null;
+
+        //Load classes into class loader
         try {
-            loader = URLClassLoader.newInstance(new URL[]{allFiles.toURI().toURL()});
-            loadedClass = loader.loadClass(object.toString());
+            classLoader = URLClassLoader.newInstance(new URL[]{allFiles.toURI().toURL()});
         } catch (Exception e) {
             e.printStackTrace();
         }
-        //TODO this is kinda weird
+
+        ClassReflection classReflection;
+        for (VirtualFile virtualFile : javaClassFilesList) {
+            //TODO no error checking and it will override if class already exists
+            classReflection = new ClassReflection(virtualFile.getNameWithoutExtension());
+            String className = classReflection.getClassName();
+            projectClassList.put(className, classReflection);
+
+            //TODO I should split it into separate methods
+            try {
+                loadedClass = classLoader.loadClass(className);
+            } catch (ClassNotFoundException e) {
+                try{
+                    //TODO this works, but obviously I need a way to find a full package name
+                    loadedClass = classLoader.loadClass("Package.Boat");
+                }catch (Exception e2){
+                    e2.printStackTrace();
+                }
+                e.printStackTrace();
+            }
+
+//            methodList = getClassMethods(loadedClass);
+//            variableList = getClassVariables(loadedClass);
+            //TODO its all in nice one line, but is it readable?
+            getClassMethods(loadedClass).forEach(methodName ->
+                    projectClassList.get(className).addMethod(methodName));
+
+            getClassVariables(loadedClass).forEach(methodName ->
+                    projectClassList.get(className).addVariable(methodName));
+
+            String parentClassName = loadedClass.getSuperclass().toGenericString();
+            projectClassList.get(className).setParentClass(parentClassName);
+
+        }
+    }
+
+    //TODO this will replace method of almost the same name
+    private ArrayList<String> getClassMethods(Class loadedClass) {
         ArrayList<String> methodList = new ArrayList<>();
         Method[] methods = loadedClass.getDeclaredMethods();
         for (int i = 0; i < loadedClass.getDeclaredMethods().length; i++) {
             methodList.add(methods[i].getName());
         }
-        System.out.println();
         return methodList;
     }
 
-    //TODO I need to extract what is in the constructor to
-    // not repeat code
-    private void getProjectClasses(){
+    /**
+     * Extract variables from the Class by performing reflection
+     *
+     * @param loadedClass
+     */
+    private ArrayList<String> getClassVariables(Class loadedClass) {
+        ArrayList<String> variableList = new ArrayList<>();
+        Field[] fields = loadedClass.getDeclaredFields();
+        for (int i = 0; i < loadedClass.getDeclaredFields().length; i++) {
+            variableList.add(fields[i].getName());
+        }
+        return variableList;
+    }
 
+    /**
+     * Add Event Listeners
+     */
+    private void addListeners() {
+        //TODO works nicely, but twice for some reason
+        classListJBList.addListSelectionListener(e -> {
+            if (classListJBList.getSelectedValue() != null) {
+                populateMethodList(classListJBList.getSelectedValue());
+                populateVariableList(classListJBList.getSelectedValue());
+            }
+        });
+    }
+
+    private void populateClassList() {
+        javaClassListModel.clear();
+        for (Map.Entry<String, ClassReflection> entry : projectClassList.entrySet()) {
+            javaClassListModel.addElement(entry.getValue().getClassName());
+        }
+    }
+
+    private void populateMethodList(Object object) {
+        javaMethodsListModel.clear();
+        javaMethodsListModel.addAll(projectClassList.get(object).getMethodList());
+    }
+
+    private void populateVariableList(Object object) {
+        javaVariablesListModel.clear();
+        javaVariablesListModel.addAll(projectClassList.get(object).getVariableList());
     }
 }
