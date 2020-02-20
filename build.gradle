@@ -28,6 +28,7 @@ compileTestKotlin {
 
 intellij {
     version '2019.3.2'
+    plugins 'java'
 }
 
 patchPluginXml {

@@ -4,6 +4,20 @@ import ac.uk.teamWorkbench.SourceFileUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.search.FilenameIndex;
+import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.search.SearchScope;
+import com.intellij.ui.components.JBList;
+import com.intellij.util.indexing.FileBasedIndex;
+import org.jetbrains.annotations.Nullable;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.*;
+import com.intellij.psi.PsiManager;
+import com.intellij.psi.impl.source.*;
 import com.intellij.ui.components.JBList;
 import org.jetbrains.annotations.Nullable;
 
@@ -88,8 +102,10 @@ public class ObjectCreationWindow extends DialogWrapper {
     // not repeat code
     private void findProjectClasses() {
         //Find all class files
+        //TODO if I cant make it work again, look for modules instead
         javaClassFilesList = (ArrayList<VirtualFile>)
                 SourceFileUtils.getAllFilesByExtensionsInLocalScope(project, "class");
+        System.out.println(FilenameIndex.getAllFilesByExt(project, "class", GlobalSearchScope.projectScope(project)));
 
         //Instantiate loader and get all files
         File allFiles = new File(javaClassFilesList.get(0).getParent().getCanonicalPath());
@@ -110,6 +126,14 @@ public class ObjectCreationWindow extends DialogWrapper {
 
             //TODO I should split it into separate methods
             try {
+                PsiFile psifile = PsiManager.getInstance(project).findFile(virtualFile);
+                if (psifile instanceof PsiJavaFile) {
+                    PsiJavaFile psiJavaFile = (PsiJavaFile) psifile;
+                    String packageName = psiJavaFile.getPackageName();
+                    System.out.println(packageName);
+//                    PsiPackage pack = JavaPsiFacade.getInstance(project).findPackage(PackageName);
+//                    ret.add(pack);
+                }
                 loadedClass = classLoader.loadClass(className);
             } catch (ClassNotFoundException e) {
                 try{

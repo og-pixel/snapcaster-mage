@@ -27,5 +27,6 @@ public class SourceFileUtils {
     public static Collection<VirtualFile> getAllFilesByExtensionsInLocalScope(Project project, String extension){
         return FilenameIndex.getAllFilesByExt(project, extension,
                 GlobalSearchScope.projectScope(project));
+//        return FilenameIndex.getAllFilesByExt(project, extension);
     }
 }
