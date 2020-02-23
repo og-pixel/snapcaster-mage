@@ -1,13 +1,9 @@
 package ac.uk.teamWorkbench.objectWorkbench;
 
 import ac.uk.teamWorkbench.SourceFileUtils;
-import com.intellij.openapi.module.ModuleManager;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.search.FilenameIndex;
-import com.intellij.psi.search.GlobalSearchScope;
+import com.intellij.psi.*;
 import com.intellij.ui.components.JBList;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,19 +22,17 @@ import java.util.*;
  */
 public class ObjectCreationWindow extends DialogWrapper {
 
-    //TODO logic will go there
     //Window Creation Controller
     private ObjectCreationController controller = new ObjectCreationController();
-    private Project project;
 
     //Pane items
     private JPanel content;
     private JLabel text;
 
     //Lists displaying Classes information
-    private JBList classListJBList;
-    private JBList methodListJBList;
-    private JBList variableListJBList;
+    private JBList<String> classListJBList;
+    private JBList<String> methodListJBList;
+    private JBList<String> variableListJBList;
 
     //Default list models for JBList to add data into
     private DefaultListModel<String> javaClassListModel;
@@ -51,32 +45,8 @@ public class ObjectCreationWindow extends DialogWrapper {
     // (IntelliJ disallows creation anyway)
     private Map<String, ClassReflection> projectClassList = new HashMap<>();
 
-    private List<VirtualFile> javaClassFilesList;
-
-    //Loads classes
+    //Loads classes, needs to be instantiated with URL source of class files.
     private URLClassLoader classLoader;
-    private Class loadedClass = null;
-
-    protected ObjectCreationWindow(boolean canBeParent, Project project) {
-        super(canBeParent);
-        this.project = project;
-        init();
-        setTitle("Object Creator");
-
-        //TODO delete
-        ModuleManager moduleManager = ModuleManager.getInstance(project);
-        CompilerModuleExtension compiler = CompilerModuleExtension.getInstance(moduleManager.getModules()[1]);
-        System.out.println(compiler.getCompilerOutputPath());
-        System.out.println(compiler.getCompilerOutputUrl());
-        System.out.println(compiler.getCompilerOutputPath());
-
-//        Objects.requireNonNull(CompilerModuleExtension.getInstance(
-//                moduleManager.getModules()[0])).getCompilerOutputPath();
-
-        findProjectClasses();
-        populateClassList();
-        addListeners();
-    }
 
     /**
      * Instantiate GUI elements before constructor is called.
@@ -87,32 +57,51 @@ public class ObjectCreationWindow extends DialogWrapper {
         javaMethodsListModel = new DefaultListModel<>();
         javaVariablesListModel = new DefaultListModel<>();
 
-        classListJBList = new JBList(javaClassListModel);
-        methodListJBList = new JBList(javaMethodsListModel);
-        variableListJBList = new JBList(javaVariablesListModel);
+        classListJBList = new JBList<>(javaClassListModel);
+        methodListJBList = new JBList<>(javaMethodsListModel);
+        variableListJBList = new JBList<>(javaVariablesListModel);
     }
 
-    //TODO check if this is actually used
+    /**
+     * Constructor
+     */
+    protected ObjectCreationWindow(boolean canBeParent) {
+        super(canBeParent);
+        init();
+        setTitle("Instantiate Object");
+
+        findProjectClasses();
+        populateClassList();
+        addListeners();
+    }
+
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
         return content;
     }
 
-    //TODO I need to extract what is in the constructor to
-    // not repeat code
+    private ArrayList<VirtualFile> findCompiledClasses(VirtualFile root) {
+        ArrayList<VirtualFile> list = new ArrayList<>();
+        return findCompiledClasses(root.getChildren(), list);
+    }
+
+    private ArrayList<VirtualFile> findCompiledClasses(VirtualFile[] virtualFile, ArrayList<VirtualFile> list) {
+        for (VirtualFile file : virtualFile) {
+            if (file.isDirectory()) {
+                findCompiledClasses(file.getChildren(), list);
+            } else {
+                list.add(file);
+            }
+        }
+        return list;
+    }
+
     private void findProjectClasses() {
-        //TODO controller will take over this method
-//        controller.findProjectClasses();
-
-        //Find all class files
-        //TODO if I cant make it work again, look for modules instead
-        javaClassFilesList = (ArrayList<VirtualFile>)
-                SourceFileUtils.getInstance().getAllFilesInProject("class");
-
-
-        //Instantiate loader and get all files
-        File allFiles = new File(javaClassFilesList.get(0).getParent().getCanonicalPath());
+        VirtualFile projectRoot = SourceFileUtils.getInstance().getCompilerModule().get(0);
+        File allFiles = new File(Objects.requireNonNull(projectRoot.getCanonicalPath()));
+        List<VirtualFile> compiledClassesList;
+        compiledClassesList = findCompiledClasses(projectRoot);
 
         //Load classes into class loader
         try {
@@ -121,20 +110,17 @@ public class ObjectCreationWindow extends DialogWrapper {
             e.printStackTrace();
         }
 
+        //Loop over all compiled classes and extract methods and variables and save them as String
+        // in ObjectReflection Class
         ClassReflection classReflection;
-        for (VirtualFile virtualFile : javaClassFilesList) {
-            //TODO no error checking and it will override if class already exists
+        Class<?> loadedClass;
+        for (VirtualFile virtualFile: compiledClassesList) {
             classReflection = new ClassReflection(virtualFile.getNameWithoutExtension());
             String className = classReflection.getClassName();
             projectClassList.put(className, classReflection);
 
-            //TODO I should split it into separate methods
-            SourceFileUtils.getInstance().createCompiledFilesFolder(project);
-            try {
-                loadedClass = classLoader.loadClass(className);
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+            loadedClass = loadClass(virtualFile, className);
+
             getClassMethods(loadedClass).forEach(methodName ->
                     projectClassList.get(className).addMethod(methodName));
 
@@ -147,8 +133,35 @@ public class ObjectCreationWindow extends DialogWrapper {
         }
     }
 
-    //TODO this will replace method of almost the same name
-    private ArrayList<String> getClassMethods(Class loadedClass) {
+    private Class<?> loadClass(VirtualFile virtualFile, String className) {
+        PsiManager psiManager = SourceFileUtils.getInstance().getPsiManager();
+        PsiFile psiFile;
+
+        Class<?> loadedClass = null;
+        String packageName;
+
+        try {
+            psiFile = psiManager.findFile(virtualFile);
+            packageName = ((PsiJavaFile) psiFile).getPackageName();
+
+            if(packageName.isEmpty()){
+                loadedClass = classLoader.loadClass(className);
+            }else {
+                loadedClass = classLoader.loadClass(packageName +  "." + className);
+            }
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return loadedClass;
+    }
+
+
+    /**
+     * Extract methods from the Class by performing reflection
+     * @param loadedClass Class name that methods are extracted from.
+     * @return List of methods belonging to that class.
+     */
+    private ArrayList<String> getClassMethods(Class<?> loadedClass) {
         ArrayList<String> methodList = new ArrayList<>();
         Method[] methods = loadedClass.getDeclaredMethods();
         for (int i = 0; i < loadedClass.getDeclaredMethods().length; i++) {
@@ -159,10 +172,10 @@ public class ObjectCreationWindow extends DialogWrapper {
 
     /**
      * Extract variables from the Class by performing reflection
-     *
-     * @param loadedClass
+     * @param loadedClass Class name that variables are extracted from.
+     * @return List of variables belonging to that class.
      */
-    private ArrayList<String> getClassVariables(Class loadedClass) {
+    private ArrayList<String> getClassVariables(Class<?> loadedClass) {
         ArrayList<String> variableList = new ArrayList<>();
         Field[] fields = loadedClass.getDeclaredFields();
         for (int i = 0; i < loadedClass.getDeclaredFields().length; i++) {
@@ -191,13 +204,13 @@ public class ObjectCreationWindow extends DialogWrapper {
         }
     }
 
-    private void populateMethodList(Object object) {
+    private void populateMethodList(String key) {
         javaMethodsListModel.clear();
-        javaMethodsListModel.addAll(projectClassList.get(object).getMethodList());
+        javaMethodsListModel.addAll(projectClassList.get(key).getMethodList());
     }
 
-    private void populateVariableList(Object object) {
+    private void populateVariableList(String key) {
         javaVariablesListModel.clear();
-        javaVariablesListModel.addAll(projectClassList.get(object).getVariableList());
+        javaVariablesListModel.addAll(projectClassList.get(key).getVariableList());
     }
 }
