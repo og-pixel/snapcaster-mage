@@ -1,23 +1,13 @@
 package ac.uk.teamWorkbench.objectWorkbench;
 
 import ac.uk.teamWorkbench.SourceFileUtils;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-import com.intellij.psi.search.SearchScope;
-import com.intellij.ui.components.JBList;
-import com.intellij.util.indexing.FileBasedIndex;
-import org.jetbrains.annotations.Nullable;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.impl.source.*;
 import com.intellij.ui.components.JBList;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,15 +63,19 @@ public class ObjectCreationWindow extends DialogWrapper {
         init();
         setTitle("Object Creator");
 
+        //TODO delete
+        ModuleManager moduleManager = ModuleManager.getInstance(project);
+        CompilerModuleExtension compiler = CompilerModuleExtension.getInstance(moduleManager.getModules()[1]);
+        System.out.println(compiler.getCompilerOutputPath());
+        System.out.println(compiler.getCompilerOutputUrl());
+        System.out.println(compiler.getCompilerOutputPath());
+
+//        Objects.requireNonNull(CompilerModuleExtension.getInstance(
+//                moduleManager.getModules()[0])).getCompilerOutputPath();
+
         findProjectClasses();
         populateClassList();
         addListeners();
-    }
-
-    @Nullable
-    @Override
-    protected JComponent createCenterPanel() {
-        return content;
     }
 
     /**
@@ -98,14 +92,24 @@ public class ObjectCreationWindow extends DialogWrapper {
         variableListJBList = new JBList(javaVariablesListModel);
     }
 
+    //TODO check if this is actually used
+    @Nullable
+    @Override
+    protected JComponent createCenterPanel() {
+        return content;
+    }
+
     //TODO I need to extract what is in the constructor to
     // not repeat code
     private void findProjectClasses() {
+        //TODO controller will take over this method
+//        controller.findProjectClasses();
+
         //Find all class files
         //TODO if I cant make it work again, look for modules instead
         javaClassFilesList = (ArrayList<VirtualFile>)
-                SourceFileUtils.getAllFilesByExtensionsInLocalScope(project, "class");
-        System.out.println(FilenameIndex.getAllFilesByExt(project, "class", GlobalSearchScope.projectScope(project)));
+                SourceFileUtils.getInstance().getAllFilesInProject("class");
+
 
         //Instantiate loader and get all files
         File allFiles = new File(javaClassFilesList.get(0).getParent().getCanonicalPath());
@@ -125,29 +129,12 @@ public class ObjectCreationWindow extends DialogWrapper {
             projectClassList.put(className, classReflection);
 
             //TODO I should split it into separate methods
+            SourceFileUtils.getInstance().createCompiledFilesFolder(project);
             try {
-                PsiFile psifile = PsiManager.getInstance(project).findFile(virtualFile);
-                if (psifile instanceof PsiJavaFile) {
-                    PsiJavaFile psiJavaFile = (PsiJavaFile) psifile;
-                    String packageName = psiJavaFile.getPackageName();
-                    System.out.println(packageName);
-//                    PsiPackage pack = JavaPsiFacade.getInstance(project).findPackage(PackageName);
-//                    ret.add(pack);
-                }
                 loadedClass = classLoader.loadClass(className);
             } catch (ClassNotFoundException e) {
-                try{
-                    //TODO this works, but obviously I need a way to find a full package name
-                    loadedClass = classLoader.loadClass("Package.Boat");
-                }catch (Exception e2){
-                    e2.printStackTrace();
-                }
                 e.printStackTrace();
             }
-
-//            methodList = getClassMethods(loadedClass);
-//            variableList = getClassVariables(loadedClass);
-            //TODO its all in nice one line, but is it readable?
             getClassMethods(loadedClass).forEach(methodName ->
                     projectClassList.get(className).addMethod(methodName));
 
