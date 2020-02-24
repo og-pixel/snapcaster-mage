@@ -212,7 +212,6 @@ public class ObjectDisplayWindow {
         tabbedPane.addTab("Untitled", new JPanel());
         int newIndex = tabbedPane.getTabCount()-1;
         setTabIndex(newIndex);
-        //TODO added by Milosz, I think here a dialog window (Object Creation Window) needs to be added
         new ObjectCreationWindow(true).showAndGet();
     }
 
