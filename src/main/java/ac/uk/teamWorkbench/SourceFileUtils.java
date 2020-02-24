@@ -81,6 +81,10 @@ public class SourceFileUtils {
                 GlobalSearchScope.fileScope(project, virtualFile));
     }
 
+    public Collection<VirtualFile> getAllFilesByExtInProjectScope(String extension) {
+        return FilenameIndex.getAllFilesByExt(project, extension, GlobalSearchScope.projectScope(project));
+    }
+
     private void compareCompiledWithSource(){
 
     }

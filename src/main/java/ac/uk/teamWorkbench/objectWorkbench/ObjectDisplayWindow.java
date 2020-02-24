@@ -18,7 +18,7 @@ public class ObjectDisplayWindow {
 
     private WorkbenchController controller;
 
-    public ObjectDisplayWindow(ToolWindow toolWindow) {
+    public ObjectDisplayWindow() {
         // Project items
         controller = new WorkbenchController(this);
         init();

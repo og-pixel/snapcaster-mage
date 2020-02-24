@@ -103,6 +103,7 @@ public class WorkbenchController {
         removeTab(index);
         addTab();
         addNewTabButton();
+        new ObjectCreationWindow(true);
     }
 
     /**

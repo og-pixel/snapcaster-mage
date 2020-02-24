@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 public class ObjectsWindowFactory implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        ObjectDisplayWindow objectDisplayWindow = new ObjectDisplayWindow(toolWindow, project);
+        ObjectDisplayWindow objectDisplayWindow = new ObjectDisplayWindow();
         SourceFileUtils.instantiateObject(project, toolWindow);
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();

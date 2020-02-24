@@ -14,7 +14,8 @@ public class PopupAction extends AnAction {
         StringBuilder message = new StringBuilder("------");
         try {
             Collection<VirtualFile> collation;
-            collation = SourceFileUtils.getAllFilesByExtInProjectScope(e.getProject());
+//            collation = SourceFileUtils.getAllFilesByExtInProjectScope(e.getProject());
+            collation = SourceFileUtils.getInstance().getAllFilesByExtInProjectScope("java");
             for (VirtualFile vf : collation) {
                 message.append("getName(): ").append(vf.getName()).append("\n");
                 message.append("getExtension(): ").append(vf.getExtension()).append("\n");
