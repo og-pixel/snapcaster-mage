@@ -16,9 +16,9 @@
     <!-- Add your extensions here -->
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Project Graph" icon="/img/icon.png" anchor="right"
+        <toolWindow id="Project Graph" icon="/img/icon13.png" anchor="right"
                     factoryClass="ac.uk.teamWorkbench.graphWorkbench.GraphWindowFactory"/>
-        <toolWindow id="Object Workbench" icon="/img/icon.png" anchor="bottom"
+        <toolWindow id="Object Workbench" icon="/img/icon13.png" anchor="bottom"
                     factoryClass="ac.uk.teamWorkbench.objectWorkbench.ObjectsWindowFactory"/>
 
     </extensions>
