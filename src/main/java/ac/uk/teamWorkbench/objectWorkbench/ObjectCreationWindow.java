@@ -1,86 +1,65 @@
 package ac.uk.teamWorkbench.objectWorkbench;
 
-import com.intellij.openapi.fileTypes.FileType;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.openapi.vfs.VfsUtil;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.search.FileTypeIndex;
-import com.intellij.psi.search.FilenameIndex;
-import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.ui.components.JBList;
-import com.intellij.util.indexing.FileBasedIndex;
-import com.intellij.util.xml.ui.PsiClassPanel;
-import gnu.trove.THashSet;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
-import java.io.File;
-import java.net.*;
-import java.util.*;
+import java.net.URLClassLoader;
+import java.util.Map;
 
+/**
+ * Author: Milosz Jakubanis
+ * Class displaying a window with all compiled classes
+ * and its available methods and variables
+ */
 public class ObjectCreationWindow extends DialogWrapper {
 
+    //Window Creation Controller
+    private ObjectCreationController controller = new ObjectCreationController();
+
+    //Pane items
     private JPanel content;
     private JLabel text;
-    private JBList classListJBList;
-    private JBList methodListJBList;
 
-    // List for JList
+    //Lists displaying Classes information
+    private JBList<String> classListJBList;
+    private JBList<String> methodListJBList;
+    private JBList<String> variableListJBList;
+
+    //Default list models for JBList to add data into
     private DefaultListModel<String> javaClassListModel;
-    private List<VirtualFile> javaFilesList;
-
-    private Project project;
-
-    private List<String> objectMethodList;
     private DefaultListModel<String> javaMethodsListModel;
+    private DefaultListModel<String> javaVariablesListModel;
 
-    protected ObjectCreationWindow(boolean canBeParent, Project project) {
+    //Loads classes, needs to be instantiated with URL source of class files.
+    private URLClassLoader classLoader;
+
+    /**
+     * Instantiate GUI elements before constructor is called.
+     * It makes sure JBList have default list models assigned to them.
+     */
+    private void createUIComponents() {
+        javaClassListModel = new DefaultListModel<>();
+        javaMethodsListModel = new DefaultListModel<>();
+        javaVariablesListModel = new DefaultListModel<>();
+
+        classListJBList = new JBList<>(javaClassListModel);
+        methodListJBList = new JBList<>(javaMethodsListModel);
+        variableListJBList = new JBList<>(javaVariablesListModel);
+    }
+
+    /**
+     * Constructor
+     */
+    protected ObjectCreationWindow(boolean canBeParent) {
         super(canBeParent);
         init();
-        this.project = project;
-        setTitle("Object Creator");
+        setTitle("Instantiate Object");
 
-        //TODO this needs to be maybe in some kind of update system or something along those lines
-        javaFilesList = (ArrayList<VirtualFile>) FilenameIndex.getAllFilesByExt(project , "class",
-                GlobalSearchScope.projectScope(project));
-
-        ArrayList<String> classes = new ArrayList<>();
-        //TODO delete
-//        for (VirtualFile virtualFile : javaFilesList) {
-//            System.out.println(virtualFile.getFileType());
-//            System.out.println(virtualFile.getNameWithoutExtension());
-//            System.out.println(virtualFile.getCanonicalFile());
-//            System.out.println(virtualFile.getCanonicalPath());
-//            System.out.println(virtualFile.getParent().getCanonicalPath());
-//        }
-        File file = new File(javaFilesList.get(1).getParent().getCanonicalPath());
-        URLClassLoader loader;
-        try {
-             loader = URLClassLoader.newInstance(new URL[]{file.toURI().toURL()});
-             Class x = loader.loadClass(javaFilesList.get(1).getNameWithoutExtension());
-             System.out.println(x.getName());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        javaClassListModel.addAll(classes);
-        classListJBList.addFocusListener(new FocusListener() {
-            @Override
-            public void focusGained(FocusEvent e) {
-            }
-
-            @Override
-            public void focusLost(FocusEvent e) {
-
-            }
-        });
+        controller.findProjectClasses();
+        populateClassList();
+        addListeners();
     }
 
     @Nullable
@@ -89,14 +68,36 @@ public class ObjectCreationWindow extends DialogWrapper {
         return content;
     }
 
-    private void createUIComponents() {
-        javaClassListModel = new DefaultListModel<>();
-        javaMethodsListModel = new DefaultListModel<>();
+    /**
+     * Add Event Listeners
+     */
+    private void addListeners() {
+        //TODO works nicely, but twice for some reason
+        classListJBList.addListSelectionListener(e -> {
+            if (classListJBList.getSelectedValue() != null) {
+                populateMethodList(classListJBList.getSelectedValue());
+                populateVariableList(classListJBList.getSelectedValue());
+            }
+        });
+    }
 
-        javaFilesList = new ArrayList<>();
-        classListJBList = new JBList(javaClassListModel);
-        //TODO add variable inside jblist
-        objectMethodList = new ArrayList<>();
-        methodListJBList = new JBList(javaMethodsListModel);
+    private void populateClassList() {
+        Map<String, ClassReflection> projectClassList = controller.getProjectClassList();
+        javaClassListModel.clear();
+        for (Map.Entry<String, ClassReflection> entry : projectClassList.entrySet()) {
+            javaClassListModel.addElement(entry.getValue().getClassName());
+        }
+    }
+
+    private void populateMethodList(String key) {
+        Map<String, ClassReflection> projectClassList = controller.getProjectClassList();
+        javaMethodsListModel.clear();
+        javaMethodsListModel.addAll(projectClassList.get(key).getMethodList());
+    }
+
+    private void populateVariableList(String key) {
+        Map<String, ClassReflection> projectClassList = controller.getProjectClassList();
+        javaVariablesListModel.clear();
+        javaVariablesListModel.addAll(projectClassList.get(key).getVariableList());
     }
 }

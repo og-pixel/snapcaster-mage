@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'ac.uk.teamWorkbench'
-version '0.1'
+version '0.1.9'
 
 sourceCompatibility = 1.8
 
@@ -31,6 +31,7 @@ compileTestKotlin {
 
 intellij {
     version '2019.3.2'
+    plugins 'java'
 }
 
 patchPluginXml {
