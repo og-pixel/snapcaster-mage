@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'ac.uk.teamWorkbench'
-version '0.1.9'
+version '0.2.0'
 
 sourceCompatibility = 1.8
 
@@ -15,7 +15,10 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    compile group: "com.github.vlsi.mxgraph", name: "jgraphx", version: "4.0.5"
     testCompile group: 'junit', name: 'junit', version: '4.12'
+    // https://mvnrepository.com/artifact/com.github.vlsi.mxgraph/jgraphx
+    compile group: 'com.github.vlsi.mxgraph', name: 'jgraphx', version: '4.0.5'
 }
 
 compileKotlin {
@@ -33,6 +36,6 @@ intellij {
 
 patchPluginXml {
     changeNotes """
-      Add change notes here.<br>
+      Adding Graph Library<br>
       <em>most HTML tags may be used</em>"""
 }

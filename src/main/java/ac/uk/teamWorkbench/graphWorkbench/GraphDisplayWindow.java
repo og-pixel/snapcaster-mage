@@ -1,22 +1,18 @@
 package ac.uk.teamWorkbench.graphWorkbench;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.uiDesigner.core.GridConstraints;
 
 import javax.swing.*;
 
 public class GraphDisplayWindow {
 
-    private Project project;
-    private ToolWindow toolwindow;
-
     private JPanel content;
-    private JLabel text;
-    private JButton button1;
 
-    public GraphDisplayWindow(Project project, ToolWindow toolWindow) {
-        this.project = project;
-        this.toolwindow = toolWindow;
+    public GraphDisplayWindow(Project project) {
+        GraphPanel graphPanel = new GraphPanel(project);
+        graphPanel.build();
+        content.add(graphPanel, new GridConstraints());
     }
 
     public JPanel getContent() {

@@ -5,7 +5,6 @@ import com.intellij.ui.components.JBList;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.net.URLClassLoader;
 import java.util.Map;
 
 /**
@@ -31,9 +30,6 @@ public class ObjectCreationWindow extends DialogWrapper {
     private DefaultListModel<String> javaClassListModel;
     private DefaultListModel<String> javaMethodsListModel;
     private DefaultListModel<String> javaVariablesListModel;
-
-    //Loads classes, needs to be instantiated with URL source of class files.
-    private URLClassLoader classLoader;
 
     /**
      * Instantiate GUI elements before constructor is called.

@@ -6,6 +6,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
+import org.apache.commons.lang.ObjectUtils;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -41,7 +42,16 @@ public class ObjectCreationController {
     }
 
     void findProjectClasses() {
-        VirtualFile projectRoot = SourceFileUtils.getInstance().getCompilerModule().get(0);
+//        VirtualFile projectRoot = SourceFileUtils.getInstance().getCompilerModule().get(0);
+        VirtualFile projectRoot;
+
+        try {
+            projectRoot = SourceFileUtils.getInstance().getCompilerModule().get(0);
+        }catch(ArrayIndexOutOfBoundsException indexException){
+            System.out.println(indexException.getMessage());
+            return;
+        }
+
         File allFiles = new File(Objects.requireNonNull(projectRoot.getCanonicalPath()));
         List<VirtualFile> compiledClassesList;
         compiledClassesList = findCompiledClasses(projectRoot);
@@ -70,9 +80,9 @@ public class ObjectCreationController {
             getClassVariables(loadedClass).forEach(methodName ->
                     projectClassList.get(className).addVariable(methodName));
 
-            String parentClassName = loadedClass.getSuperclass().toGenericString();
-            projectClassList.get(className).setParentClass(parentClassName);
-
+            //TODO Commented out part of reflection finding parent
+//            String parentClassName = loadedClass.getSuperclass().toGenericString();
+//            projectClassList.get(className).setParentClass(parentClassName);
         }
     }
 

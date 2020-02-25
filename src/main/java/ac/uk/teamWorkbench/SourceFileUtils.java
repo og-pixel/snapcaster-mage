@@ -11,12 +11,9 @@ import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.PsiManager;
-import com.intellij.psi.impl.file.PsiDirectoryFactory;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
-import org.objenesis.instantiator.perc.PercSerializationInstantiator;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -45,8 +42,15 @@ public class SourceFileUtils {
     private SourceFileUtils(Project project, ToolWindow toolWindow) {
         this.project = project;
         this.toolWindow = toolWindow;
-        this.projectRoot = ModuleRootManager.getInstance(
-                ModuleManager.getInstance(project).getModules()[0]).getContentRoots()[0];
+        try {
+            this.projectRoot = ModuleRootManager.getInstance(
+                    ModuleManager.getInstance(project).getModules()[0]).getContentRoots()[0];
+        }catch (NullPointerException e){
+            //TODO replace with logger
+            System.out.println("Unable to find root of the project.\n" +
+                    "Please make sure your project is first on the module options.");
+            System.exit(1);
+        }
         this.psiManager = PsiManager.getInstance(project);
 
         ModuleManager moduleManager = ModuleManager.getInstance(project);
@@ -58,16 +62,14 @@ public class SourceFileUtils {
 //                compareCompiledWithSource();
             }
         }
-
         isInstantiated = true;
     }
 
     /*
      * Ensures that the object has been instantiated only once.
      */
-    public static SourceFileUtils instantiateObject(Project project, ToolWindow toolWindow) {
-        if (instance == null) instance = new SourceFileUtils(project, toolWindow);
-        return instance;
+    public static void instantiateObject(Project project, ToolWindow toolWindow) {
+        instance = new SourceFileUtils(project, toolWindow);
     }
 
     public static SourceFileUtils getInstance() throws NotInstantiatedException {
@@ -79,6 +81,10 @@ public class SourceFileUtils {
     public Collection<VirtualFile> getAllFilesInProject(String extension, VirtualFile virtualFile) {
         return FilenameIndex.getAllFilesByExt(project, extension,
                 GlobalSearchScope.fileScope(project, virtualFile));
+    }
+
+    public Collection<VirtualFile> getAllFilesByExtInProjectScope(String extension) {
+        return FilenameIndex.getAllFilesByExt(project, extension, GlobalSearchScope.projectScope(project));
     }
 
     private void compareCompiledWithSource(){

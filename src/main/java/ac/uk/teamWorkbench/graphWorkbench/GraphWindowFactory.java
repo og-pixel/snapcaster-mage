@@ -10,10 +10,10 @@ import org.jetbrains.annotations.NotNull;
 public class GraphWindowFactory implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        GraphDisplayWindow graphDisplayWindow = new GraphDisplayWindow(project, toolWindow);
+        GraphDisplayWindow graphDisplayWindow = new GraphDisplayWindow(project);
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content content = contentFactory.createContent(graphDisplayWindow.getContent(),project.getName(),false);
+        Content content = contentFactory.createContent(graphDisplayWindow.getContent(), "Class diagram for : " + project.getName(), false);
         toolWindow.getContentManager().addContent(content);
     }
 }
