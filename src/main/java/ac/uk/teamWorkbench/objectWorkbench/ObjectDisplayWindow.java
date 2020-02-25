@@ -15,6 +15,8 @@ public class ObjectDisplayWindow {
     private JPanel rightPane;
     private JSplitPane splitPane;
     private JTabbedPane tabbedPane;
+    private JButton button1;
+    private JButton button2;
 
     private WorkbenchController controller;
 
