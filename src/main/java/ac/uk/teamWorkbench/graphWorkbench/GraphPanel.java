@@ -46,6 +46,7 @@ public class GraphPanel extends JPanel {
         try {
             createAnVertexes(graph, parent);
             createAnExtendsEdges(graph, parent);
+            createAnImplementsEdges(graph, parent);
         } finally {
             graph.getModel().endUpdate();
         }
@@ -103,6 +104,26 @@ public class GraphPanel extends JPanel {
         }
     }
 
+    private void createAnImplementsEdges(@NotNull mxGraph graph, Object parent) {
+        for (PsiElement element : SourceFileUtils.getAllPsiClasses(project)) {
+            String child = SourceFileUtils.getPsiClassName(element);
+            ArrayList<String> fathers = (ArrayList<String>) SourceFileUtils.getPsiClassInheritanceList(element, "implements");
+            for (String father : fathers) {
+                int childID = -1, fatherID = -1;
+                for (Object object : graphElements) {
+                    if (((mxCell) object).getId().equals(child)) childID = graphElements.indexOf(object);
+                    if (((mxCell) object).getId().equals(father)) fatherID = graphElements.indexOf(object);
+                }
+                if (fatherID >= 0 && childID >= 0)
+                    graph.insertEdge(parent,                   //parent object
+                            "2",                           // id of edge
+                            "<<implements>>",               // text on that edge
+                            graphElements.get(fatherID),       // starting point
+                            graphElements.get(childID),        // ending point
+                            "fillColor=#2952a3");                         // style of edge
+            }
+        }
+    }
 
     private void createAnVertexes(@NotNull mxGraph graph, Object parent) {
 
