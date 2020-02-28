@@ -4,6 +4,7 @@ import ac.uk.teamWorkbench.SourceFileUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
+import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
@@ -44,7 +45,7 @@ public class GraphPanel extends JPanel {
         graph.getModel().beginUpdate();
         try {
             createAnVertexes(graph, parent);
-
+            createAnExtendsEdges(graph, parent);
         } finally {
             graph.getModel().endUpdate();
         }
@@ -77,6 +78,29 @@ public class GraphPanel extends JPanel {
         });
 
         return graphComponent;
+    }
+
+    private void createAnExtendsEdges(@NotNull mxGraph graph, Object parent) {
+        for (PsiElement element : SourceFileUtils.getAllPsiClasses(project)) {
+            String child = SourceFileUtils.getPsiClassName(element);
+            ArrayList<String> fathers = (ArrayList<String>) SourceFileUtils.getPsiClassInheritanceList(element, "extends");
+            String father;
+            if (fathers.size() == 1) father = fathers.get(0);
+            else continue;
+            int childID = -1, fatherID = -1;
+            for (Object object : graphElements) {
+                if (((mxCell) object).getId().equals(child)) childID = graphElements.indexOf(object);
+                if (((mxCell) object).getId().equals(father)) fatherID = graphElements.indexOf(object);
+            }
+            if (fatherID >= 0 && childID >= 0)
+                graph.insertEdge(parent,                   //parent object
+                        "2",                           // id of edge
+                        "<<extends>>",               // text on that edge
+                        graphElements.get(fatherID),       // starting point
+                        graphElements.get(childID),        // ending point
+                        "");                         // style of edge
+
+        }
     }
 
 
