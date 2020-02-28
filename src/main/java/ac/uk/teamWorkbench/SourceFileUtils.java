@@ -49,5 +49,23 @@ public class SourceFileUtils {
         return collection;
     }
 
+    public static Collection<String> getPsiClassInheritanceList(PsiElement element, String inheritanceType) {
+        ArrayList<String> arrayList = new ArrayList<>();
+        for (PsiElement child :
+                element.getChildren()) {
+            if (child.toString().contains("PsiReferenceList")) {
+                for (PsiElement grandchild : child.getChildren()) {
+                    if (grandchild.toString().contains("PsiJavaCodeReferenceElement")
+                            && child.getText().contains(inheritanceType)
+                            && !grandchild.getText().isEmpty())
+                        arrayList.add(grandchild.getText());
+                }
+            }
+        }
+        return arrayList;
+    }
 
+    public static String getPsiClassName(PsiElement element) {
+        return element.toString().split(":")[1];
+    }
 }
