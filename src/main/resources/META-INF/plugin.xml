@@ -3,6 +3,7 @@
     <name>Objects Workbench</name>
     <vendor email="support@unimail.hud.ac.uk" url="http://www.hud.ac.uk">University of Huddersfield</vendor>
 
+
     <description>
         Graphical Workshop plugin allowing to
         instantiate and inspect objects from the "workbench"

@@ -32,7 +32,6 @@ public class GraphPanel extends JPanel {
         setSize(750, 750);
         graphElements = new ArrayList<>();
         add(addGraph());
-        setSize(750, 750);
     }
 
     @NotNull
@@ -58,7 +57,6 @@ public class GraphPanel extends JPanel {
         graphComponent.setEnabled(false);
         return graphComponent;
     }
-
 
     @NotNull
     private mxGraphComponent addComponentActionListener(mxGraph graph) {
@@ -123,6 +121,7 @@ public class GraphPanel extends JPanel {
                             "fillColor=#2952a3");                         // style of edge
             }
         }
+
     }
 
     private void createAnVertexes(@NotNull mxGraph graph, Object parent) {
@@ -143,6 +142,7 @@ public class GraphPanel extends JPanel {
                             : (Arrays.toString(element.getChildren()).contains("PsiKeyword:enum")) ? "fillColor=#33cccc"
                             : ""));
         }
+
     }
 
     private void getStylesheet(mxGraph graph) {
@@ -152,6 +152,7 @@ public class GraphPanel extends JPanel {
                 if (objects.getKey().equals("fillColor")) objects.setValue("#99ff33");
                 if (objects.getKey().equals("strokeColor")) objects.setValue("#3d3d5c");
                 if (objects.getKey().equals("fontColor")) objects.setValue("#00264d");
+
             }
         }
         graph.setStylesheet(style);
