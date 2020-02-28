@@ -17,7 +17,7 @@ public class ObjectCreationWindow extends DialogWrapper {
 
     //Pane items
     private JPanel content;
-    private JLabel text;
+    private JLabel title;
 
     //Lists displaying Classes information
     private JBList<String> classListJBList;
