@@ -3,7 +3,8 @@
     <name>Objects Workbench</name>
     <vendor email="support@unimail.hud.ac.uk" url="http://www.hud.ac.uk">University of Huddersfield</vendor>
 
-    <description>Graphical Workshop plugin allowing to
+    <description>
+        Graphical Workshop plugin allowing to
         instantiate and inspect objects from the "workbench"
     </description>
 
@@ -25,10 +26,5 @@
 
     <actions>
         <!-- Add your actions here -->
-
-        <action id="ac.uk.teamWorkbench.PopupAction" class="ac.uk.teamWorkbench.PopupAction" text="Testing PopUp"
-                description="Output for testing purpose">
-            <add-to-group group-id="ToolsMenu" anchor="first"/>
-        </action>
     </actions>
 </idea-plugin>
