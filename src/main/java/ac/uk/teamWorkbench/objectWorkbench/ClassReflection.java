@@ -3,6 +3,7 @@ package ac.uk.teamWorkbench.objectWorkbench;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -59,33 +60,32 @@ public class ClassReflection {
         return className;
     }
 
-    public List<String> getMethodList() {
+    public List<String> getMethodListAsText() {
         List<String> methods = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
 
-        methodList.forEach( method -> {
+        methodList.forEach(method -> {
             //Clears string builder
             sb.setLength(0);
 
             sb.append(method.getReturnType().getSimpleName()).append(" ")
                     .append(method.getName()).append("(");
             for (int i = 0; i < method.getGenericParameterTypes().length; i++) {
-                sb.append(method.getParameterTypes()[i].getSimpleName()).append(" ");
-                sb.append(method.getParameters()[i].getName());
-                if(i != method.getGenericParameterTypes().length - 1) sb.append(", ");
+                sb.append(method.getParameterTypes()[i].getSimpleName()).append(" ").
+                        append(method.getParameters()[i].getName());
+                if (i != method.getGenericParameterTypes().length - 1) sb.append(", ");
             }
             sb.append(")");
             methods.add(String.valueOf(sb));
         });
-
         return methods;
     }
 
-    public List<String> getVariableList() {
+    public List<String> getVariableListAsText() {
         List<String> variables = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
 
-        variableList.forEach( variable -> {
+        variableList.forEach(variable -> {
             sb.setLength(0);
             sb.append(variable.getType().getSimpleName()).append(" ");
             sb.append(variable.getName());
@@ -96,11 +96,43 @@ public class ClassReflection {
         return variables;
     }
 
-    public List<Constructor<?>> getConstructorList() {
+    public List<String> getConstructorListAsText() {
+        List<String> constructors = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
 
+        constructorList.forEach(constructor -> {
+            sb.setLength(0);
+            if (constructor.getParameterCount() <= 0) {
+                sb.append("No Parameters");
+            } else if (constructor.getParameterCount() < 4) {
+                //TODO display only if there are up to 3 parameters,
+                // otherwise, just display no.parameters
+                sb.append("(");
+                for (int i = 0; i < constructor.getParameterCount(); i++) {
+                    sb.append(constructor.getParameterTypes()[i].getSimpleName());
+                    if (i != constructor.getParameterCount() - 1) sb.append(", ");
+                }
+                sb.append(") Constructor");
+            } else {
+                sb.append(constructor.getParameterCount()).append(" Parameters");
+            }
+            constructors.add(sb.toString());
+        });
 
+        return constructors;
+    }
 
-        return constructorList;
+    public List<String> getParameterListAsText(int index) {
+        List<String> list = new ArrayList<>();
+        for (int i = 0; i < constructorList.get(index).getParameterCount(); i++) {
+            list.add(constructorList.get(index).getParameterTypes()[i].getSimpleName());
+        }
+
+        return list;
+    }
+
+    public Class<?> getClazz() {
+        return clazz;
     }
 
     public String getParentClass() {

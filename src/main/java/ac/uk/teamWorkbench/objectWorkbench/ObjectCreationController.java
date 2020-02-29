@@ -8,14 +8,15 @@ import com.intellij.psi.PsiManager;
 import com.intellij.ui.components.JBList;
 
 import javax.swing.*;
+import java.awt.*;
 import java.io.File;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
+import java.util.List;
 
 public class ObjectCreationController {
 
@@ -27,6 +28,7 @@ public class ObjectCreationController {
 
     /**
      * Constructor
+     *
      * @param GUI window class part that is passed to this controller
      */
     public ObjectCreationController(ObjectCreationWindow GUI) {
@@ -38,7 +40,7 @@ public class ObjectCreationController {
         return findCompiledClasses(root.getChildren(), list);
     }
 
-    private Map<String, VirtualFile> findCompiledClasses(VirtualFile[] virtualFile, Map<String, VirtualFile> list){
+    private Map<String, VirtualFile> findCompiledClasses(VirtualFile[] virtualFile, Map<String, VirtualFile> list) {
         for (VirtualFile file : virtualFile) {
             if (file.isDirectory()) {
                 findCompiledClasses(file.getChildren(), list);
@@ -58,7 +60,7 @@ public class ObjectCreationController {
         VirtualFile projectRoot;
         try {
             projectRoot = SourceFileUtils.getInstance().getCompilerModule().get(0);
-        }catch(ArrayIndexOutOfBoundsException indexException){
+        } catch (ArrayIndexOutOfBoundsException indexException) {
             System.out.println(indexException.getMessage());
             return;
         }
@@ -103,10 +105,10 @@ public class ObjectCreationController {
             psiFile = psiManager.findFile(virtualFile);
             packageName = ((PsiJavaFile) psiFile).getPackageName();
 
-            if(packageName.isEmpty()){
+            if (packageName.isEmpty()) {
                 loadedClass = classLoader.loadClass(className);
-            }else {
-                loadedClass = classLoader.loadClass(packageName +  "." + className);
+            } else {
+                loadedClass = classLoader.loadClass(packageName + "." + className);
             }
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
@@ -119,10 +121,9 @@ public class ObjectCreationController {
      */
     void addListeners() {
         JBList<String> classList = GUI.getClassListJBList();
-        //TODO works nicely, but twice for some reason
         classList.addListSelectionListener(e -> {
-            if(!classList.getValueIsAdjusting() &&
-                    classList.getSelectedValue() != null){
+            if (!classList.getValueIsAdjusting() &&
+                    classList.getSelectedValue() != null) {
 
                 populateMethodList(classList.getSelectedValue());
                 populateVariableList(classList.getSelectedValue());
@@ -131,90 +132,96 @@ public class ObjectCreationController {
         });
     }
 
-        private void populateMethodList(String key) {
+    private void populateMethodList(String key) {
         DefaultListModel<String> javaMethodsListModel = GUI.getJavaMethodsListModel();
         Map<String, ClassReflection> projectClassList = getProjectClassList();
 
         javaMethodsListModel.clear();
-        javaMethodsListModel.addAll(projectClassList.get(key).getMethodList());
+        javaMethodsListModel.addAll(projectClassList.get(key).getMethodListAsText());
     }
 
     private void populateVariableList(String key) {
         DefaultListModel<String> javaVariablesListModel = GUI.getJavaVariablesListModel();
         Map<String, ClassReflection> projectClassList = getProjectClassList();
         javaVariablesListModel.clear();
-        javaVariablesListModel.addAll(projectClassList.get(key).getVariableList());
+        javaVariablesListModel.addAll(projectClassList.get(key).getVariableListAsText());
     }
 
-    //TODO change
+    //TODO it looks silly
     private void populateConstructorList() {
         JTabbedPane constructorsTab = GUI.getConstructorsTabList();
+        String className = GUI.getSelectedClassName();
         constructorsTab.removeAll();
 
         Map<String, ClassReflection> map = getProjectClassList();
+        List<String> list = map.get(className).getConstructorListAsText();
 
 
-        map.get(GUI.getSelectedClassName()).getConstructorList().forEach( e -> {
-            Annotation[] aa = e.getDeclaredAnnotations();
-            for (int i = 0; i < aa.length; i++) {
-//                constructorsTab.addTab(aa[i].toString(), new JLabel());
-                constructorsTab.addTab(aa[i].toString(), new JLabel());
+        for (int i = 0; i < list.size(); i++) {
+            List<String> parameterList = map.get(className).getParameterListAsText(i);
+
+            JPanel panel = new JPanel();
+            panel.setLayout(new GridBagLayout());
+
+            for (String s : parameterList) {
+                JLabel label = new JLabel(s);
+                JTextField textField = new JTextField();
+
+                panel.add(textField);
+                panel.add(label);
             }
-        });
+
+            constructorsTab.addTab(list.get(i), panel);
+        }
     }
 
     void populateClassList() {
         Map<String, ClassReflection> projectClassList = getProjectClassList();
-        GUI.getJavaClassListModel().clear();
+        DefaultListModel<String> javaListModel = GUI.getJavaClassListModel();
+        javaListModel.clear();
         for (Map.Entry<String, ClassReflection> entry : projectClassList.entrySet()) {
-            //TODO i am not sue of getClass
-            GUI.getJavaClassListModel().addElement(entry.getValue().getClassName());
+            javaListModel.addElement(entry.getValue().getClassName());
         }
     }
 
     /**
      * Extract methods from the Class by performing reflection
+     *
      * @param loadedClass Class name that methods are extracted from.
      * @return List of methods belonging to that class.
      */
     ArrayList<Method> getClassMethods(Class<?> loadedClass) {
-        ArrayList<Method> methodList = new ArrayList<>();
         Method[] methods = loadedClass.getDeclaredMethods();
-        for (int i = 0; i < loadedClass.getDeclaredMethods().length; i++) {
-            methodList.add(methods[i]);
-        }
-        return methodList;
+        return new ArrayList<>(Arrays.asList(methods));
     }
 
     /**
      * Extract variables from the Class by performing reflection
+     *
      * @param loadedClass Class name that variables are extracted from.
      * @return List of variables belonging to that class.
      */
     ArrayList<Field> getClassVariables(Class<?> loadedClass) {
-        ArrayList<Field> variableList = new ArrayList<>();
         Field[] fields = loadedClass.getDeclaredFields();
-        for (int i = 0; i < loadedClass.getDeclaredFields().length; i++) {
-            variableList.add(fields[i]);
-        }
-        return variableList;
+        return new ArrayList<>(Arrays.asList(fields));
     }
 
-    //TODO description
+    /**
+     * Extract available constructors from the Class by performing reflection
+     *
+     * @param loadedClass Class name that variables are extracted from.
+     * @return List of constructors belonging to that class.
+     */
     ArrayList<Constructor<?>> getClassConstructor(Class<?> loadedClass) {
-        ArrayList<Constructor<?>> constructorList = new ArrayList<>();
         Constructor<?>[] constructors = loadedClass.getDeclaredConstructors();
-        for (int i = 0; i < loadedClass.getDeclaredConstructors().length; i++) {
-            constructorList.add(constructors[i]);
-        }
-        return constructorList;
+        return new ArrayList<>(Arrays.asList(constructors));
     }
 
-    public Class<?> loadSelectedClass(String className){
+    public Class<?> loadSelectedClass(String className) {
         VirtualFile projectRoot = null;
         try {
             projectRoot = SourceFileUtils.getInstance().getCompilerModule().get(0);
-        }catch(ArrayIndexOutOfBoundsException indexException){
+        } catch (ArrayIndexOutOfBoundsException indexException) {
             System.out.println(indexException.getMessage());
             System.exit(1);
         }
