@@ -118,12 +118,12 @@ public class SourceFileUtils {
         return psiManager;
     }
 
-    public static Collection<VirtualFile> getAllFilesByExtInProjectScope(Project project) {
+    public static Collection<VirtualFile> getAllFilesByExtInProjectScope(Project project, String extension) {
         return FilenameIndex.getAllFilesByExt(project, extension, GlobalSearchScope.projectScope(project));
     }
 
     public static Collection<PsiFile> getAllPSIFiles(Project project) {
-        Collection<VirtualFile> virtualFiles = getAllFilesByExtInProjectScope(project);
+        Collection<VirtualFile> virtualFiles = getAllFilesByExtInProjectScope(project, "java");
         Collection<PsiFile> psiFiles = new ArrayList<>();
         for (VirtualFile vf : virtualFiles) {
             psiFiles.add(PsiManager.getInstance(project).findFile(vf));

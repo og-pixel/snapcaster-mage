@@ -160,10 +160,6 @@ public class ObjectCreationController {
         Map<String, ClassReflection> map = getProjectClassList();
         List<String> list = map.get(className).getConstructorListAsText();
 
-        //TODO this is weird name
-        // It is for methods to be instantied
-        List<Object> parameterFields = new ArrayList<>();
-
         for (int i = 0; i < list.size(); i++) {
             List<String> parameterList = map.get(className).getParameterListAsText(i);
 
@@ -184,8 +180,6 @@ public class ObjectCreationController {
 
                 panel.add(textField);
                 panel.add(label);
-
-                parameterFields.add(parameterName);
             }
             constructorsTab.addTab(list.get(i), panel);
 
