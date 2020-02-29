@@ -20,15 +20,15 @@ import java.util.*;
 public class ObjectCreationController {
 
     private URLClassLoader classLoader;
-
-    //HashMap of classes in the Project
-    // It should be fine with unique key as
-    // classes should have unique names anyway
-    // (IntelliJ disallows creation anyway)
-    private Map<String, ClassReflection> projectClassList = new HashMap<>();
-
     private ObjectCreationWindow GUI;
 
+    //HashMap of classes in the Project
+    private Map<String, ClassReflection> projectClassList = new HashMap<>();
+
+    /**
+     * Constructor
+     * @param GUI window class part that is passed to this controller
+     */
     public ObjectCreationController(ObjectCreationWindow GUI) {
         this.GUI = GUI;
     }
@@ -38,7 +38,7 @@ public class ObjectCreationController {
         return findCompiledClasses(root.getChildren(), list);
     }
 
-    Map<String, VirtualFile> findCompiledClasses(VirtualFile[] virtualFile, Map<String, VirtualFile> list){
+    private Map<String, VirtualFile> findCompiledClasses(VirtualFile[] virtualFile, Map<String, VirtualFile> list){
         for (VirtualFile file : virtualFile) {
             if (file.isDirectory()) {
                 findCompiledClasses(file.getChildren(), list);
@@ -49,6 +49,11 @@ public class ObjectCreationController {
         return list;
     }
 
+    /**
+     * Finds all compiled classes from the root of the project and
+     * populates the projectHashList
+     * It does also needs to be a first project in; "Project Settings/Modules".
+     */
     void findProjectClasses() {
         VirtualFile projectRoot;
         try {

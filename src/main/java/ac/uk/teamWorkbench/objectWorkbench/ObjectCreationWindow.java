@@ -3,9 +3,7 @@ package ac.uk.teamWorkbench.objectWorkbench;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBList;
 import org.jetbrains.annotations.Nullable;
-
 import javax.swing.*;
-import java.util.Map;
 
 /**
  * Author: Milosz Jakubanis
@@ -15,7 +13,7 @@ import java.util.Map;
 public class ObjectCreationWindow extends DialogWrapper {
 
     //Window Creation Controller
-    private ObjectCreationController controller = new ObjectCreationController(this);
+    private ObjectCreationController controller;
 
     //Pane items
     private JPanel content;
@@ -26,7 +24,6 @@ public class ObjectCreationWindow extends DialogWrapper {
     private JBList<String> methodListJBList;
     private JBList<String> variableListJBList;
     private JTabbedPane constructorsTabList;
-
 
     //Default list models for JBList to add data into
     private DefaultListModel<String> javaClassListModel;
@@ -54,58 +51,19 @@ public class ObjectCreationWindow extends DialogWrapper {
         super(canBeParent);
         init();
         setTitle("Instantiate Object");
+        controller = new ObjectCreationController(this);
 
         controller.findProjectClasses();
         controller.populateClassList();
         controller.addListeners();
     }
 
+    //Getters
     @Nullable
     @Override
     protected JComponent createCenterPanel() {
         return content;
     }
-
-    /**
-     * Add Event Listeners
-     */
-//    private void addListeners() {
-//        //TODO works nicely, but twice for some reason
-//        classListJBList.addListSelectionListener(e -> {
-//            if (classListJBList.getSelectedValue() != null) {
-//                populateMethodList(classListJBList.getSelectedValue());
-//                populateVariableList(classListJBList.getSelectedValue());
-//                populateConstructorList();
-//            }
-//        });
-//    }
-
-//    private void populateClassList() {
-//        Map<String, ClassReflection> projectClassList = controller.getProjectClassList();
-//        javaClassListModel.clear();
-//        for (Map.Entry<String, ClassReflection> entry : projectClassList.entrySet()) {
-//            //TODO i am not sue of getClass
-//            javaClassListModel.addElement(entry.getValue().getClassName());
-//        }
-//    }
-
-//    private void populateMethodList(String key) {
-//        Map<String, ClassReflection> projectClassList = controller.getProjectClassList();
-//        javaMethodsListModel.clear();
-//        javaMethodsListModel.addAll(projectClassList.get(key).getMethodList());
-//    }
-//
-//    private void populateVariableList(String key) {
-//        Map<String, ClassReflection> projectClassList = controller.getProjectClassList();
-//        javaVariablesListModel.clear();
-//        javaVariablesListModel.addAll(projectClassList.get(key).getVariableList());
-//    }
-//
-//    //TODO change
-//    private void populateConstructorList() {
-////        Map<String, ClassReflection> projectClassList = controller.getProjectClassList();
-//        controller.createConstructorTab();
-//    }
 
     public DefaultListModel<String> getJavaClassListModel() {
         return javaClassListModel;
@@ -126,8 +84,6 @@ public class ObjectCreationWindow extends DialogWrapper {
     public String getSelectedClassName() {
         return classListJBList.getSelectedValue();
     }
-
-
 
     public JTabbedPane getConstructorsTabList() {
         return constructorsTabList;
