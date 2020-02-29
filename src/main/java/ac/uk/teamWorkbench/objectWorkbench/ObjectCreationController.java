@@ -89,9 +89,6 @@ public class ObjectCreationController {
                     projectClassList.get(className).addVariable(variableName));
             getClassConstructor(loadedClass).forEach(constructorName ->
                     projectClassList.get(className).addConstructor(constructorName));
-            //TODO Commented out part of reflection finding parent
-//            String parentClassName = loadedClass.getSuperclass().toGenericString();
-//            projectClassList.get(className).setParentClass(parentClassName);
         }
     }
 
@@ -124,7 +121,9 @@ public class ObjectCreationController {
         JBList<String> classList = GUI.getClassListJBList();
         //TODO works nicely, but twice for some reason
         classList.addListSelectionListener(e -> {
-            if (classList.getSelectedValue() != null) {
+            if(!classList.getValueIsAdjusting() &&
+                    classList.getSelectedValue() != null){
+
                 populateMethodList(classList.getSelectedValue());
                 populateVariableList(classList.getSelectedValue());
                 populateConstructorList();
@@ -132,7 +131,7 @@ public class ObjectCreationController {
         });
     }
 
-    private void populateMethodList(String key) {
+        private void populateMethodList(String key) {
         DefaultListModel<String> javaMethodsListModel = GUI.getJavaMethodsListModel();
         Map<String, ClassReflection> projectClassList = getProjectClassList();
 
