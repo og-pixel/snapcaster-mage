@@ -86,6 +86,10 @@ public class ObjectCreationWindow extends DialogWrapper {
         return classListJBList.getSelectedValue();
     }
 
+    public int getSelectedConstructor() {
+        return constructorsTabList.getSelectedIndex();
+    }
+
     public JTabbedPane getConstructorsTabList() {
         return constructorsTabList;
     }

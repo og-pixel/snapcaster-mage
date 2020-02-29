@@ -6,9 +6,12 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.ui.components.JBList;
+import com.intellij.util.ui.JBUI;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -148,6 +151,7 @@ public class ObjectCreationController {
     }
 
     //TODO it looks silly
+    //TODO this is a larger method that needs little sub methods
     private void populateConstructorList() {
         JTabbedPane constructorsTab = GUI.getConstructorsTabList();
         String className = GUI.getSelectedClassName();
@@ -156,22 +160,45 @@ public class ObjectCreationController {
         Map<String, ClassReflection> map = getProjectClassList();
         List<String> list = map.get(className).getConstructorListAsText();
 
+        //TODO this is weird name
+        // It is for methods to be instantied
+        List<Object> parameterFields = new ArrayList<>();
 
         for (int i = 0; i < list.size(); i++) {
             List<String> parameterList = map.get(className).getParameterListAsText(i);
 
             JPanel panel = new JPanel();
-            panel.setLayout(new GridBagLayout());
+            FlowLayout layout = new FlowLayout();
+            panel.setLayout(layout);
+            panel.setPreferredSize(new Dimension(100, 400));
+            panel.setMaximumSize(new Dimension(100, 900));
+            //TODO
+            ArrayList<JTextField> list2 = new ArrayList<>();
 
-            for (String s : parameterList) {
-                JLabel label = new JLabel(s);
-                JTextField textField = new JTextField();
+            JLabel label;
+            JTextField textField;
+            for (String parameterName : parameterList) {
+                label = new JLabel(parameterName);
+                textField = new JTextField();
+                list2.add(textField);
 
                 panel.add(textField);
                 panel.add(label);
-            }
 
+                parameterFields.add(parameterName);
+            }
             constructorsTab.addTab(list.get(i), panel);
+
+
+            JButton createObjectButton = new JButton("Create");
+            panel.add(createObjectButton);
+
+            createObjectButton.addActionListener(e -> {
+                list2.forEach( r -> {
+                    //TODO at the end of the day, it works but looks silly af, need to change it a bit
+                    System.out.println("Found: " + r.getText());
+                });
+            });
         }
     }
 

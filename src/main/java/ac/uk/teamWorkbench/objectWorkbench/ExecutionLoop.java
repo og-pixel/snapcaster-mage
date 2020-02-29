@@ -1,5 +1,6 @@
 package ac.uk.teamWorkbench.objectWorkbench;
 
+import ac.uk.teamWorkbench.graphWorkbench.GraphPanel;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import java.lang.reflect.InvocationTargetException;
@@ -37,6 +38,17 @@ public class ExecutionLoop {
 
     //TODO plenty of sanity checks
     public void addObject(Class<?> object){
+        Object xxx = null;
+        try {
+            xxx = object.getDeclaredConstructors()[0].newInstance();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+
         loadedObjects.add(object);
     }
 }
