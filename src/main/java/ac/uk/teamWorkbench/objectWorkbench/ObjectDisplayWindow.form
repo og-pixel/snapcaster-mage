@@ -74,7 +74,7 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="169e" class="javax.swing.JButton" binding="button2" default-binding="true">
+          <component id="169e" class="javax.swing.JButton" binding="compileButton">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="2" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false">
                 <minimum-size width="32" height="32"/>
@@ -83,11 +83,19 @@
               </grid>
             </constraints>
             <properties>
+              <borderPainted value="true"/>
+              <contentAreaFilled value="true"/>
+              <doubleBuffered value="false"/>
+              <focusCycleRoot value="false"/>
+              <focusPainted value="true"/>
+              <hideActionText value="false"/>
               <icon value="img/icons/compile13.png"/>
+              <iconTextGap value="0"/>
+              <opaque value="true"/>
               <text value=""/>
             </properties>
           </component>
-          <component id="93304" class="javax.swing.JButton" binding="button1" default-binding="true">
+          <component id="93304" class="javax.swing.JButton" binding="executeButton">
             <constraints>
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="2" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false">
                 <minimum-size width="32" height="32"/>

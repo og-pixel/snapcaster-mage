@@ -28,6 +28,10 @@ public class WorkbenchController {
     private JMenuItem adder;
     private JMenuItem nameChanger;
 
+    //TODO I think I will leave execution loop in this controller as it makes
+    // the most sense and it is attached to the DisplayWindow (without which, it wouldn't work anyway).
+    private ExecutionLoop executionLoop;
+
     public WorkbenchController(ObjectDisplayWindow GUI) {
         init();
         this.GUI = GUI;
@@ -37,6 +41,7 @@ public class WorkbenchController {
         this.validator = new Validator(initProtectedCharacters());
         this.dialogFactory = new DialogFactory();
         this.rightClickMenu = new JPopupMenu();
+        this.executionLoop = ExecutionLoop.getInstance();
     }
 
     /**
@@ -97,13 +102,25 @@ public class WorkbenchController {
 
     /**
      * Performs necessary tasks to create a new tab
+     * If the ObjectCreationWindow tries to instantiate an object
+     * add it to the ExecutionLoop
      * @param index - index of the tab
      */
     private void newAddTabTask(int index) {
-        removeTab(index);
-        addTab();
+        //True if user pressed ok to create object
+        ObjectCreationWindow objectCreationWindow = new ObjectCreationWindow(true);
+        ObjectCreationController controller = objectCreationWindow.getController();
+        ExecutionLoop executionLoop = ExecutionLoop.getInstance();
+        String objectName;
+        if(objectCreationWindow.showAndGet()) {
+            removeTab(index);
+            objectName = objectCreationWindow.getSelectedClassName();
+            executionLoop.addObject(controller.loadSelectedClass(objectName));
+            addTab(objectName);
+        }else {
+            removeTab(index);
+        }
         addNewTabButton();
-        new ObjectCreationWindow(true).showAndGet();
     }
 
     /**
@@ -202,6 +219,18 @@ public class WorkbenchController {
                     ex.printStackTrace();
                 }
             }
+        });
+    }
+
+    public void addButtonListener(JButton executeButton, JButton compileButton) {
+        executeButton.addActionListener(e -> {
+            //TODO not finished
+            executionLoop.startLoop();
+        });
+
+        compileButton.addActionListener( e -> {
+
+            System.out.println("TODO");
         });
     }
 

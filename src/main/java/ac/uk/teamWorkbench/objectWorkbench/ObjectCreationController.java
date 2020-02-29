@@ -1,14 +1,16 @@
 package ac.uk.teamWorkbench.objectWorkbench;
 
 import ac.uk.teamWorkbench.SourceFileUtils;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
-import org.apache.commons.lang.ObjectUtils;
+import com.intellij.ui.components.JBList;
 
+import javax.swing.*;
 import java.io.File;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -25,26 +27,30 @@ public class ObjectCreationController {
     // (IntelliJ disallows creation anyway)
     private Map<String, ClassReflection> projectClassList = new HashMap<>();
 
-    ArrayList<VirtualFile> findCompiledClasses(VirtualFile root) {
-        ArrayList<VirtualFile> list = new ArrayList<>();
+    private ObjectCreationWindow GUI;
+
+    public ObjectCreationController(ObjectCreationWindow GUI) {
+        this.GUI = GUI;
+    }
+
+    Map<String, VirtualFile> findCompiledClasses(VirtualFile root) {
+        Map<String, VirtualFile> list = new HashMap<>();
         return findCompiledClasses(root.getChildren(), list);
     }
 
-    ArrayList<VirtualFile> findCompiledClasses(VirtualFile[] virtualFile, ArrayList<VirtualFile> list){
+    Map<String, VirtualFile> findCompiledClasses(VirtualFile[] virtualFile, Map<String, VirtualFile> list){
         for (VirtualFile file : virtualFile) {
             if (file.isDirectory()) {
                 findCompiledClasses(file.getChildren(), list);
             } else {
-                list.add(file);
+                list.put(file.getNameWithoutExtension(), file);
             }
         }
         return list;
     }
 
     void findProjectClasses() {
-//        VirtualFile projectRoot = SourceFileUtils.getInstance().getCompilerModule().get(0);
         VirtualFile projectRoot;
-
         try {
             projectRoot = SourceFileUtils.getInstance().getCompilerModule().get(0);
         }catch(ArrayIndexOutOfBoundsException indexException){
@@ -53,9 +59,8 @@ public class ObjectCreationController {
         }
 
         File allFiles = new File(Objects.requireNonNull(projectRoot.getCanonicalPath()));
-        List<VirtualFile> compiledClassesList;
+        Map<String, VirtualFile> compiledClassesList;
         compiledClassesList = findCompiledClasses(projectRoot);
-
         //Load classes into class loader
         try {
             classLoader = URLClassLoader.newInstance(new URL[]{allFiles.toURI().toURL()});
@@ -67,19 +72,18 @@ public class ObjectCreationController {
         // in ObjectReflection Class
         ClassReflection classReflection;
         Class<?> loadedClass;
-        for (VirtualFile virtualFile: compiledClassesList) {
-            classReflection = new ClassReflection(virtualFile.getNameWithoutExtension());
-            String className = classReflection.getClassName();
+        for (Map.Entry<String, VirtualFile> entry : compiledClassesList.entrySet()) {
+            String className = entry.getValue().getNameWithoutExtension();
+            loadedClass = loadClass(entry.getValue(), className);
+            classReflection = new ClassReflection(className, loadedClass);
+
             projectClassList.put(className, classReflection);
-
-            loadedClass = loadClass(virtualFile, className);
-
             getClassMethods(loadedClass).forEach(methodName ->
                     projectClassList.get(className).addMethod(methodName));
-
-            getClassVariables(loadedClass).forEach(methodName ->
-                    projectClassList.get(className).addVariable(methodName));
-
+            getClassVariables(loadedClass).forEach(variableName ->
+                    projectClassList.get(className).addVariable(variableName));
+            getClassConstructor(loadedClass).forEach(constructorName ->
+                    projectClassList.get(className).addConstructor(constructorName));
             //TODO Commented out part of reflection finding parent
 //            String parentClassName = loadedClass.getSuperclass().toGenericString();
 //            projectClassList.get(className).setParentClass(parentClassName);
@@ -109,15 +113,71 @@ public class ObjectCreationController {
     }
 
     /**
+     * Add Event Listeners
+     */
+    void addListeners() {
+        JBList<String> classList = GUI.getClassListJBList();
+        //TODO works nicely, but twice for some reason
+        classList.addListSelectionListener(e -> {
+            if (classList.getSelectedValue() != null) {
+                populateMethodList(classList.getSelectedValue());
+                populateVariableList(classList.getSelectedValue());
+                populateConstructorList();
+            }
+        });
+    }
+
+    private void populateMethodList(String key) {
+        DefaultListModel<String> javaMethodsListModel = GUI.getJavaMethodsListModel();
+        Map<String, ClassReflection> projectClassList = getProjectClassList();
+
+        javaMethodsListModel.clear();
+        javaMethodsListModel.addAll(projectClassList.get(key).getMethodList());
+    }
+
+    private void populateVariableList(String key) {
+        DefaultListModel<String> javaVariablesListModel = GUI.getJavaVariablesListModel();
+        Map<String, ClassReflection> projectClassList = getProjectClassList();
+        javaVariablesListModel.clear();
+        javaVariablesListModel.addAll(projectClassList.get(key).getVariableList());
+    }
+
+    //TODO change
+    private void populateConstructorList() {
+        JTabbedPane constructorsTab = GUI.getConstructorsTabList();
+        constructorsTab.removeAll();
+
+        Map<String, ClassReflection> map = getProjectClassList();
+
+
+        map.get(GUI.getSelectedClassName()).getConstructorList().forEach( e -> {
+            Annotation[] aa = e.getDeclaredAnnotations();
+            for (int i = 0; i < aa.length; i++) {
+//                constructorsTab.addTab(aa[i].toString(), new JLabel());
+                constructorsTab.addTab(aa[i].toString(), new JLabel());
+            }
+        });
+    }
+
+    void populateClassList() {
+        Map<String, ClassReflection> projectClassList = getProjectClassList();
+        GUI.getJavaClassListModel().clear();
+        for (Map.Entry<String, ClassReflection> entry : projectClassList.entrySet()) {
+            //TODO i am not sue of getClass
+            GUI.getJavaClassListModel().addElement(entry.getValue().getClassName());
+        }
+    }
+
+    /**
      * Extract methods from the Class by performing reflection
      * @param loadedClass Class name that methods are extracted from.
      * @return List of methods belonging to that class.
      */
-    ArrayList<String> getClassMethods(Class<?> loadedClass) {
-        ArrayList<String> methodList = new ArrayList<>();
+    ArrayList<Method> getClassMethods(Class<?> loadedClass) {
+        ArrayList<Method> methodList = new ArrayList<>();
         Method[] methods = loadedClass.getDeclaredMethods();
         for (int i = 0; i < loadedClass.getDeclaredMethods().length; i++) {
-            methodList.add(methods[i].getName());
+            methodList.add(methods[i]);
         }
         return methodList;
     }
@@ -127,17 +187,40 @@ public class ObjectCreationController {
      * @param loadedClass Class name that variables are extracted from.
      * @return List of variables belonging to that class.
      */
-    ArrayList<String> getClassVariables(Class<?> loadedClass) {
-        ArrayList<String> variableList = new ArrayList<>();
+    ArrayList<Field> getClassVariables(Class<?> loadedClass) {
+        ArrayList<Field> variableList = new ArrayList<>();
         Field[] fields = loadedClass.getDeclaredFields();
         for (int i = 0; i < loadedClass.getDeclaredFields().length; i++) {
-            variableList.add(fields[i].getName());
+            variableList.add(fields[i]);
         }
         return variableList;
+    }
+
+    //TODO description
+    ArrayList<Constructor<?>> getClassConstructor(Class<?> loadedClass) {
+        ArrayList<Constructor<?>> constructorList = new ArrayList<>();
+        Constructor<?>[] constructors = loadedClass.getDeclaredConstructors();
+        for (int i = 0; i < loadedClass.getDeclaredConstructors().length; i++) {
+            constructorList.add(constructors[i]);
+        }
+        return constructorList;
+    }
+
+    public Class<?> loadSelectedClass(String className){
+        VirtualFile projectRoot = null;
+        try {
+            projectRoot = SourceFileUtils.getInstance().getCompilerModule().get(0);
+        }catch(ArrayIndexOutOfBoundsException indexException){
+            System.out.println(indexException.getMessage());
+            System.exit(1);
+        }
+        Map<String, VirtualFile> compiledClassesList;
+        compiledClassesList = findCompiledClasses(projectRoot);
+
+        return loadClass(compiledClassesList.get(className), className);
     }
 
     Map<String, ClassReflection> getProjectClassList() {
         return projectClassList;
     }
-
 }
