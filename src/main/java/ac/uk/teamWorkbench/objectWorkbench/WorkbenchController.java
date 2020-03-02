@@ -1,5 +1,7 @@
 package ac.uk.teamWorkbench.objectWorkbench;
 
+import ac.uk.teamWorkbench.objectWorkbench.externalLibraryWindow.ExternalLibraryWindow;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -115,7 +117,8 @@ public class WorkbenchController {
         if(objectCreationWindow.showAndGet()) {
             removeTab(index);
             objectName = objectCreationWindow.getSelectedClassName();
-            executionLoop.addObject(controller.loadSelectedClass(objectName));
+            //TODO add once I make execution loop
+//            executionLoop.addObject(controller.loadSelectedClass(objectName));
             addTab(objectName);
         }else {
             removeTab(index);
@@ -222,7 +225,7 @@ public class WorkbenchController {
         });
     }
 
-    public void addButtonListener(JButton executeButton, JButton compileButton) {
+    public void addButtonListener(JButton executeButton, JButton compileButton, JButton externalLibraryButton) {
         executeButton.addActionListener(e -> {
             //TODO not finished
             executionLoop.startLoop();
@@ -231,6 +234,11 @@ public class WorkbenchController {
         compileButton.addActionListener( e -> {
 
             System.out.println("TODO");
+        });
+
+        externalLibraryButton.addActionListener( e -> {
+            //TODO finish
+            new ExternalLibraryWindow(true).showAndGet();
         });
     }
 

@@ -1,6 +1,8 @@
 package ac.uk.teamWorkbench.objectWorkbench;
 
 import ac.uk.teamWorkbench.SourceFileUtils;
+import com.intellij.openapi.roots.libraries.LibraryTable;
+import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
@@ -66,6 +68,14 @@ public class ObjectCreationController {
         }
 
         File allFiles = new File(Objects.requireNonNull(projectRoot.getCanonicalPath()));
+        //TODO force it to load external libraries
+//        LibraryTable projectLibraryTable = LibraryTablesRegistrar.getInstance().getLibraryTable(
+//                SourceFileUtils.getInstance().getProject());
+//        System.out.println(Arrays.toString(projectLibraryTable.getLibraries()));
+
+
+
+
         Map<String, VirtualFile> compiledClassesList;
         compiledClassesList = findCompiledClasses(projectRoot);
         //Load classes into class loader
@@ -143,8 +153,6 @@ public class ObjectCreationController {
         javaVariablesListModel.addAll(projectClassMap.get(key).getVariableListAsText());
     }
 
-    //TODO it looks silly
-    //TODO this is a larger method that needs little sub methods
     private void populateConstructorList() {
         //Get reference from GUI
         JTabbedPane constructorsTab = GUI.getConstructorsTabList();
@@ -156,24 +164,26 @@ public class ObjectCreationController {
         for (int i = 0; i < constructorListAsText.size(); i++) {
             ArrayList<JTextField> arrayOfTextFields = new ArrayList<>();
             List<String> constructorParameters = projectClassMap.get(className).getParameterListAsText(i);
-            JPanel panel = createConstructorTab();
+            JPanel panel = createConstructorTab(arrayOfTextFields);
 
             createPanelElement(constructorParameters, panel, arrayOfTextFields);
             constructorsTab.addTab(constructorListAsText.get(i), panel);
 
-            //TODO
-//            addCreateObjectListener(createObjectButton, arrayOfTextFields);
         }
     }
 
-    //TODO change name
-    private JPanel createConstructorTab(){
+    /**
+     * Creates a constructor
+     * @return
+     */
+    private JPanel createConstructorTab(List<JTextField> arrayOfTextFields){
         JPanel panel = new JPanel();
         FlowLayout layout = new FlowLayout();
         panel.setLayout(layout);
         panel.setPreferredSize(new Dimension(100, 400));
         JButton createObjectButton = new JButton("Create");
         panel.add(createObjectButton);
+        addCreateObjectListener(createObjectButton, arrayOfTextFields);
         panel.setMaximumSize(new Dimension(100, 900));
 
         return panel;
