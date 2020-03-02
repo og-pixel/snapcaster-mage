@@ -1,6 +1,8 @@
 package ac.uk.teamWorkbench.objectWorkbench;
 
 import ac.uk.teamWorkbench.SourceFileUtils;
+import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -67,14 +69,15 @@ public class ObjectCreationController {
             return;
         }
 
-        File allFiles = new File(Objects.requireNonNull(projectRoot.getCanonicalPath()));
         //TODO force it to load external libraries
 //        LibraryTable projectLibraryTable = LibraryTablesRegistrar.getInstance().getLibraryTable(
 //                SourceFileUtils.getInstance().getProject());
-//        System.out.println(Arrays.toString(projectLibraryTable.getLibraries()));
-
-
-
+//        Library[] libraries = projectLibraryTable.getLibraries();
+//        VirtualFile[] x = libraries[0].getFiles(OrderRootType.SOURCES);
+//        for (int i = 0; i < x.length; i++) {
+//            System.out.println("I: " + x[i].getPath());
+//        }
+        File allFiles = new File(Objects.requireNonNull(projectRoot.getCanonicalPath()));
 
         Map<String, VirtualFile> compiledClassesList;
         compiledClassesList = findCompiledClasses(projectRoot);
