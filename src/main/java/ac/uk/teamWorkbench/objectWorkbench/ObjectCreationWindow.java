@@ -24,7 +24,6 @@ public class ObjectCreationWindow extends DialogWrapper {
     private JBList<String> methodListJBList;
     private JBList<String> variableListJBList;
     private JTabbedPane constructorsTabList;
-    private JTextField textField1;
 
     //Default list models for JBList to add data into
     private DefaultListModel<String> javaClassListModel;

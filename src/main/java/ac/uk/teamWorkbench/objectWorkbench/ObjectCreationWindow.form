@@ -78,33 +78,8 @@
         </constraints>
         <properties/>
         <border type="none"/>
-        <children>
-          <grid id="ffbab" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
-            <constraints>
-              <tabbedpane title="Empty"/>
-            </constraints>
-            <properties/>
-            <border type="none"/>
-            <children>
-              <component id="8176f" class="javax.swing.JTextField" binding="textField1" default-binding="true">
-                <constraints/>
-                <properties/>
-              </component>
-              <component id="d8464" class="javax.swing.JLabel">
-                <constraints/>
-                <properties>
-                  <text value="Variable"/>
-                </properties>
-              </component>
-            </children>
-          </grid>
-        </children>
+        <children/>
       </tabbedpane>
-      <vspacer id="cf5e6">
-        <constraints>
-          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
-        </constraints>
-      </vspacer>
     </children>
   </grid>
 </form>

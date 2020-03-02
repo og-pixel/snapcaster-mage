@@ -6,12 +6,10 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.ui.components.JBList;
-import com.intellij.util.ui.JBUI;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -27,11 +25,10 @@ public class ObjectCreationController {
     private ObjectCreationWindow GUI;
 
     //HashMap of classes in the Project
-    private Map<String, ClassReflection> projectClassList = new HashMap<>();
+    private Map<String, ClassReflection> projectClassMap = new HashMap<>();
 
     /**
      * Constructor
-     *
      * @param GUI window class part that is passed to this controller
      */
     public ObjectCreationController(ObjectCreationWindow GUI) {
@@ -87,13 +84,13 @@ public class ObjectCreationController {
             loadedClass = loadClass(entry.getValue(), className);
             classReflection = new ClassReflection(className, loadedClass);
 
-            projectClassList.put(className, classReflection);
+            projectClassMap.put(className, classReflection);
             getClassMethods(loadedClass).forEach(methodName ->
-                    projectClassList.get(className).addMethod(methodName));
+                    projectClassMap.get(className).addMethod(methodName));
             getClassVariables(loadedClass).forEach(variableName ->
-                    projectClassList.get(className).addVariable(variableName));
+                    projectClassMap.get(className).addVariable(variableName));
             getClassConstructor(loadedClass).forEach(constructorName ->
-                    projectClassList.get(className).addConstructor(constructorName));
+                    projectClassMap.get(className).addConstructor(constructorName));
         }
     }
 
@@ -107,7 +104,6 @@ public class ObjectCreationController {
         try {
             psiFile = psiManager.findFile(virtualFile);
             packageName = ((PsiJavaFile) psiFile).getPackageName();
-
             if (packageName.isEmpty()) {
                 loadedClass = classLoader.loadClass(className);
             } else {
@@ -137,67 +133,67 @@ public class ObjectCreationController {
 
     private void populateMethodList(String key) {
         DefaultListModel<String> javaMethodsListModel = GUI.getJavaMethodsListModel();
-        Map<String, ClassReflection> projectClassList = getProjectClassList();
-
         javaMethodsListModel.clear();
-        javaMethodsListModel.addAll(projectClassList.get(key).getMethodListAsText());
+        javaMethodsListModel.addAll(projectClassMap.get(key).getMethodListAsText());
     }
 
     private void populateVariableList(String key) {
         DefaultListModel<String> javaVariablesListModel = GUI.getJavaVariablesListModel();
-        Map<String, ClassReflection> projectClassList = getProjectClassList();
         javaVariablesListModel.clear();
-        javaVariablesListModel.addAll(projectClassList.get(key).getVariableListAsText());
+        javaVariablesListModel.addAll(projectClassMap.get(key).getVariableListAsText());
     }
 
     //TODO it looks silly
     //TODO this is a larger method that needs little sub methods
     private void populateConstructorList() {
+        //Get reference from GUI
         JTabbedPane constructorsTab = GUI.getConstructorsTabList();
         String className = GUI.getSelectedClassName();
+        //Clear Tab
         constructorsTab.removeAll();
+        //Get list of constructors as list
+        List<String> constructorListAsText = projectClassMap.get(className).getConstructorListAsText();
+        for (int i = 0; i < constructorListAsText.size(); i++) {
+            ArrayList<JTextField> arrayOfTextFields = new ArrayList<>();
+            List<String> constructorParameters = projectClassMap.get(className).getParameterListAsText(i);
+            JPanel panel = createConstructorTab();
 
-        Map<String, ClassReflection> map = getProjectClassList();
-        List<String> list = map.get(className).getConstructorListAsText();
+            createPanelElement(constructorParameters, panel, arrayOfTextFields);
+            constructorsTab.addTab(constructorListAsText.get(i), panel);
 
-        for (int i = 0; i < list.size(); i++) {
-            List<String> parameterList = map.get(className).getParameterListAsText(i);
-
-            JPanel panel = new JPanel();
-            FlowLayout layout = new FlowLayout();
-            panel.setLayout(layout);
-            panel.setPreferredSize(new Dimension(100, 400));
-            panel.setMaximumSize(new Dimension(100, 900));
             //TODO
-            ArrayList<JTextField> list2 = new ArrayList<>();
+//            addCreateObjectListener(createObjectButton, arrayOfTextFields);
+        }
+    }
 
-            JLabel label;
-            JTextField textField;
-            for (String parameterName : parameterList) {
-                label = new JLabel(parameterName);
-                textField = new JTextField();
-                list2.add(textField);
+    //TODO change name
+    private JPanel createConstructorTab(){
+        JPanel panel = new JPanel();
+        FlowLayout layout = new FlowLayout();
+        panel.setLayout(layout);
+        panel.setPreferredSize(new Dimension(100, 400));
+        JButton createObjectButton = new JButton("Create");
+        panel.add(createObjectButton);
+        panel.setMaximumSize(new Dimension(100, 900));
 
-                panel.add(textField);
-                panel.add(label);
-            }
-            constructorsTab.addTab(list.get(i), panel);
+        return panel;
+    }
 
+    private void createPanelElement(List<String> parameterList, JPanel panel, ArrayList<JTextField> textFieldList) {
+        JLabel label;
+        JTextField textField;
+        for (String parameterName : parameterList) {
+            label = new JLabel(parameterName);
+            textField = new JTextField();
+            textFieldList.add(textField);
 
-            JButton createObjectButton = new JButton("Create");
-            panel.add(createObjectButton);
-
-            createObjectButton.addActionListener(e -> {
-                list2.forEach( r -> {
-                    //TODO at the end of the day, it works but looks silly af, need to change it a bit
-                    System.out.println("Found: " + r.getText());
-                });
-            });
+            panel.add(textField);
+            panel.add(label);
         }
     }
 
     void populateClassList() {
-        Map<String, ClassReflection> projectClassList = getProjectClassList();
+        Map<String, ClassReflection> projectClassList = getProjectClassMap();
         DefaultListModel<String> javaListModel = GUI.getJavaClassListModel();
         javaListModel.clear();
         for (Map.Entry<String, ClassReflection> entry : projectClassList.entrySet()) {
@@ -252,7 +248,15 @@ public class ObjectCreationController {
         return loadClass(compiledClassesList.get(className), className);
     }
 
-    Map<String, ClassReflection> getProjectClassList() {
-        return projectClassList;
+    Map<String, ClassReflection> getProjectClassMap() {
+        return projectClassMap;
+    }
+
+    private void addCreateObjectListener(JButton button, List<JTextField> listParameters) {
+        button.addActionListener(e -> {
+            for (JTextField listParameter : listParameters) {
+                System.out.println("Found: " + listParameter.getText());
+            }
+        });
     }
 }

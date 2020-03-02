@@ -25,7 +25,6 @@ public class ClassReflection {
     private List<Method> methodList = new ArrayList<>();
     private List<Constructor<?>> constructorList = new ArrayList<>();
 
-
     public ClassReflection(String className, Class<?> clazz) {
         this.className = className;
         this.clazz = clazz;
@@ -105,8 +104,6 @@ public class ClassReflection {
             if (constructor.getParameterCount() <= 0) {
                 sb.append("No Parameters");
             } else if (constructor.getParameterCount() < 4) {
-                //TODO display only if there are up to 3 parameters,
-                // otherwise, just display no.parameters
                 sb.append("(");
                 for (int i = 0; i < constructor.getParameterCount(); i++) {
                     sb.append(constructor.getParameterTypes()[i].getSimpleName());
@@ -127,7 +124,6 @@ public class ClassReflection {
         for (int i = 0; i < constructorList.get(index).getParameterCount(); i++) {
             list.add(constructorList.get(index).getParameterTypes()[i].getSimpleName());
         }
-
         return list;
     }
 
