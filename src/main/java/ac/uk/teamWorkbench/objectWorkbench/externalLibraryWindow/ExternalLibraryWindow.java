@@ -1,6 +1,5 @@
 package ac.uk.teamWorkbench.objectWorkbench.externalLibraryWindow;
 
-import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBList;
 import org.jetbrains.annotations.Nullable;
@@ -41,6 +40,14 @@ public class ExternalLibraryWindow extends DialogWrapper {
 
     public DefaultListModel<String> getLibraryListModel() {
         return libraryListModel;
+    }
+
+    public ExternalLibraryController getController(){
+        return controller;
+    }
+
+    public int[] getSelectedLibraries() {
+        return libraryList.getSelectedIndices();
     }
 
 

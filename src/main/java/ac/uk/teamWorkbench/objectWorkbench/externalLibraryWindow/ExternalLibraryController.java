@@ -25,20 +25,18 @@ public class ExternalLibraryController {
     public void populateLibraryList() {
         LibraryTable projectLibraryTable = LibraryTablesRegistrar.getInstance().getLibraryTable(
                 SourceFileUtils.getInstance().getProject());
-        Library[] dasd = projectLibraryTable.getLibraries();
-        List<String> libraries = new ArrayList<>();
-        ModuleManager manager = ModuleManager.getInstance(SourceFileUtils.getInstance().getProject());
-        System.out.println(Arrays.toString(manager.getModules()));
+        Library[] libraries = projectLibraryTable.getLibraries();
+        List<String> libraryNames = new ArrayList<>();
+//        ModuleManager manager = ModuleManager.getInstance(SourceFileUtils.getInstance().getProject());
 
-        for (Library library : dasd) {
-            libraries.add(library.getName());
+        for (Library library : libraries) {
+            libraryNames.add(library.getName());
             for (int i = 0; i < library.getFiles(OrderRootType.SOURCES).length; i++) {
                 System.out.println(library.getFiles(OrderRootType.SOURCES)[i].getPath());
             }
         }
 
         DefaultListModel<String> listModel = GUI.getLibraryListModel();
-        listModel.addAll(libraries);
-//        System.out.println("found: " + libraries);
+        listModel.addAll(libraryNames);
     }
 }

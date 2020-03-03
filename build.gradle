@@ -5,7 +5,7 @@ plugins {
 }
 
 group 'ac.uk.teamWorkbench'
-version '0.2.0'
+version '0.2.1'
 
 //noinspection GroovyUnusedAssignment
 sourceCompatibility = 1.8

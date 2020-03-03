@@ -53,7 +53,7 @@ public class ObjectCreationWindow extends DialogWrapper {
         setTitle("Instantiate Object");
         controller = new ObjectCreationController(this);
 
-        controller.findProjectClasses();
+//        controller.findProjectClasses();
         controller.populateClassList();
         controller.addListeners();
     }

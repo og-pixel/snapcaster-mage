@@ -31,6 +31,7 @@ public class ObjectCreationController {
     //HashMap of classes in the Project
     private Map<String, ClassReflection> projectClassMap = new HashMap<>();
 
+
     /**
      * Constructor
      * @param GUI window class part that is passed to this controller
@@ -69,14 +70,6 @@ public class ObjectCreationController {
             return;
         }
 
-        //TODO force it to load external libraries
-//        LibraryTable projectLibraryTable = LibraryTablesRegistrar.getInstance().getLibraryTable(
-//                SourceFileUtils.getInstance().getProject());
-//        Library[] libraries = projectLibraryTable.getLibraries();
-//        VirtualFile[] x = libraries[0].getFiles(OrderRootType.SOURCES);
-//        for (int i = 0; i < x.length; i++) {
-//            System.out.println("I: " + x[i].getPath());
-//        }
         File allFiles = new File(Objects.requireNonNull(projectRoot.getCanonicalPath()));
 
         Map<String, VirtualFile> compiledClassesList;
@@ -86,6 +79,7 @@ public class ObjectCreationController {
             classLoader = URLClassLoader.newInstance(new URL[]{allFiles.toURI().toURL()});
         } catch (Exception e) {
             e.printStackTrace();
+            return;
         }
 
         //Loop over all compiled classes and extract methods and variables and save them as String
