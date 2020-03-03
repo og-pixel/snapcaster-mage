@@ -27,9 +27,10 @@ public class ObjectCreationController {
 
     private URLClassLoader classLoader;
     private ObjectCreationWindow GUI;
+    private ObjectPool objectPool;
 
     //HashMap of classes in the Project
-//    private Map<String, ClassReflection> projectClassMap = new HashMap<>();
+    private Map<String, ClassReflection> classReflectionMap;
 
 
 
@@ -39,6 +40,8 @@ public class ObjectCreationController {
      */
     public ObjectCreationController(ObjectCreationWindow GUI) {
         this.GUI = GUI;
+        this.objectPool = ObjectPool.getInstance();
+        this.classReflectionMap = objectPool.getClassReflectionMap();
     }
 
 //    Map<String, VirtualFile> findCompiledClasses(VirtualFile root) {
@@ -142,13 +145,13 @@ public class ObjectCreationController {
     private void populateMethodList(String key) {
         DefaultListModel<String> javaMethodsListModel = GUI.getJavaMethodsListModel();
         javaMethodsListModel.clear();
-        javaMethodsListModel.addAll(projectClassMap.get(key).getMethodListAsText());
+        javaMethodsListModel.addAll(classReflectionMap.get(key).getMethodListAsText());
     }
 
     private void populateVariableList(String key) {
         DefaultListModel<String> javaVariablesListModel = GUI.getJavaVariablesListModel();
         javaVariablesListModel.clear();
-        javaVariablesListModel.addAll(projectClassMap.get(key).getVariableListAsText());
+        javaVariablesListModel.addAll(classReflectionMap.get(key).getVariableListAsText());
     }
 
     private void populateConstructorList() {
@@ -158,10 +161,10 @@ public class ObjectCreationController {
         //Clear Tab
         constructorsTab.removeAll();
         //Get list of constructors as list
-        List<String> constructorListAsText = projectClassMap.get(className).getConstructorListAsText();
+        List<String> constructorListAsText = classReflectionMap.get(className).getConstructorListAsText();
         for (int i = 0; i < constructorListAsText.size(); i++) {
             ArrayList<JTextField> arrayOfTextFields = new ArrayList<>();
-            List<String> constructorParameters = projectClassMap.get(className).getParameterListAsText(i);
+            List<String> constructorParameters = classReflectionMap.get(className).getParameterListAsText(i);
             JPanel panel = createConstructorTab(arrayOfTextFields);
 
             createPanelElement(constructorParameters, panel, arrayOfTextFields);
@@ -201,10 +204,9 @@ public class ObjectCreationController {
     }
 
     void populateClassList() {
-        Map<String, ClassReflection> projectClassList = getProjectClassMap();
         DefaultListModel<String> javaListModel = GUI.getJavaClassListModel();
         javaListModel.clear();
-        for (Map.Entry<String, ClassReflection> entry : projectClassList.entrySet()) {
+        for (Map.Entry<String, ClassReflection> entry : classReflectionMap.entrySet()) {
             javaListModel.addElement(entry.getValue().getClassName());
         }
     }
@@ -255,10 +257,6 @@ public class ObjectCreationController {
 //
 //        return loadClass(compiledClassesList.get(className), className);
 //    }
-
-    Map<String, ClassReflection> getProjectClassMap() {
-        return projectClassMap;
-    }
 
     private void addCreateObjectListener(JButton button, List<JTextField> listParameters) {
         button.addActionListener(e -> {

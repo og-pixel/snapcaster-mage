@@ -153,4 +153,8 @@ public class ObjectPool {
         }
         return list;
     }
+
+    public Map<String, ClassReflection> getClassReflectionMap() {
+        return classReflectionMap;
+    }
 }
