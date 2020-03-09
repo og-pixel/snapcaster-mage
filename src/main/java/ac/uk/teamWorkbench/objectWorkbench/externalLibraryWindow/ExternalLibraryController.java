@@ -1,12 +1,11 @@
 package ac.uk.teamWorkbench.objectWorkbench.externalLibraryWindow;
 
 import ac.uk.teamWorkbench.SourceFileUtils;
-import com.intellij.openapi.module.ModuleManager;
+import ac.uk.teamWorkbench.objectWorkbench.ObjectPool;
 import com.intellij.openapi.roots.OrderRootType;
 import com.intellij.openapi.roots.libraries.Library;
 import com.intellij.openapi.roots.libraries.LibraryTable;
 import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
-import org.graalvm.compiler.core.common.type.ArithmeticOpTable;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -16,27 +15,48 @@ import java.util.List;
 public class ExternalLibraryController {
 
     private ExternalLibraryWindow GUI;
+    private List<Library> libraryList;
+
 
     public ExternalLibraryController(ExternalLibraryWindow GUI) {
         this.GUI = GUI;
+        this.libraryList = new ArrayList<>();
     }
 
 
     public void populateLibraryList() {
         LibraryTable projectLibraryTable = LibraryTablesRegistrar.getInstance().getLibraryTable(
                 SourceFileUtils.getInstance().getProject());
-        Library[] libraries = projectLibraryTable.getLibraries();
+        libraryList = Arrays.asList(projectLibraryTable.getLibraries());
         List<String> libraryNames = new ArrayList<>();
-//        ModuleManager manager = ModuleManager.getInstance(SourceFileUtils.getInstance().getProject());
 
-        for (Library library : libraries) {
-            libraryNames.add(library.getName());
-            for (int i = 0; i < library.getFiles(OrderRootType.SOURCES).length; i++) {
-                System.out.println(library.getFiles(OrderRootType.SOURCES)[i].getPath());
-            }
-        }
+        libraryList.forEach(e -> libraryNames.add(e.getName()));
 
-        DefaultListModel<String> listModel = GUI.getLibraryListModel();
+        DefaultListModel<String> listModel = GUI.getLibraryNamesListModel();
         listModel.addAll(libraryNames);
+    }
+
+    public List<Library> getLibraryList() {
+        return libraryList;
+    }
+
+    public void addButtonListener(JButton addButton, JButton removeButton) {
+        addButton.addActionListener(e -> {
+            List<String> selectedLibraries = GUI.getLibraryNamesList().getSelectedValuesList();
+            if(!selectedLibraries.isEmpty()) {
+                GUI.getLoadedLibrariesNamesListModel().addAll(selectedLibraries);
+            }
+        });
+
+        removeButton.addActionListener(e -> {
+            List<String> loadedSelectedLibraries = GUI.getLoadedLibrariesList().getSelectedValuesList();
+            if(!loadedSelectedLibraries.isEmpty()) {
+                for (String loadedSelectedLibrary : loadedSelectedLibraries) {
+                    GUI.getLoadedLibrariesNamesListModel().removeElement(loadedSelectedLibrary);
+                    System.out.println("removed: " + loadedSelectedLibrary);
+                }
+            }
+        });
+
     }
 }

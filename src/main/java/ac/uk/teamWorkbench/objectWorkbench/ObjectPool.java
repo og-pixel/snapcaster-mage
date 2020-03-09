@@ -10,6 +10,8 @@ import java.io.File;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
@@ -31,20 +33,16 @@ public class ObjectPool {
     }
 
     public ObjectPool() {
-        init();
-    }
-
-    private void init() {
         classReflectionMap = new HashMap<>();
-        findProjectClasses();
-
+//        findProjectClasses();
     }
+
     /**
      * Finds all compiled classes from the root of the project and
      * populates the projectHashList
      * It does also needs to be a first project in; "Project Settings/Modules".
      */
-    void findProjectClasses() {
+    void findProjectClasses(URL...externalLinks) {
         VirtualFile projectRoot;
         try {
             projectRoot = SourceFileUtils.getInstance().getCompilerModule().get(0);
@@ -53,16 +51,35 @@ public class ObjectPool {
             return;
         }
 
-        File allFiles = new File(Objects.requireNonNull(projectRoot.getCanonicalPath()));
-
         Map<String, VirtualFile> compiledClassesList;
         compiledClassesList = findCompiledClasses(projectRoot);
+
+        URL allFiles = null;
+        URL[] urlList = null;
+
+        try {
+            allFiles = new File(Objects.requireNonNull(projectRoot.getCanonicalPath())).toURI().toURL();
+
+            if(externalLinks.length > 0){
+                urlList = new URL[externalLinks.length + 1];
+                System.arraycopy(externalLinks, 0, urlList, 0, externalLinks.length);
+                urlList[externalLinks.length] = allFiles;
+                System.out.println("Found with external: " + Arrays.toString(urlList));
+            } else {
+                urlList = new URL[]{allFiles};
+            }
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+
         //Load classes into class loader
         try {
-            classLoader = URLClassLoader.newInstance(new URL[]{allFiles.toURI().toURL()});
+            classLoader = URLClassLoader.newInstance(urlList);
+            System.out.println("classloader found: " + Arrays.toString(classLoader.getURLs()));
+//            System.out.println("classloader loaded: " + classLoader.loadClass("org.apache.commons.collections4.CollectionUtils").getName());
         } catch (Exception e) {
             e.printStackTrace();
-            return;
         }
 
         //Loop over all compiled classes and extract methods and variables and save them as String
@@ -82,6 +99,45 @@ public class ObjectPool {
             getClassConstructor(loadedClass).forEach(constructorName ->
                     classReflectionMap.get(className).addConstructor(constructorName));
         }
+    }
+
+//    void findProjectClasses(List<URL> urls) {
+//        findProjectClasses();
+//    }
+
+    public void loadExternal(URL[] ulrs) {
+//        String[] strings = list.stream().toArray(String[]::new);
+
+        //TODO only use if parameter is list rather than generic array
+//        URL[] genericURL = new URL[ulrs.size()];
+//        for (int i = 0; i < ulrs.size(); i++) {
+//            genericURL[i] = ulrs.get(i);
+//        }
+        URLClassLoader testLoader = new URLClassLoader(ulrs);
+
+    }
+
+
+    //TODO Automatic method meant to pull new compiled classes if they are detected to
+    // have changed
+    private void updateProjectClasses() {
+
+    }
+
+    Map<String, VirtualFile> findCompiledClasses(VirtualFile root) {
+        Map<String, VirtualFile> list = new HashMap<>();
+        return findCompiledClasses(root.getChildren(), list);
+    }
+
+    private Map<String, VirtualFile> findCompiledClasses(VirtualFile[] virtualFile, Map<String, VirtualFile> list) {
+        for (VirtualFile file : virtualFile) {
+            if (file.isDirectory()) {
+                findCompiledClasses(file.getChildren(), list);
+            } else {
+                list.put(file.getNameWithoutExtension(), file);
+            }
+        }
+        return list;
     }
 
     Class<?> loadClass(VirtualFile virtualFile, String className) {
@@ -136,22 +192,6 @@ public class ObjectPool {
     ArrayList<Constructor<?>> getClassConstructor(Class<?> loadedClass) {
         Constructor<?>[] constructors = loadedClass.getDeclaredConstructors();
         return new ArrayList<>(Arrays.asList(constructors));
-    }
-
-    Map<String, VirtualFile> findCompiledClasses(VirtualFile root) {
-        Map<String, VirtualFile> list = new HashMap<>();
-        return findCompiledClasses(root.getChildren(), list);
-    }
-
-    private Map<String, VirtualFile> findCompiledClasses(VirtualFile[] virtualFile, Map<String, VirtualFile> list) {
-        for (VirtualFile file : virtualFile) {
-            if (file.isDirectory()) {
-                findCompiledClasses(file.getChildren(), list);
-            } else {
-                list.put(file.getNameWithoutExtension(), file);
-            }
-        }
-        return list;
     }
 
     public Map<String, ClassReflection> getClassReflectionMap() {

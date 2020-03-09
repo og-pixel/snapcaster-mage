@@ -2,21 +2,30 @@ package ac.uk.teamWorkbench.objectWorkbench.externalLibraryWindow;
 
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBList;
+import com.sun.jna.Library;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ExternalLibraryWindow extends DialogWrapper {
 
     private ExternalLibraryController controller;
     private JPanel content;
-    private JBList<String> libraryList;
-    private DefaultListModel<String> libraryListModel;
+    private JBList<String> libraryNamesList;
+    private JBList<String> loadedLibrariesList;
+    private JButton removeLibraryButton;
+    private JButton addLibraryButton;
+    private DefaultListModel<String> libraryNamesListModel;
+    private DefaultListModel<String> loadedLibrariesNamesListModel;
 
     private void createUIComponents() {
-        libraryListModel = new DefaultListModel<>();
+        libraryNamesListModel = new DefaultListModel<>();
+        loadedLibrariesNamesListModel = new DefaultListModel<>();
 
-        libraryList = new JBList<>(libraryListModel);
+        libraryNamesList = new JBList<>(libraryNamesListModel);
+        loadedLibrariesList = new JBList<>(loadedLibrariesNamesListModel);
     }
 
     public ExternalLibraryWindow(boolean canBeParent) {
@@ -24,8 +33,8 @@ public class ExternalLibraryWindow extends DialogWrapper {
         init();
         setTitle("External Library Chooser");
         controller = new ExternalLibraryController(this);
+        controller.addButtonListener(addLibraryButton, removeLibraryButton);
         test();
-
     }
 
     void test() {
@@ -38,17 +47,24 @@ public class ExternalLibraryWindow extends DialogWrapper {
         return content;
     }
 
-    public DefaultListModel<String> getLibraryListModel() {
-        return libraryListModel;
+    public DefaultListModel<String> getLibraryNamesListModel() {
+        return libraryNamesListModel;
+    }
+
+    public DefaultListModel<String> getLoadedLibrariesNamesListModel() {
+        return loadedLibrariesNamesListModel;
+    }
+
+    public JBList<String> getLibraryNamesList() {
+        return libraryNamesList;
+    }
+
+    public JBList<String> getLoadedLibrariesList() {
+        return loadedLibrariesList;
     }
 
     public ExternalLibraryController getController(){
         return controller;
     }
-
-    public int[] getSelectedLibraries() {
-        return libraryList.getSelectedIndices();
-    }
-
 
 }
