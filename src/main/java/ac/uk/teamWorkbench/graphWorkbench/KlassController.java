@@ -42,4 +42,10 @@ public class KlassController {
             addKlass(name);
         }
     }
+
+    public Klass getKlassByIndex(int index) {
+        return klasses.get(index);
+    }
+
+
 }
