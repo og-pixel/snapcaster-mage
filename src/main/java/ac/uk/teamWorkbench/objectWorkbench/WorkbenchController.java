@@ -1,22 +1,12 @@
 package ac.uk.teamWorkbench.objectWorkbench;
 
-import ac.uk.teamWorkbench.objectWorkbench.externalLibraryWindow.ExternalLibraryController;
-import ac.uk.teamWorkbench.objectWorkbench.externalLibraryWindow.ExternalLibraryWindow;
-import com.intellij.openapi.roots.OrderRootType;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.vfs.VirtualFile;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * WorkbenchController
@@ -264,31 +254,7 @@ public class WorkbenchController {
         });
 
         externalLibraryButton.addActionListener(e -> {
-            //TODO finish
-            ExternalLibraryWindow libraryWindow = new ExternalLibraryWindow(true);
-            if (libraryWindow.showAndGet()) {
-                ExternalLibraryController controller = libraryWindow.getController();
-                List<Library> libraryList = controller.getLibraryList();
 
-                int[] selected = libraryWindow.getLibraryNamesList().getSelectedIndices();
-
-                List<URL> urlList = new ArrayList<>();
-                for (int value : selected) {
-                    for (int i = 0; i < libraryList.get(value).getFiles(OrderRootType.CLASSES).length; i++) {
-                        File file = new File(libraryList.get(value).getFiles(OrderRootType.CLASSES)[i].getPresentableUrl());
-                        try {
-                            urlList.add(file.toURI().toURL());
-                        } catch (MalformedURLException ex) {
-                            ex.printStackTrace();
-                        }
-                    }
-                }
-
-                URL[] arr = urlList.toArray(new URL[0]);
-                ObjectPool.getInstance().findProjectClasses(arr);
-                //TODO remove
-                new ObjectCreationWindow(true).showAndGet();
-            }
         });
     }
 

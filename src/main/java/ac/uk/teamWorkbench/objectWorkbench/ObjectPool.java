@@ -1,6 +1,10 @@
 package ac.uk.teamWorkbench.objectWorkbench;
 
 import ac.uk.teamWorkbench.SourceFileUtils;
+import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.roots.libraries.LibraryTable;
+import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
@@ -11,7 +15,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
@@ -42,7 +45,9 @@ public class ObjectPool {
      * populates the projectHashList
      * It does also needs to be a first project in; "Project Settings/Modules".
      */
-    void findProjectClasses(URL...externalLinks) {
+    void findProjectClasses() {
+        URL[] externalLibraries = getExternalLibrariesURL();
+
         VirtualFile projectRoot;
         try {
             projectRoot = SourceFileUtils.getInstance().getCompilerModule().get(0);
@@ -60,15 +65,13 @@ public class ObjectPool {
         try {
             allFiles = new File(Objects.requireNonNull(projectRoot.getCanonicalPath())).toURI().toURL();
 
-            if(externalLinks.length > 0){
-                urlList = new URL[externalLinks.length + 1];
-                System.arraycopy(externalLinks, 0, urlList, 0, externalLinks.length);
-                urlList[externalLinks.length] = allFiles;
-                System.out.println("Found with external: " + Arrays.toString(urlList));
+            if(externalLibraries.length > 0){
+                urlList = new URL[externalLibraries.length + 1];
+                System.arraycopy(externalLibraries, 0, urlList, 0, externalLibraries.length);
+                urlList[externalLibraries.length] = allFiles;
             } else {
                 urlList = new URL[]{allFiles};
             }
-
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
@@ -76,12 +79,9 @@ public class ObjectPool {
         //Load classes into class loader
         try {
             classLoader = URLClassLoader.newInstance(urlList);
-            System.out.println("classloader found: " + Arrays.toString(classLoader.getURLs()));
-//            System.out.println("classloader loaded: " + classLoader.loadClass("org.apache.commons.collections4.CollectionUtils").getName());
         } catch (Exception e) {
             e.printStackTrace();
         }
-
         //Loop over all compiled classes and extract methods and variables and save them as String
         // in ObjectReflection Class
         ClassReflection classReflection;
@@ -102,20 +102,21 @@ public class ObjectPool {
         }
     }
 
-//    void findProjectClasses(List<URL> urls) {
-//        findProjectClasses();
-//    }
+    public URL[] getExternalLibrariesURL() {
+        LibraryTable projectLibraryTable = LibraryTablesRegistrar.getInstance().getLibraryTable(
+                SourceFileUtils.getInstance().getProject());
+        Library[] libraryList = projectLibraryTable.getLibraries();
+        List<URL> urlList = new ArrayList<>();
 
-    public void loadExternal(URL[] ulrs) {
-//        String[] strings = list.stream().toArray(String[]::new);
+        for (Library library : libraryList) {
+            for (int i = 0; i < library.getFiles(OrderRootType.CLASSES).length; i++) {
+                File file = new File(library.getFiles(OrderRootType.CLASSES)[i].getPresentableUrl());
+                try { urlList.add(file.toURI().toURL()); }
+                catch (MalformedURLException ex) { ex.printStackTrace(); }
+            }
+        }
 
-        //TODO only use if parameter is list rather than generic array
-//        URL[] genericURL = new URL[ulrs.size()];
-//        for (int i = 0; i < ulrs.size(); i++) {
-//            genericURL[i] = ulrs.get(i);
-//        }
-        URLClassLoader testLoader = new URLClassLoader(ulrs);
-
+        return urlList.toArray(new URL[0]);
     }
 
 
