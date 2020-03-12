@@ -115,11 +115,11 @@ public class SourceFileUtils {
         return psiManager;
     }
 
-    public static Collection<VirtualFile> getAllFilesByExtInProjectScope(Project project, String extension) {
+    public Collection<VirtualFile> getAllFilesByExtInProjectScope(Project project, String extension) {
         return FilenameIndex.getAllFilesByExt(project, extension, GlobalSearchScope.projectScope(project));
     }
 
-    public static Collection<PsiFile> getAllPSIFiles(Project project) {
+    public Collection<PsiFile> getAllPSIFiles(Project project) {
         Collection<VirtualFile> virtualFiles = getAllFilesByExtInProjectScope(project, "java");
         Collection<PsiFile> psiFiles = new ArrayList<>();
         for (VirtualFile vf : virtualFiles) {
@@ -128,7 +128,7 @@ public class SourceFileUtils {
         return psiFiles;
     }
 
-    public static Collection<PsiElement> getAllPsiClasses(Project project) {
+    public Collection<PsiElement> getAllPsiClasses(Project project) {
         Collection<PsiElement> collection = new ArrayList<>();
         for (PsiFile psiFile : getAllPSIFiles(project)) {
             for (PsiElement psiElement : psiFile.getChildren()) {
@@ -140,7 +140,7 @@ public class SourceFileUtils {
         return collection;
     }
 
-    public static Collection<String> getPsiClassInheritanceList(PsiElement element, String inheritanceType) {
+    public Collection<String> getPsiClassInheritanceList(PsiElement element, String inheritanceType) {
         ArrayList<String> arrayList = new ArrayList<>();
         for (PsiElement child :
                 element.getChildren()) {
@@ -156,7 +156,7 @@ public class SourceFileUtils {
         return arrayList;
     }
 
-    public static String getPsiClassName(PsiElement element) {
+    public String getPsiClassName(PsiElement element) {
         return element.toString().split(":")[1];
     }
 }

@@ -36,7 +36,7 @@ public class KlassController {
     }
 
     private void populateKlasses(Project project) {
-        Collection<PsiElement> classesNames = SourceFileUtils.getAllPsiClasses(project);
+        Collection<PsiElement> classesNames = SourceFileUtils.getInstance().getAllPsiClasses(project);
         for (PsiElement element : classesNames) {
             String name = element.toString().split(":")[1];
             addKlass(name);

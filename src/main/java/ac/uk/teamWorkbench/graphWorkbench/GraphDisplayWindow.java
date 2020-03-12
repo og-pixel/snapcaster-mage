@@ -1,6 +1,7 @@
 package ac.uk.teamWorkbench.graphWorkbench;
 
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.ToolWindow;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -10,10 +11,11 @@ public class GraphDisplayWindow {
     private JPanel content;
     private GraphPanel graphPanel;
     private Project project;
+    private ToolWindow toolWindow;
 
-    public GraphDisplayWindow(Project project) {
+    public GraphDisplayWindow(Project project, ToolWindow toolWindow) {
         this.project = project;
-        GraphPanel graphPanel = getGraphPanel(project);
+        GraphPanel graphPanel = getGraphPanel(project, toolWindow);
         JButton refresh = new JButton("Refresh");
         advancedRefreshAction(refresh);
         content.add(refresh);
@@ -21,8 +23,8 @@ public class GraphDisplayWindow {
     }
 
     @NotNull
-    private GraphPanel getGraphPanel(Project project) {
-        graphPanel = new GraphPanel(project);
+    private GraphPanel getGraphPanel(Project project, ToolWindow toolWindow) {
+        graphPanel = new GraphPanel(project, toolWindow);
         graphPanel.build();
         return graphPanel;
     }
@@ -34,7 +36,7 @@ public class GraphDisplayWindow {
     private void basicRefreshAction(JButton refresh) {
         refresh.addActionListener(e -> {
             content.remove(graphPanel);
-            content.add(getGraphPanel(project));
+            content.add(getGraphPanel(project, toolWindow));
         });
     }
 

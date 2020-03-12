@@ -86,7 +86,6 @@ public class ObjectPool {
         // in ObjectReflection Class
         ClassReflection classReflection;
         Class<?> loadedClass;
-        //TODO check for *.class files only
         for (Map.Entry<String, VirtualFile> entry : compiledClassesList.entrySet()) {
             String className = entry.getValue().getNameWithoutExtension();
             loadedClass = loadClass(entry.getValue(), className);

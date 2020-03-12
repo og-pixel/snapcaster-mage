@@ -2,6 +2,7 @@ package ac.uk.teamWorkbench.graphWorkbench;
 
 import ac.uk.teamWorkbench.SourceFileUtils;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiElement;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.model.mxCell;
@@ -23,11 +24,17 @@ public class GraphPanel extends JPanel {
 
     private ArrayList<Object> graphElements;
     private Project project;
+    private ToolWindow toolWindow;
+    private SourceFileUtils sourceFileUtils;
 
     private mxGraph graph = new mxGraph();
 
-    public GraphPanel(Project project) {
+    public GraphPanel(Project project, ToolWindow toolWindow) {
         this.project = project;
+        this.toolWindow = toolWindow;
+        SourceFileUtils.instantiateObject(project, toolWindow);
+        this.sourceFileUtils = SourceFileUtils.getInstance();
+
     }
 
     public void build() {
@@ -91,9 +98,9 @@ public class GraphPanel extends JPanel {
     }
 
     private void createAnExtendsEdges(@NotNull mxGraph graph, Object parent) {
-        for (PsiElement element : SourceFileUtils.getAllPsiClasses(project)) {
-            String child = SourceFileUtils.getPsiClassName(element);
-            ArrayList<String> fathers = (ArrayList<String>) SourceFileUtils.getPsiClassInheritanceList(element, "extends");
+        for (PsiElement element : sourceFileUtils.getAllPsiClasses(project)) {
+            String child = sourceFileUtils.getPsiClassName(element);
+            ArrayList<String> fathers = (ArrayList<String>) sourceFileUtils.getPsiClassInheritanceList(element, "extends");
             String father;
             if (fathers.size() == 1) father = fathers.get(0);
             else continue;
@@ -114,9 +121,9 @@ public class GraphPanel extends JPanel {
     }
 
     private void createAnImplementsEdges(@NotNull mxGraph graph, Object parent) {
-        for (PsiElement element : SourceFileUtils.getAllPsiClasses(project)) {
-            String child = SourceFileUtils.getPsiClassName(element);
-            ArrayList<String> fathers = (ArrayList<String>) SourceFileUtils.getPsiClassInheritanceList(element, "implements");
+        for (PsiElement element : sourceFileUtils.getAllPsiClasses(project)) {
+            String child = sourceFileUtils.getPsiClassName(element);
+            ArrayList<String> fathers = (ArrayList<String>) sourceFileUtils.getPsiClassInheritanceList(element, "implements");
             for (String father : fathers) {
                 int childID = -1, fatherID = -1;
                 for (Object object : graphElements) {
@@ -137,9 +144,9 @@ public class GraphPanel extends JPanel {
 
     private void createAnVertexes(@NotNull mxGraph graph, Object parent) {
 
-        Collection<PsiElement> classesNames = SourceFileUtils.getAllPsiClasses(project);
+        Collection<PsiElement> classesNames = sourceFileUtils.getAllPsiClasses(project);
         for (PsiElement element : classesNames) {
-            String id = SourceFileUtils.getPsiClassName(element);
+            String id = sourceFileUtils.getPsiClassName(element);
             graphElements.add(graph.insertVertex(parent,
                     id,            // id of vertex
                     (Arrays.toString(element.getChildren()).contains("PsiKeyword:interface")) ? "<<Interface>>\n" + id
