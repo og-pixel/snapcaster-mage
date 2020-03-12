@@ -7,6 +7,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Objects;
 
 public class GraphDisplayWindow {
 
@@ -18,7 +20,7 @@ public class GraphDisplayWindow {
         this.project = project;
         GraphPanel graphPanel = getGraphPanel(project);
         JButton refresh = new JButton("Refresh");
-//        advancedRefreshAction(refresh);
+        advancedRefreshAction(refresh);
         content.add(refresh);
         content.add(graphPanel);
     }
@@ -31,7 +33,7 @@ public class GraphDisplayWindow {
     }
 
     /**
-     * Simply removes and adds the graph back.
+     * Simply removes and adds the graphPane back.
      * @param refresh
      */
     private void basicRefreshAction(JButton refresh) {
@@ -41,13 +43,13 @@ public class GraphDisplayWindow {
         });
     }
 
-//    private void advancedRefreshAction(JButton refresh) {
-//        refresh.addActionListener(e -> {
-//            for(int i = 0; i <= controller.getKlasses().size(); i++) {
-//                System.out.println(controller.getKlassByIndex(i));
-//            }
-//        });
-//    }
+    private void advancedRefreshAction(JButton refresh) {
+        refresh.addActionListener(e -> {
+            graphPanel.removeGraph();
+            graphPanel.addGraph();
+            graphPanel.updateUI();
+        });
+    }
 
     public JPanel getContent() {
         return content;
