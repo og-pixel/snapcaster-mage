@@ -1,6 +1,5 @@
 package ac.uk.teamWorkbench.graphWorkbench;
 
-import ac.uk.teamWorkbench.SourceFileUtils;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;

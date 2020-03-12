@@ -11,12 +11,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
-
+import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
-
-import com.intellij.openapi.wm.ToolWindow;
-
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FilenameIndex;
 import com.intellij.psi.search.GlobalSearchScope;
@@ -113,12 +110,12 @@ public class SourceFileUtils {
         return psiManager;
     }
 
-    public static Collection<VirtualFile> getAllFilesByExtInProjectScope(Project project) {
-        return FilenameIndex.getAllFilesByExt(project, "java", GlobalSearchScope.projectScope(project));
+    public static Collection<VirtualFile> getAllFilesByExtInProjectScope(Project project, String extension) {
+        return FilenameIndex.getAllFilesByExt(project, extension, GlobalSearchScope.projectScope(project));
     }
 
     public static Collection<PsiFile> getAllPSIFiles(Project project) {
-        Collection<VirtualFile> virtualFiles = getAllFilesByExtInProjectScope(project);
+        Collection<VirtualFile> virtualFiles = getAllFilesByExtInProjectScope(project, "java");
         Collection<PsiFile> psiFiles = new ArrayList<>();
         for (VirtualFile vf : virtualFiles) {
             psiFiles.add(PsiManager.getInstance(project).findFile(vf));
