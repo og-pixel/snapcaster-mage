@@ -34,7 +34,7 @@ public class GraphDisplayWindow {
 
     /**
      * Simply removes and adds the graphPane back.
-     * @param refresh
+     * @param refresh - refreshes the graphPane.
      */
     private void basicRefreshAction(JButton refresh) {
         refresh.addActionListener(e -> {
@@ -43,11 +43,19 @@ public class GraphDisplayWindow {
         });
     }
 
+    /**
+     * Refreshes the graph updating the GUI only (Faster than basic refresh).
+     * @param refresh - refreshes the graph content
+     */
     private void advancedRefreshAction(JButton refresh) {
         refresh.addActionListener(e -> {
-            graphPanel.removeGraph();
-            graphPanel.addGraph();
-            graphPanel.updateUI();
+            try {
+                graphPanel.removeGraph();
+                graphPanel.addGraph();
+                graphPanel.updateUI();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         });
     }
 
