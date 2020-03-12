@@ -4,6 +4,8 @@ import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBList;
 import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Author: Milosz Jakubanis
@@ -30,6 +32,9 @@ public class ObjectCreationWindow extends DialogWrapper {
     private DefaultListModel<String> javaMethodsListModel;
     private DefaultListModel<String> javaVariablesListModel;
 
+    //TODo this name might be wrong
+//    private List<List<JTextField>> parametervalues;
+
     /**
      * Instantiate GUI elements before constructor is called.
      * It makes sure JBList have default list models assigned to them.
@@ -42,6 +47,8 @@ public class ObjectCreationWindow extends DialogWrapper {
         classListJBList = new JBList<>(javaClassListModel);
         methodListJBList = new JBList<>(javaMethodsListModel);
         variableListJBList = new JBList<>(javaVariablesListModel);
+
+//        parametervalues = new ArrayList<>();
     }
 
     /**
@@ -53,7 +60,6 @@ public class ObjectCreationWindow extends DialogWrapper {
         setTitle("Instantiate Object");
         controller = new ObjectCreationController(this);
 
-//        controller.findProjectClasses();
         controller.populateClassList();
         controller.addListeners();
     }
@@ -96,4 +102,8 @@ public class ObjectCreationWindow extends DialogWrapper {
     public ObjectCreationController getController() {
         return controller;
     }
+
+//    public List<List<JTextField>> getParametervalues(){
+//        return parametervalues;
+//    }
 }

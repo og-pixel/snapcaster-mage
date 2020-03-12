@@ -5,8 +5,10 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * WorkbenchController
@@ -28,8 +30,6 @@ public class WorkbenchController {
     private JMenuItem adder;
     private JMenuItem nameChanger;
 
-    //TODO I think I will leave execution loop in this controller as it makes
-    // the most sense and it is attached to the DisplayWindow (without which, it wouldn't work anyway).
     private ExecutionLoop executionLoop;
 
     public WorkbenchController(ObjectDisplayWindow GUI) {
@@ -117,12 +117,15 @@ public class WorkbenchController {
         ObjectCreationWindow objectCreationWindow = new ObjectCreationWindow(true);
         ObjectCreationController controller = objectCreationWindow.getController();
         ExecutionLoop executionLoop = ExecutionLoop.getInstance();
+
+
         String objectName;
         if (objectCreationWindow.showAndGet()) {
             removeTab(index);
             objectName = objectCreationWindow.getSelectedClassName();
-            //TODO add once I make execution loop
-//            executionLoop.addObject(controller.loadSelectedClass(objectName));
+            int selectedConstructorIndex = objectCreationWindow.getSelectedConstructor();
+
+            executionLoop.instantiateObject(objectName, selectedConstructorIndex, parameters);
             addTab(objectName);
         } else {
             removeTab(index);
@@ -242,10 +245,11 @@ public class WorkbenchController {
         });
     }
 
-    public void addButtonListener(JButton executeButton, JButton compileButton, JButton externalLibraryButton) {
+    public void addButtonListener(JButton executeButton, JButton compileButton) {
         executeButton.addActionListener(e -> {
             //TODO not finished
-            executionLoop.startLoop();
+            new Thread(executionLoop).start();
+//            executionLoop.startLoop();
         });
 
         compileButton.addActionListener(e -> {
@@ -253,9 +257,6 @@ public class WorkbenchController {
             System.out.println("TODO");
         });
 
-        externalLibraryButton.addActionListener(e -> {
-
-        });
     }
 
     /**

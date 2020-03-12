@@ -3,15 +3,17 @@ package ac.uk.teamWorkbench.objectWorkbench;
 import ac.uk.teamWorkbench.graphWorkbench.GraphPanel;
 import com.intellij.openapi.vfs.VirtualFile;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Singleton as we expect only one execution loop.
  */
-public class ExecutionLoop {
+public class ExecutionLoop implements Runnable {
 
     private static ExecutionLoop instance = null;
     private boolean isRunning;
@@ -28,27 +30,41 @@ public class ExecutionLoop {
         return instance;
     }
 
-    //TODO here program will wait for input and add objects to the bar here
-    public void startLoop() {
+    @Override
+    public void run() {
+        startLoop();
+    }
+
+    private void startLoop() {
         isRunning = true;
-//        while (isRunning) {
-//
-//        }
+        while (isRunning) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     //TODO plenty of sanity checks
-    public void addObject(Class<?> object){
-        Object xxx = null;
+    public boolean instantiateObject(String objectName, int chosenConstructor, List<Object> arguments) {
+        Map<String, ClassReflection> classReflectionMap = ObjectPool.getInstance().getClassReflectionMap();
+        ClassReflection classReflection = classReflectionMap.get(objectName);
+
+        Class<?> clazz = classReflection.getClazz();
+        Constructor<?> x = clazz.getDeclaredConstructors()[chosenConstructor];
+
         try {
-            xxx = object.getDeclaredConstructors()[0].newInstance();
-        } catch (InstantiationException e) {
+            Object newObject = x.newInstance(arguments);
+        } catch (Exception e) {
+            //TODO better error checking
             e.printStackTrace();
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
+            return false;
         }
 
-        loadedObjects.add(object);
+        return true;
+
     }
+
+
 }

@@ -19,6 +19,7 @@ public class ClassReflection {
     private Class<?> clazz;
 
     private String className;
+    private String packageName;
     private String parentClass;
     private List<Class<?>> childrenList = new ArrayList<>();
     private List<Field> variableList = new ArrayList<>();
@@ -28,6 +29,7 @@ public class ClassReflection {
     public ClassReflection(String className, Class<?> clazz) {
         this.className = className;
         this.clazz = clazz;
+        this.packageName = clazz.getPackage().getName();
     }
 
     /**
@@ -66,9 +68,9 @@ public class ClassReflection {
         methodList.forEach(method -> {
             //Clears string builder
             sb.setLength(0);
-
             sb.append(method.getReturnType().getSimpleName()).append(" ")
                     .append(method.getName()).append("(");
+
             for (int i = 0; i < method.getGenericParameterTypes().length; i++) {
                 sb.append(method.getParameterTypes()[i].getSimpleName()).append(" ").
                         append(method.getParameters()[i].getName());
@@ -135,6 +137,10 @@ public class ClassReflection {
         return parentClass;
     }
 
+    public String getPackageName() {
+        return packageName;
+    }
+
     public List<Class<?>> getChildrenList() {
         return childrenList;
     }
@@ -144,4 +150,3 @@ public class ClassReflection {
         parentClass = parentClassName;
     }
 }
-

@@ -17,19 +17,17 @@ public class ObjectDisplayWindow {
     private JTabbedPane tabbedPane;
     private JButton executeButton;
     private JButton compileButton;
-    private JButton externalLibraryButton;
 
     private WorkbenchController controller;
 
     public ObjectDisplayWindow() {
-        // Project items
         controller = new WorkbenchController(this);
         init();
     }
 
     private void init() {
         controller.addMousePressedListener(this.tabbedPane);
-        controller.addButtonListener(this.executeButton, this.compileButton, this.externalLibraryButton);
+        controller.addButtonListener(this.executeButton, this.compileButton);
     }
 
     public JTabbedPane getTabbedPane() { return this.tabbedPane; }

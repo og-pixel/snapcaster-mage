@@ -1,27 +1,12 @@
 package ac.uk.teamWorkbench.objectWorkbench;
 
-import ac.uk.teamWorkbench.SourceFileUtils;
-import com.intellij.openapi.roots.OrderRootType;
-import com.intellij.openapi.roots.libraries.Library;
-import com.intellij.openapi.roots.libraries.LibraryTable;
-import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiJavaFile;
-import com.intellij.psi.PsiManager;
 import com.intellij.ui.components.JBList;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class ObjectCreationController {
 
@@ -33,6 +18,7 @@ public class ObjectCreationController {
 
     /**
      * Constructor
+     *
      * @param GUI window class part that is passed to this controller
      */
     public ObjectCreationController(ObjectCreationWindow GUI) {
@@ -53,6 +39,13 @@ public class ObjectCreationController {
                 populateMethodList(classList.getSelectedValue());
                 populateVariableList(classList.getSelectedValue());
                 populateConstructorList();
+            }
+        });
+
+        JTabbedPane constructorTabList = GUI.getConstructorsTabList();
+        constructorTabList.addChangeListener(e -> {
+            if(constructorTabList.getSelectedIndex() != -1){
+//                populateParameterValues();
             }
         });
     }
@@ -89,15 +82,17 @@ public class ObjectCreationController {
 
     /**
      * Creates a constructor
+     *
      * @return
      */
-    private JPanel createConstructorTab(List<JTextField> arrayOfTextFields){
+    private JPanel createConstructorTab(List<JTextField> arrayOfTextFields) {
         JPanel panel = new JPanel();
         FlowLayout layout = new FlowLayout();
         panel.setLayout(layout);
         panel.setPreferredSize(new Dimension(100, 400));
         JButton createObjectButton = new JButton("Create");
         panel.add(createObjectButton);
+        //TODO it should send all textboxes to the GUI
         addCreateObjectListener(createObjectButton, arrayOfTextFields);
         panel.setMaximumSize(new Dimension(100, 900));
 
@@ -107,6 +102,7 @@ public class ObjectCreationController {
     private void createPanelElement(List<String> parameterList, JPanel panel, ArrayList<JTextField> textFieldList) {
         JLabel label;
         JTextField textField;
+        System.out.println();
         for (String parameterName : parameterList) {
             label = new JLabel(parameterName);
             textField = new JTextField();
@@ -132,4 +128,14 @@ public class ObjectCreationController {
             }
         });
     }
+
+    //Returns a list used to instantiate an object
+//    public void populateParameterValues(List<JTextField> listParameters) {
+//        List<List<JTextField>> parameterValues = GUI.getParametervalues();
+//        parameterValues.clear();
+//        parameterValues.addAll(listParameters);
+//        for (JTextField parameter : listParameters) {
+//            System.out.println("added: " + parameter.getName());
+//        }
+//    }
 }

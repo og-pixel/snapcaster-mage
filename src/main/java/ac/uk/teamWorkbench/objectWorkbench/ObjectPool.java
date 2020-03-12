@@ -88,6 +88,7 @@ public class ObjectPool {
         Class<?> loadedClass;
         for (Map.Entry<String, VirtualFile> entry : compiledClassesList.entrySet()) {
             String className = entry.getValue().getNameWithoutExtension();
+
             loadedClass = loadClass(entry.getValue(), className);
             classReflection = new ClassReflection(className, loadedClass);
 

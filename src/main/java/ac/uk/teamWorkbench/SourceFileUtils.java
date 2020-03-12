@@ -49,7 +49,6 @@ public class SourceFileUtils {
             this.projectRoot = ModuleRootManager.getInstance(
                     ModuleManager.getInstance(project).getModules()[0]).getContentRoots()[0];
         }catch (NullPointerException e){
-            //TODO replace with logger
             System.out.println("Unable to find root of the project.\n" +
                     "Please make sure your project is first on the module options.");
             System.exit(1);
@@ -61,8 +60,6 @@ public class SourceFileUtils {
             Module module = moduleManager.getModules()[i];
             if(Objects.requireNonNull(CompilerModuleExtension.getInstance(module)).getCompilerOutputPath() != null){
                 this.compilerModule.add(Objects.requireNonNull(CompilerModuleExtension.getInstance(module)).getCompilerOutputPath());
-                //TODO compare here
-//                compareCompiledWithSource();
             }
         }
         isInstantiated = true;
