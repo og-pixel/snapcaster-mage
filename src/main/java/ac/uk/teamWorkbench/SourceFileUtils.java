@@ -114,7 +114,7 @@ public class SourceFileUtils {
     }
 
     public static Collection<VirtualFile> getAllFilesByExtInProjectScope(Project project) {
-        return FilenameIndex.getAllFilesByExt(project, extension, GlobalSearchScope.projectScope(project));
+        return FilenameIndex.getAllFilesByExt(project, "java", GlobalSearchScope.projectScope(project));
     }
 
     public static Collection<PsiFile> getAllPSIFiles(Project project) {
