@@ -7,12 +7,14 @@ public class Klass {
     String type;
     String parentName;
     ArrayList<String> implementsList;
+    ArrayList<String> fieldsList;
 
     public Klass(String name) {
         setName(name);
         setType("class");
         setParentName("");
         implementsList = new ArrayList<>();
+        fieldsList = new ArrayList<>();
     }
 
     public String getName() {
@@ -55,7 +57,19 @@ public class Klass {
         }
     }
 
+    public ArrayList<String> getFieldsList() {
+        return fieldsList;
+    }
+
+    public void setFieldsList(ArrayList<String> fieldsList) {
+        this.fieldsList = fieldsList;
+    }
+
     public void addImplementsListItem(String name) {
         implementsList.add(name);
+    }
+
+    public void addFieldsListItem(String name) {
+        fieldsList.add(name);
     }
 }
