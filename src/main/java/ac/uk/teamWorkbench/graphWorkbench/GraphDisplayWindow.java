@@ -13,11 +13,12 @@ public class GraphDisplayWindow {
     private JPanel content;
     private GraphPanel graphPanel;
     private Project project;
+    private JButton refresh;
 
     public GraphDisplayWindow(Project project) {
         this.project = project;
         GraphPanel graphPanel = getGraphPanel(project);
-        JButton refresh = new JButton("Refresh");
+        this.refresh = new JButton("Refresh");
         refreshAction(refresh);
         content.add(refresh);
         content.add(graphPanel);
@@ -31,11 +32,9 @@ public class GraphDisplayWindow {
     }
 
     private void refreshAction(JButton refresh) {
-        refresh.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                content.remove(graphPanel);
-                content.add(getGraphPanel(project));
-            }
+        refresh.addActionListener(e -> {
+            content.remove(graphPanel);
+            content.add(getGraphPanel(project));
         });
     }
 
