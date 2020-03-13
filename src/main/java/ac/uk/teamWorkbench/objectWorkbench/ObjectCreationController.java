@@ -5,6 +5,7 @@ import com.intellij.ui.components.JBList;
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,10 @@ public class ObjectCreationController {
     //HashMap of classes in the Project
     private Map<String, ClassReflection> classReflectionMap;
 
+    //TODO its meant to hold one's constructor parameters
+    private Map<Integer, List<JTextField>> mapConstructorParameters;
+//    private ArrayList<ArrayList<JTextField>> mapConstructorParameters;
+
     /**
      * Constructor
      *
@@ -25,6 +30,8 @@ public class ObjectCreationController {
         this.GUI = GUI;
         this.objectPool = ObjectPool.getInstance();
         this.classReflectionMap = objectPool.getClassReflectionMap();
+        this.mapConstructorParameters = new HashMap<>();
+//        this.mapConstructorParameters = new ArrayList<>();
     }
 
     /**
@@ -70,39 +77,37 @@ public class ObjectCreationController {
         constructorsTab.removeAll();
         //Get list of constructors as list
         List<String> constructorListAsText = classReflectionMap.get(className).getConstructorListAsText();
-        for (int i = 0; i < constructorListAsText.size(); i++) {
-            ArrayList<JTextField> arrayOfTextFields = new ArrayList<>();
-            List<String> constructorParameters = classReflectionMap.get(className).getParameterListAsText(i);
-            JPanel panel = createConstructorTab(arrayOfTextFields);
 
-            createPanelElement(constructorParameters, panel, arrayOfTextFields);
+        mapConstructorParameters.clear();
+        for (int i = 0; i < constructorListAsText.size(); i++) {
+            ArrayList<JTextField> textFieldList = new ArrayList<>();
+            List<String> constructorParameters = classReflectionMap.get(className).getParameterListAsText(i);
+            JPanel panel = createConstructorTab();
+
+            createPanelElement(constructorParameters, panel, textFieldList);
             constructorsTab.addTab(constructorListAsText.get(i), panel);
+
+            mapConstructorParameters.put(i, textFieldList);
         }
     }
 
     /**
-     * Creates a constructor
+     * Creates a constructor tab
      *
-     * @return
+     * @return constructor tab
      */
-    private JPanel createConstructorTab(List<JTextField> arrayOfTextFields) {
+    private JPanel createConstructorTab() {
         JPanel panel = new JPanel();
         FlowLayout layout = new FlowLayout();
         panel.setLayout(layout);
         panel.setPreferredSize(new Dimension(100, 400));
-        JButton createObjectButton = new JButton("Create");
-        panel.add(createObjectButton);
-        //TODO it should send all textboxes to the GUI
-        addCreateObjectListener(createObjectButton, arrayOfTextFields);
         panel.setMaximumSize(new Dimension(100, 900));
-
         return panel;
     }
 
     private void createPanelElement(List<String> parameterList, JPanel panel, ArrayList<JTextField> textFieldList) {
         JLabel label;
         JTextField textField;
-        System.out.println();
         for (String parameterName : parameterList) {
             label = new JLabel(parameterName);
             textField = new JTextField();
@@ -121,21 +126,9 @@ public class ObjectCreationController {
         }
     }
 
-    private void addCreateObjectListener(JButton button, List<JTextField> listParameters) {
-        button.addActionListener(e -> {
-            for (JTextField listParameter : listParameters) {
-                System.out.println("Found: " + listParameter.getText());
-            }
-        });
+    //TODO i think this method and parameter should be in the GUI after all
+    public Map<Integer, List<JTextField>> getMapConstructorParameters() {
+        return mapConstructorParameters;
     }
 
-    //Returns a list used to instantiate an object
-//    public void populateParameterValues(List<JTextField> listParameters) {
-//        List<List<JTextField>> parameterValues = GUI.getParametervalues();
-//        parameterValues.clear();
-//        parameterValues.addAll(listParameters);
-//        for (JTextField parameter : listParameters) {
-//            System.out.println("added: " + parameter.getName());
-//        }
-//    }
 }

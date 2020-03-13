@@ -112,6 +112,8 @@ public class WorkbenchController {
      *
      * @param index - index of the tab
      */
+    //TODO I need to work on this method, it looks silly
+    // and parameters passed look awful
     private void newAddTabTask(int index) {
         //True if user pressed ok to create object
         ObjectCreationWindow objectCreationWindow = new ObjectCreationWindow(true);
@@ -125,8 +127,17 @@ public class WorkbenchController {
             objectName = objectCreationWindow.getSelectedClassName();
             int selectedConstructorIndex = objectCreationWindow.getSelectedConstructor();
 
-            executionLoop.instantiateObject(objectName, selectedConstructorIndex, parameters);
-            addTab(objectName);
+            List<JTextField> fields = controller.getMapConstructorParameters().get(selectedConstructorIndex);
+            Object[] parameters = new Object[fields.size()];
+
+            for (int i = 0; i < fields.size(); i++) {
+                parameters[i] = fields.get(i).getText();
+            }
+
+            if(executionLoop.instantiateObject(objectName, selectedConstructorIndex, parameters)){
+                addTab(objectName);
+            }
+
         } else {
             removeTab(index);
         }

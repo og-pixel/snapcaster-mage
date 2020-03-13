@@ -3,9 +3,8 @@ package ac.uk.teamWorkbench.objectWorkbench;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBList;
 import org.jetbrains.annotations.Nullable;
+
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Author: Milosz Jakubanis
@@ -31,9 +30,6 @@ public class ObjectCreationWindow extends DialogWrapper {
     private DefaultListModel<String> javaClassListModel;
     private DefaultListModel<String> javaMethodsListModel;
     private DefaultListModel<String> javaVariablesListModel;
-
-    //TODo this name might be wrong
-//    private List<List<JTextField>> parametervalues;
 
     /**
      * Instantiate GUI elements before constructor is called.
@@ -103,7 +99,4 @@ public class ObjectCreationWindow extends DialogWrapper {
         return controller;
     }
 
-//    public List<List<JTextField>> getParametervalues(){
-//        return parametervalues;
-//    }
 }

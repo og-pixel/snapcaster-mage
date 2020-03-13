@@ -47,15 +47,18 @@ public class ExecutionLoop implements Runnable {
     }
 
     //TODO plenty of sanity checks
-    public boolean instantiateObject(String objectName, int chosenConstructor, List<Object> arguments) {
+    public boolean instantiateObject(String objectName, int chosenConstructor, Object[] arguments) {
         Map<String, ClassReflection> classReflectionMap = ObjectPool.getInstance().getClassReflectionMap();
         ClassReflection classReflection = classReflectionMap.get(objectName);
 
         Class<?> clazz = classReflection.getClazz();
         Constructor<?> x = clazz.getDeclaredConstructors()[chosenConstructor];
 
+        System.out.println(arguments);
+
         try {
             Object newObject = x.newInstance(arguments);
+            System.out.println("sucessfully instantiated an object: " + newObject.getClass());
         } catch (Exception e) {
             //TODO better error checking
             e.printStackTrace();
