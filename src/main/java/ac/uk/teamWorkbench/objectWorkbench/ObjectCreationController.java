@@ -19,7 +19,6 @@ public class ObjectCreationController {
 
     //TODO its meant to hold one's constructor parameters
     private Map<Integer, List<JTextField>> mapConstructorParameters;
-//    private ArrayList<ArrayList<JTextField>> mapConstructorParameters;
 
     /**
      * Constructor
@@ -31,7 +30,6 @@ public class ObjectCreationController {
         this.objectPool = ObjectPool.getInstance();
         this.classReflectionMap = objectPool.getClassReflectionMap();
         this.mapConstructorParameters = new HashMap<>();
-//        this.mapConstructorParameters = new ArrayList<>();
     }
 
     /**

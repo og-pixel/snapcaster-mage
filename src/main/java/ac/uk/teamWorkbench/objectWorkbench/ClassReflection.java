@@ -3,9 +3,7 @@ package ac.uk.teamWorkbench.objectWorkbench;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 
@@ -104,7 +102,7 @@ public class ClassReflection {
         constructorList.forEach(constructor -> {
             sb.setLength(0);
             if (constructor.getParameterCount() <= 0) {
-                sb.append("No Parameters");
+                sb.append("No Argument Constructor");
             } else if (constructor.getParameterCount() < 4) {
                 sb.append("(");
                 for (int i = 0; i < constructor.getParameterCount(); i++) {
@@ -127,6 +125,12 @@ public class ClassReflection {
             list.add(constructorList.get(index).getParameterTypes()[i].getSimpleName());
         }
         return list;
+    }
+
+    public Constructor<?> getConstructorParameterTypes(int constructorIndex){
+        return constructorList.get(constructorIndex);
+
+//        return null;
     }
 
     public Class<?> getClazz() {
