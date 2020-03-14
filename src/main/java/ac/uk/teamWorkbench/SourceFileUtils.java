@@ -12,7 +12,6 @@ import com.intellij.openapi.roots.CompilerModuleExtension;
 import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.search.FilenameIndex;
@@ -85,21 +84,9 @@ public class SourceFileUtils {
         return FilenameIndex.getAllFilesByExt(project, extension, GlobalSearchScope.projectScope(project));
     }
 
-    private void compareCompiledWithSource(){
-
-    }
-
     //Getters
     public Project getProject() {
         return project;
-    }
-
-    public ToolWindow getToolWindow() {
-        return toolWindow;
-    }
-
-    public VirtualFile getProjectRoot() {
-        return projectRoot;
     }
 
     public List<VirtualFile> getCompilerModule() {
@@ -123,35 +110,4 @@ public class SourceFileUtils {
         return psiFiles;
     }
 
-    public static Collection<PsiElement> getAllPsiClasses(Project project) {
-        Collection<PsiElement> collection = new ArrayList<>();
-        for (PsiFile psiFile : getAllPSIFiles(project)) {
-            for (PsiElement psiElement : psiFile.getChildren()) {
-                if ((psiElement.getContext() != null) && psiElement.toString().contains("PsiClass")) {
-                    collection.add(psiElement);
-                }
-            }
-        }
-        return collection;
-    }
-
-    public static Collection<String> getPsiClassInheritanceList(PsiElement element, String inheritanceType) {
-        ArrayList<String> arrayList = new ArrayList<>();
-        for (PsiElement child :
-                element.getChildren()) {
-            if (child.toString().contains("PsiReferenceList")) {
-                for (PsiElement grandchild : child.getChildren()) {
-                    if (grandchild.toString().contains("PsiJavaCodeReferenceElement")
-                            && child.getText().contains(inheritanceType)
-                            && !grandchild.getText().isEmpty())
-                        arrayList.add(grandchild.getText());
-                }
-            }
-        }
-        return arrayList;
-    }
-
-    public static String getPsiClassName(PsiElement element) {
-        return element.toString().split(":")[1];
-    }
 }
