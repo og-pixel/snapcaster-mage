@@ -1,5 +1,11 @@
 package ac.uk.teamWorkbench.graphWorkbench;
 
+/* **********
+ * Copyright (c) 2020. All rights reserved.
+ * @Author Kacper
+ *  Description: Controller class for Klass entity. Storing List of Klasses and populate it.
+ * **********/
+
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -20,10 +26,6 @@ public class KlassController {
         return klasses;
     }
 
-    public void setKlasses(ArrayList<Klass> klasses) {
-        this.klasses = klasses;
-    }
-
     public void addKlass(Klass klass) {
         klasses.add(klass);
     }
@@ -42,8 +44,7 @@ public class KlassController {
                                     child.getChildren())
                                 if (grandchild.toString().contains("PsiJavaCodeReferenceElement")) {
                                     if (grandchild.getText().isEmpty()) continue;
-                                    if (child.getText().contains("extends"))
-                                        klass.setParentName(grandchild.getText());
+                                    if (child.getText().contains("extends")) klass.setParentName(grandchild.getText());
                                     if (child.getText().contains("implements"))
                                         klass.addImplementsListItem(grandchild.getText());
                                 }
@@ -60,16 +61,4 @@ public class KlassController {
             }
     }
 
-    public void printKlassesToConsole() {
-        StringBuilder sb = new StringBuilder("--- Classes ---").append("\n");
-        klasses.forEach(klass -> {
-            sb.append("-").append(klass.type).append("\n");
-            sb.append("-").append(klass.name).append("\n");
-            sb.append("-e-").append(klass.parentName).append("\n");
-            klass.implementsList.forEach(s -> sb.append("-i-").append(s).append("\n"));
-            klass.fieldsList.forEach(s -> sb.append("-f-").append(s).append("\n"));
-            sb.append("- -- --- -- -").append("\n");
-        });
-        System.out.println(sb);
-    }
 }

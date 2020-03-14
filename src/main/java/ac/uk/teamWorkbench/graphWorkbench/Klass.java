@@ -1,5 +1,11 @@
 package ac.uk.teamWorkbench.graphWorkbench;
 
+/* **********
+ * Copyright (c) 2020. All rights reserved.
+ * @Author Kacper
+ *  Description: Entity class represents class structure in project.
+ ********** */
+
 import java.util.ArrayList;
 
 public class Klass {
@@ -45,24 +51,8 @@ public class Klass {
         return implementsList;
     }
 
-    public void setImplementsList(ArrayList<String> implementsList) {
-        this.implementsList = implementsList;
-    }
-
-    public String getImplementsListItem(int index) {
-        try {
-            return implementsList.get(index);
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
     public ArrayList<String> getFieldsList() {
         return fieldsList;
-    }
-
-    public void setFieldsList(ArrayList<String> fieldsList) {
-        this.fieldsList = fieldsList;
     }
 
     public void addImplementsListItem(String name) {
@@ -71,5 +61,13 @@ public class Klass {
 
     public void addFieldsListItem(String name) {
         fieldsList.add(name);
+    }
+
+    public String getDisplayName() {
+        StringBuilder display = new StringBuilder();
+        if (getType().equals("interface")) display.append("<<").append("Interface").append(">>");
+        if (getType().equals("enum")) display.append("<<").append("Enum").append(">>");
+        display.append("\n").append(getName()).append("\n");
+        return display.toString();
     }
 }
