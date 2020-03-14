@@ -10,7 +10,7 @@ import java.util.Arrays;
 
 /**
  * WorkbenchController
- *
+ * <p>
  * The main controller for the ObjectWorkbench.
  * Handles logic and updates the GUI.
  */
@@ -28,6 +28,10 @@ public class WorkbenchController {
     private JMenuItem adder;
     private JMenuItem nameChanger;
 
+    //TODO I think I will leave execution loop in this controller as it makes
+    // the most sense and it is attached to the DisplayWindow (without which, it wouldn't work anyway).
+    private ExecutionLoop executionLoop;
+
     public WorkbenchController(ObjectDisplayWindow GUI) {
         init();
         this.GUI = GUI;
@@ -37,6 +41,7 @@ public class WorkbenchController {
         this.validator = new Validator(initProtectedCharacters());
         this.dialogFactory = new DialogFactory();
         this.rightClickMenu = new JPopupMenu();
+        this.executionLoop = ExecutionLoop.getInstance();
     }
 
     /**
@@ -48,22 +53,25 @@ public class WorkbenchController {
 
     /**
      * Add a new Tab with specified title
+     *
      * @param title - the label of the tab.
      */
-    private void addTab(String title){
+    private void addTab(String title) {
         GUI.getTabbedPane().addTab(title, new JPanel());
-        int newIndex = GUI.getTabbedPane().getTabCount()-1;
+        int newIndex = GUI.getTabbedPane().getTabCount() - 1;
         setSelectedTabIndex(newIndex);
     }
 
     /**
      * Adds a new untitled tab
      */
-    private void addTab() { addTab("Untitled"); }
+    private void addTab() {
+        addTab("Untitled");
+    }
 
     /**
      * @param tabPosition - the position of the tab to remove
-     * Remove a tabbed pane.
+     *                    Remove a tabbed pane.
      */
     private void removeTab(int tabPosition) {
         GUI.getTabbedPane().removeTabAt(tabPosition);
@@ -74,14 +82,14 @@ public class WorkbenchController {
      */
     private void removeAllTabs() {
         int i = 0;
-        while(!GUI.getTabbedPane().getTitleAt(i).equals("+"))
-        {
+        while (!GUI.getTabbedPane().getTitleAt(i).equals("+")) {
             GUI.getTabbedPane().removeTabAt(i);
         }
     }
 
     /**
      * Get the selected tabbed pane
+     *
      * @return int tabbedPaneIndex
      */
     private int getSelectedTabIndex() {
@@ -90,20 +98,36 @@ public class WorkbenchController {
 
     /**
      * Set the selected tab index
+     *
      * @param index - the index to set
      */
-    public void setSelectedTabIndex(int index) { GUI.getTabbedPane().setSelectedIndex(index);
+    public void setSelectedTabIndex(int index) {
+        GUI.getTabbedPane().setSelectedIndex(index);
     }
 
     /**
      * Performs necessary tasks to create a new tab
+     * If the ObjectCreationWindow tries to instantiate an object
+     * add it to the ExecutionLoop
+     *
      * @param index - index of the tab
      */
     private void newAddTabTask(int index) {
-        removeTab(index);
-        addTab();
+        //True if user pressed ok to create object
+        ObjectCreationWindow objectCreationWindow = new ObjectCreationWindow(true);
+        ObjectCreationController controller = objectCreationWindow.getController();
+        ExecutionLoop executionLoop = ExecutionLoop.getInstance();
+        String objectName;
+        if (objectCreationWindow.showAndGet()) {
+            removeTab(index);
+            objectName = objectCreationWindow.getSelectedClassName();
+            //TODO add once I make execution loop
+//            executionLoop.addObject(controller.loadSelectedClass(objectName));
+            addTab(objectName);
+        } else {
+            removeTab(index);
+        }
         addNewTabButton();
-        new ObjectCreationWindow(true).showAndGet();
     }
 
     /**
@@ -111,8 +135,8 @@ public class WorkbenchController {
      */
     private void appendTabToEnd() {
         int count = GUI.getTabbedPane().getTabCount();
-        for(int i = 0; i < count; i++) {
-            if(GUI.getTabbedPane().getTitleAt(i).equals("+")) {
+        for (int i = 0; i < count; i++) {
+            if (GUI.getTabbedPane().getTitleAt(i).equals("+")) {
                 newAddTabTask(i);
             }
         }
@@ -120,26 +144,30 @@ public class WorkbenchController {
 
     /**
      * Get selected tab title
+     *
      * @param index - the tab index
      * @return title - the selected tabs title
      */
-    private String getSelectedTabTitle(int index) { return GUI.getTabbedPane().getTitleAt(index); }
+    private String getSelectedTabTitle(int index) {
+        return GUI.getTabbedPane().getTitleAt(index);
+    }
 
     /**
      * Set the title of a tabbed pane tab
+     *
      * @param index - the index of the tab
      * @param title - the title to set
      */
     private void setTabTitle(int index, String title) {
         StringBuilder out = new StringBuilder();
-        if(validator.hasProtectedCharacter(title) || validator.isProtectedCharacter(title)) {
-            for(String item : protectedCharacters) {
+        if (validator.hasProtectedCharacter(title) || validator.isProtectedCharacter(title)) {
+            for (String item : protectedCharacters) {
                 out.append("       - ").append("'").append(item).append("'").append("\n");
             }
             dialogFactory.displayWarningDialog(GUI.getTabbedPane(),
                     "Please ensure there are not protected characters. \n" +
-                    "\nProtected characters include: \n" +
-                    out, "Warning: Use of protected characters is prohibited.");
+                            "\nProtected characters include: \n" +
+                            out, "Warning: Use of protected characters is prohibited.");
             return;
         }
         GUI.getTabbedPane().setTitleAt(index, title);
@@ -148,7 +176,9 @@ public class WorkbenchController {
     /**
      * Adds a new tab with the + icon allowing users to add new tabs.
      */
-    private void addNewTabButton() { GUI.getTabbedPane().addTab("+", new JPanel()); }
+    private void addNewTabButton() {
+        GUI.getTabbedPane().addTab("+", new JPanel());
+    }
 
     /**
      * Populates rightClickMenu JPopupDialog
@@ -164,19 +194,26 @@ public class WorkbenchController {
 
     /**
      * Adds a item to the rightClickMenu
+     *
      * @param item - the menu item to add
      */
-    public void addRightClickMenuItem(JMenuItem item) { this.rightClickMenu.add(item); }
+    public void addRightClickMenuItem(JMenuItem item) {
+        this.rightClickMenu.add(item);
+    }
 
     /**
      * Checks if a mouse event is a right click event
+     *
      * @param e - the event to be checked
      * @return - true if the event is a right click event, else false
      */
-    public boolean isRightClickEvent(MouseEvent e) { return SwingUtilities.isRightMouseButton(e); }
+    public boolean isRightClickEvent(MouseEvent e) {
+        return SwingUtilities.isRightMouseButton(e);
+    }
 
     /**
      * Creates a mousePressedListener to listen for mouse actions
+     *
      * @param parent - the component to add the listener to
      */
     public void addMousePressedListener(Component parent) {
@@ -184,31 +221,49 @@ public class WorkbenchController {
             @Override
             public void mousePressed(MouseEvent e) {
                 try {
-                    if(isRightClickEvent(e)) {
+                    if (isRightClickEvent(e)) {
                         updateRightClickMenu();
                         updateMenuItems();
                         populateRightClickMenu();
                         rightClickMenu.show(GUI.getTabbedPane(), e.getX(), e.getY());
                     }
-                } catch(Exception ex) {
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
                 try {
                     int tabIndex = getSelectedTabIndex();
-                    if(validator.isValidAddRequest(getSelectedTabTitle(tabIndex))) {
+                    if (validator.isValidAddRequest(getSelectedTabTitle(tabIndex))) {
                         newAddTabTask(tabIndex);
                     }
-                } catch(Exception ex) {
+                } catch (Exception ex) {
                     ex.printStackTrace();
                 }
             }
         });
     }
 
+    public void addButtonListener(JButton executeButton, JButton compileButton, JButton externalLibraryButton) {
+        executeButton.addActionListener(e -> {
+            //TODO not finished
+            executionLoop.startLoop();
+        });
+
+        compileButton.addActionListener(e -> {
+
+            System.out.println("TODO");
+        });
+
+        externalLibraryButton.addActionListener(e -> {
+
+        });
+    }
+
     /**
      * Updates the right click JPopMenu
      */
-    private void updateRightClickMenu() { this.rightClickMenu = new JPopupMenu(); }
+    private void updateRightClickMenu() {
+        this.rightClickMenu = new JPopupMenu();
+    }
 
     /**
      * Updates the items in the right click JPopMenu
@@ -226,13 +281,15 @@ public class WorkbenchController {
 
         this.adder = new JMenuItem(new AbstractAction("Add Tab...") {
             @Override
-            public void actionPerformed(ActionEvent actionEvent) { appendTabToEnd(); }
+            public void actionPerformed(ActionEvent actionEvent) {
+                appendTabToEnd();
+            }
         });
 
         this.allCloser = new JMenuItem(new AbstractAction("Close All Tabs...") {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                if(dialogFactory.getUserConfirmation(GUI.getTabbedPane(),
+                if (dialogFactory.getUserConfirmation(GUI.getTabbedPane(),
                         "Are you sure you want to do this? (This action cannot be undone)",
                         "Close All Tabs?") == 0) {
                     removeAllTabs();
@@ -243,7 +300,7 @@ public class WorkbenchController {
         this.closer = new JMenuItem(new AbstractAction("Close Tab...") {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
-                if(dialogFactory.getUserConfirmation(GUI.getTabbedPane(),
+                if (dialogFactory.getUserConfirmation(GUI.getTabbedPane(),
                         "Are you sure you want to do this? (This action cannot be undone)",
                         "Close This Tab? - " + getSelectedTabTitle(getSelectedTabIndex())) == 0) {
                     removeTab(getSelectedTabIndex());

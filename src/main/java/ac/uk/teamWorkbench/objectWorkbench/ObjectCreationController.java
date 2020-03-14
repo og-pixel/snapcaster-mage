@@ -1,133 +1,135 @@
 package ac.uk.teamWorkbench.objectWorkbench;
 
 import ac.uk.teamWorkbench.SourceFileUtils;
-import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.OrderRootType;
+import com.intellij.openapi.roots.libraries.Library;
+import com.intellij.openapi.roots.libraries.LibraryTable;
+import com.intellij.openapi.roots.libraries.LibraryTablesRegistrar;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiJavaFile;
 import com.intellij.psi.PsiManager;
+import com.intellij.ui.components.JBList;
+import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
+import java.awt.*;
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
+import java.util.List;
 
 public class ObjectCreationController {
 
-    private URLClassLoader classLoader;
+    private ObjectCreationWindow GUI;
+    private ObjectPool objectPool;
 
     //HashMap of classes in the Project
-    // It should be fine with unique key as
-    // classes should have unique names anyway
-    // (IntelliJ disallows creation anyway)
-    private Map<String, ClassReflection> projectClassList = new HashMap<>();
+    private Map<String, ClassReflection> classReflectionMap;
 
-    ArrayList<VirtualFile> findCompiledClasses(VirtualFile root) {
-        ArrayList<VirtualFile> list = new ArrayList<>();
-        return findCompiledClasses(root.getChildren(), list);
-    }
-
-    ArrayList<VirtualFile> findCompiledClasses(VirtualFile[] virtualFile, ArrayList<VirtualFile> list){
-        for (VirtualFile file : virtualFile) {
-            if (file.isDirectory()) {
-                findCompiledClasses(file.getChildren(), list);
-            } else {
-                list.add(file);
-            }
-        }
-        return list;
-    }
-
-    void findProjectClasses() {
-        VirtualFile projectRoot = SourceFileUtils.getInstance().getCompilerModule().get(0);
-        File allFiles = new File(Objects.requireNonNull(projectRoot.getCanonicalPath()));
-        List<VirtualFile> compiledClassesList;
-        compiledClassesList = findCompiledClasses(projectRoot);
-
-        //Load classes into class loader
-        try {
-            classLoader = URLClassLoader.newInstance(new URL[]{allFiles.toURI().toURL()});
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        //Loop over all compiled classes and extract methods and variables and save them as String
-        // in ObjectReflection Class
-        ClassReflection classReflection;
-        Class<?> loadedClass;
-        for (VirtualFile virtualFile: compiledClassesList) {
-            classReflection = new ClassReflection(virtualFile.getNameWithoutExtension());
-            String className = classReflection.getClassName();
-            projectClassList.put(className, classReflection);
-
-            loadedClass = loadClass(virtualFile, className);
-
-            getClassMethods(loadedClass).forEach(methodName ->
-                    projectClassList.get(className).addMethod(methodName));
-
-            getClassVariables(loadedClass).forEach(methodName ->
-                    projectClassList.get(className).addVariable(methodName));
-
-            String parentClassName = loadedClass.getSuperclass().toGenericString();
-            projectClassList.get(className).setParentClass(parentClassName);
-
-        }
-    }
-
-    Class<?> loadClass(VirtualFile virtualFile, String className) {
-        PsiManager psiManager = SourceFileUtils.getInstance().getPsiManager();
-        PsiFile psiFile;
-
-        Class<?> loadedClass = null;
-        String packageName;
-
-        try {
-            psiFile = psiManager.findFile(virtualFile);
-            packageName = ((PsiJavaFile) psiFile).getPackageName();
-
-            if(packageName.isEmpty()){
-                loadedClass = classLoader.loadClass(className);
-            }else {
-                loadedClass = classLoader.loadClass(packageName +  "." + className);
-            }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-        return loadedClass;
+    /**
+     * Constructor
+     * @param GUI window class part that is passed to this controller
+     */
+    public ObjectCreationController(ObjectCreationWindow GUI) {
+        this.GUI = GUI;
+        this.objectPool = ObjectPool.getInstance();
+        this.classReflectionMap = objectPool.getClassReflectionMap();
     }
 
     /**
-     * Extract methods from the Class by performing reflection
-     * @param loadedClass Class name that methods are extracted from.
-     * @return List of methods belonging to that class.
+     * Add Event Listeners
      */
-    ArrayList<String> getClassMethods(Class<?> loadedClass) {
-        ArrayList<String> methodList = new ArrayList<>();
-        Method[] methods = loadedClass.getDeclaredMethods();
-        for (int i = 0; i < loadedClass.getDeclaredMethods().length; i++) {
-            methodList.add(methods[i].getName());
+    void addListeners() {
+        JBList<String> classList = GUI.getClassListJBList();
+        classList.addListSelectionListener(e -> {
+            if (!classList.getValueIsAdjusting() &&
+                    classList.getSelectedValue() != null) {
+
+                populateMethodList(classList.getSelectedValue());
+                populateVariableList(classList.getSelectedValue());
+                populateConstructorList();
+            }
+        });
+    }
+
+    private void populateMethodList(String key) {
+        DefaultListModel<String> javaMethodsListModel = GUI.getJavaMethodsListModel();
+        javaMethodsListModel.clear();
+        javaMethodsListModel.addAll(classReflectionMap.get(key).getMethodListAsText());
+    }
+
+    private void populateVariableList(String key) {
+        DefaultListModel<String> javaVariablesListModel = GUI.getJavaVariablesListModel();
+        javaVariablesListModel.clear();
+        javaVariablesListModel.addAll(classReflectionMap.get(key).getVariableListAsText());
+    }
+
+    private void populateConstructorList() {
+        //Get reference from GUI
+        JTabbedPane constructorsTab = GUI.getConstructorsTabList();
+        String className = GUI.getSelectedClassName();
+        //Clear Tab
+        constructorsTab.removeAll();
+        //Get list of constructors as list
+        List<String> constructorListAsText = classReflectionMap.get(className).getConstructorListAsText();
+        for (int i = 0; i < constructorListAsText.size(); i++) {
+            ArrayList<JTextField> arrayOfTextFields = new ArrayList<>();
+            List<String> constructorParameters = classReflectionMap.get(className).getParameterListAsText(i);
+            JPanel panel = createConstructorTab(arrayOfTextFields);
+
+            createPanelElement(constructorParameters, panel, arrayOfTextFields);
+            constructorsTab.addTab(constructorListAsText.get(i), panel);
         }
-        return methodList;
     }
 
     /**
-     * Extract variables from the Class by performing reflection
-     * @param loadedClass Class name that variables are extracted from.
-     * @return List of variables belonging to that class.
+     * Creates a constructor
+     * @return
      */
-    ArrayList<String> getClassVariables(Class<?> loadedClass) {
-        ArrayList<String> variableList = new ArrayList<>();
-        Field[] fields = loadedClass.getDeclaredFields();
-        for (int i = 0; i < loadedClass.getDeclaredFields().length; i++) {
-            variableList.add(fields[i].getName());
+    private JPanel createConstructorTab(List<JTextField> arrayOfTextFields){
+        JPanel panel = new JPanel();
+        FlowLayout layout = new FlowLayout();
+        panel.setLayout(layout);
+        panel.setPreferredSize(new Dimension(100, 400));
+        JButton createObjectButton = new JButton("Create");
+        panel.add(createObjectButton);
+        addCreateObjectListener(createObjectButton, arrayOfTextFields);
+        panel.setMaximumSize(new Dimension(100, 900));
+
+        return panel;
+    }
+
+    private void createPanelElement(List<String> parameterList, JPanel panel, ArrayList<JTextField> textFieldList) {
+        JLabel label;
+        JTextField textField;
+        for (String parameterName : parameterList) {
+            label = new JLabel(parameterName);
+            textField = new JTextField();
+            textFieldList.add(textField);
+
+            panel.add(textField);
+            panel.add(label);
         }
-        return variableList;
     }
 
-    Map<String, ClassReflection> getProjectClassList() {
-        return projectClassList;
+    void populateClassList() {
+        DefaultListModel<String> javaListModel = GUI.getJavaClassListModel();
+        javaListModel.clear();
+        for (Map.Entry<String, ClassReflection> entry : classReflectionMap.entrySet()) {
+            javaListModel.addElement(entry.getValue().getClassName());
+        }
     }
 
+    private void addCreateObjectListener(JButton button, List<JTextField> listParameters) {
+        button.addActionListener(e -> {
+            for (JTextField listParameter : listParameters) {
+                System.out.println("Found: " + listParameter.getText());
+            }
+        });
+    }
 }

@@ -27,8 +27,12 @@ public class GraphPanel extends JPanel {
     private ArrayList<Object> graphElements;
     private KlassController klassController;
     private Project project;
+    private ToolWindow toolWindow;
+    private SourceFileUtils sourceFileUtils;
 
-    public GraphPanel(Project project) {
+    private mxGraph graph = new mxGraph();
+
+    public GraphPanel(Project project, ToolWindow toolWindow) {
         this.project = project;
         klassController = new KlassController();
     }
@@ -41,9 +45,8 @@ public class GraphPanel extends JPanel {
     }
 
     @NotNull
-    private mxGraphComponent addGraph() {
+    public mxGraphComponent addGraph() {
 
-        mxGraph graph = new mxGraph();
         getStylesheet(graph);
         Object parent = graph.getDefaultParent();
 
@@ -63,6 +66,16 @@ public class GraphPanel extends JPanel {
 
         graphComponent.setEnabled(false);
         return graphComponent;
+    }
+
+    public void removeGraph() {
+       graph.getModel().beginUpdate();
+       try {
+           graph.removeCells(graph.getChildVertices(graph.getDefaultParent()));
+       } catch(Exception e) {
+           e.printStackTrace();
+       }
+       graph.getModel().endUpdate();
     }
 
     @NotNull

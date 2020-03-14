@@ -15,6 +15,9 @@ public class ObjectDisplayWindow {
     private JPanel rightPane;
     private JSplitPane splitPane;
     private JTabbedPane tabbedPane;
+    private JButton executeButton;
+    private JButton compileButton;
+    private JButton externalLibraryButton;
 
     private WorkbenchController controller;
 
@@ -26,6 +29,7 @@ public class ObjectDisplayWindow {
 
     private void init() {
         controller.addMousePressedListener(this.tabbedPane);
+        controller.addButtonListener(this.executeButton, this.compileButton, this.externalLibraryButton);
     }
 
     public JTabbedPane getTabbedPane() { return this.tabbedPane; }

@@ -15,12 +15,14 @@ public class Klass {
     ArrayList<String> implementsList;
     ArrayList<String> fieldsList;
 
+
     public Klass(String name) {
         setName(name);
         setType("class");
         setParentName("");
         implementsList = new ArrayList<>();
         fieldsList = new ArrayList<>();
+
     }
 
     public String getName() {
@@ -69,5 +71,6 @@ public class Klass {
         if (getType().equals("enum")) display.append("<<").append("Enum").append(">>");
         display.append("\n").append(getName()).append("\n");
         return display.toString();
+
     }
 }
