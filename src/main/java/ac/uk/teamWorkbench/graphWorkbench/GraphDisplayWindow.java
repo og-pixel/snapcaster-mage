@@ -1,9 +1,8 @@
 package ac.uk.teamWorkbench.graphWorkbench;
 
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.ToolWindow;
-import org.jetbrains.annotations.NotNull;
-
+import com.intellij.ui.components.JBScrollPane;
+import com.intellij.uiDesigner.core.GridConstraints;
 import javax.swing.*;
 
 public class GraphDisplayWindow {
@@ -26,34 +25,8 @@ public class GraphDisplayWindow {
     private GraphPanel getGraphPanel(Project project, ToolWindow toolWindow) {
         graphPanel = new GraphPanel(project, toolWindow);
         graphPanel.build();
-        return graphPanel;
-    }
-
-    /**
-     * Simply removes and adds the graphPane back.
-     * @param refresh - refreshes the graphPane.
-     */
-    private void basicRefreshAction(JButton refresh) {
-        refresh.addActionListener(e -> {
-            content.remove(graphPanel);
-            content.add(getGraphPanel(project, toolWindow));
-        });
-    }
-
-    /**
-     * Refreshes the graph updating the GUI only (Faster than basic refresh).
-     * @param refresh - refreshes the graph content
-     */
-    private void advancedRefreshAction(JButton refresh) {
-        refresh.addActionListener(e -> {
-            try {
-                graphPanel.removeGraph();
-                graphPanel.addGraph();
-                graphPanel.updateUI();
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
+        JBScrollPane jScrollPane = new JBScrollPane(graphPanel);
+        content.add(jScrollPane, new GridConstraints());
     }
 
     public JPanel getContent() {
