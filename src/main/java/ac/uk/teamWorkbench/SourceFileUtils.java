@@ -31,10 +31,6 @@ public class SourceFileUtils {
 
     //Information useful for the entire project
     private Project project;
-    private ToolWindow toolWindow;
-
-    //Root of the project
-    private VirtualFile projectRoot;
 
     private PsiManager psiManager;
 
@@ -43,9 +39,9 @@ public class SourceFileUtils {
     //Singleton
     private SourceFileUtils(Project project, ToolWindow toolWindow) {
         this.project = project;
-        this.toolWindow = toolWindow;
         try {
-            this.projectRoot = ModuleRootManager.getInstance(
+            //Root of the project
+            VirtualFile projectRoot = ModuleRootManager.getInstance(
                     ModuleManager.getInstance(project).getModules()[0]).getContentRoots()[0];
         }catch (NullPointerException e){
             //TODO replace with logger
@@ -78,15 +74,6 @@ public class SourceFileUtils {
         if (isInstantiated) return instance;
         else throw new NotInstantiatedException("SourceFileUtils needs to be instantiated at least once." +
                 "\nUse instantiateObject() method.");
-    }
-
-    public Collection<VirtualFile> getAllFilesInProject(String extension, VirtualFile virtualFile) {
-        return FilenameIndex.getAllFilesByExt(project, extension,
-                GlobalSearchScope.fileScope(project, virtualFile));
-    }
-
-    public Collection<VirtualFile> getAllFilesByExtInProjectScope(String extension) {
-        return FilenameIndex.getAllFilesByExt(project, extension, GlobalSearchScope.projectScope(project));
     }
 
     //Getters

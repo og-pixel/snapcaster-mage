@@ -2,31 +2,32 @@ package ac.uk.teamWorkbench.graphWorkbench;
 
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
-import com.intellij.uiDesigner.core.GridConstraints;
+
 import javax.swing.*;
 
 public class GraphDisplayWindow {
 
     private JPanel content;
-    private GraphPanel graphPanel;
-    private Project project;
-    private ToolWindow toolWindow;
 
-    public GraphDisplayWindow(Project project, ToolWindow toolWindow) {
-        this.project = project;
-        GraphPanel graphPanel = getGraphPanel(project, toolWindow);
+    public GraphDisplayWindow(Project project) {
+        JBScrollPane graphPanel = getGraphPanel(project);
         JButton refresh = new JButton("Refresh");
         advancedRefreshAction(refresh);
         content.add(refresh);
         content.add(graphPanel);
     }
 
-    @NotNull
-    private GraphPanel getGraphPanel(Project project, ToolWindow toolWindow) {
-        graphPanel = new GraphPanel(project, toolWindow);
+    private void advancedRefreshAction(JButton refresh) {
+        refresh.addActionListener(e -> {
+
+        });
+    }
+
+    private JBScrollPane getGraphPanel(Project project) {
+        GraphPanel graphPanel = new GraphPanel(project);
         graphPanel.build();
-        JBScrollPane jScrollPane = new JBScrollPane(graphPanel);
-        content.add(jScrollPane, new GridConstraints());
+        //        content.add(jScrollPane, new GridConstraints());
+        return new JBScrollPane(graphPanel);
     }
 
     public JPanel getContent() {

@@ -27,15 +27,14 @@ public class GraphPanel extends JPanel {
     private ArrayList<Object> graphElements;
     private KlassController klassController;
     private Project project;
-    private ToolWindow toolWindow;
-    private SourceFileUtils sourceFileUtils;
 
     private mxGraph graph = new mxGraph();
 
-    public GraphPanel(Project project, ToolWindow toolWindow) {
+    public GraphPanel(Project project) {
         this.project = project;
         klassController = new KlassController();
     }
+
 
     public void build() {
         setSize(750, 750);
@@ -66,16 +65,6 @@ public class GraphPanel extends JPanel {
 
         graphComponent.setEnabled(false);
         return graphComponent;
-    }
-
-    public void removeGraph() {
-       graph.getModel().beginUpdate();
-       try {
-           graph.removeCells(graph.getChildVertices(graph.getDefaultParent()));
-       } catch(Exception e) {
-           e.printStackTrace();
-       }
-       graph.getModel().endUpdate();
     }
 
     @NotNull
@@ -120,10 +109,9 @@ public class GraphPanel extends JPanel {
     private void createAnInheritanceEdges(@NotNull mxGraph graph, Object parent) {
         for (Klass klass : klassController.getKlasses()) {
             int parentID = -1, childID = -1;
-            for (Object cell : graphElements) {
-                if (((mxCell) cell).getId().equals(klass.getName())) childID = graphElements.indexOf(cell);
-                if (((mxCell) cell).getId().equals(klass.getParentName())) parentID = graphElements.indexOf(cell);
-            }
+            childID = getItemID(klass.getName());
+            parentID = getItemID(klass.getParentName());
+
             if (parentID >= 0 && childID >= 0)
                 graph.insertEdge(parent,            //parent object
                         "e",        // id of edge
@@ -136,12 +124,12 @@ public class GraphPanel extends JPanel {
 
     private void createAnRealizationEdges(@NotNull mxGraph graph, Object parent) {
         for (Klass klass : klassController.getKlasses()) {
-            klass.getImplementsList().forEach(father -> {
-                int parentID = -1, childID = -1;
-                for (Object cell : graphElements) {
-                    if (((mxCell) cell).getId().equals(klass.getName())) childID = graphElements.indexOf(cell);
-                    if (((mxCell) cell).getId().equals(father)) parentID = graphElements.indexOf(cell);
-                }
+            for (String father : klass.getImplementsList()) {
+                int parentID = -2, childID = -2;
+                childID = getItemID(klass.getName());
+                parentID = getItemID(father);
+
+                System.out.println("P: " + parentID + " C: " + childID);
                 if (parentID >= 0 && childID >= 0)
                     graph.insertEdge(parent,
                             "i",
@@ -149,18 +137,21 @@ public class GraphPanel extends JPanel {
                             graphElements.get(parentID),
                             graphElements.get(childID),
                             "dashed=true");
-            });
+            }
         }
+    }
+
+    private int getItemID(String name) {
+        return graphElements.stream().filter(cell -> ((mxCell) cell).getId().equals(name)).findFirst().map(cell -> graphElements.indexOf(cell)).orElse(-1);
     }
 
     private void createAnCompositionEdges(@NotNull mxGraph graph, Object parent) {
         for (Klass klass : klassController.getKlasses())
             klass.getFieldsList().forEach(father -> {
                 int parentID = -1, childID = -1;
-                for (Object cell : graphElements) {
-                    if (((mxCell) cell).getId().equals(klass.getName())) childID = graphElements.indexOf(cell);
-                    if (((mxCell) cell).getId().equals(father)) parentID = graphElements.indexOf(cell);
-                }
+                childID = getItemID(klass.getName());
+                parentID = getItemID(father);
+
                 if (parentID >= 0 && childID >= 0)
                     graph.insertEdge(parent,
                             "f",
