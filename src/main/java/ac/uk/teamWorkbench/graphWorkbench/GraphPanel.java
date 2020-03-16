@@ -59,7 +59,6 @@ public class GraphPanel extends JPanel {
             graph.getModel().endUpdate();
         }
 
-
         mxGraphComponent graphComponent = addComponentActionListener(graph);
         new mxHierarchicalLayout(graph).execute(graph.getDefaultParent());
 
@@ -107,10 +106,11 @@ public class GraphPanel extends JPanel {
     }
 
     private void createAnInheritanceEdges(@NotNull mxGraph graph, Object parent) {
+
         for (Klass klass : klassController.getKlasses()) {
-            int parentID = -1, childID = -1;
-            childID = getItemID(klass.getName());
-            parentID = getItemID(klass.getParentName());
+
+            int childID = getItemID(klass.getName());
+            int parentID = getItemID(klass.getParentName());
 
             if (parentID >= 0 && childID >= 0)
                 graph.insertEdge(parent,            //parent object
@@ -123,13 +123,14 @@ public class GraphPanel extends JPanel {
     }
 
     private void createAnRealizationEdges(@NotNull mxGraph graph, Object parent) {
-        for (Klass klass : klassController.getKlasses()) {
-            for (String father : klass.getImplementsList()) {
-                int parentID = -2, childID = -2;
-                childID = getItemID(klass.getName());
-                parentID = getItemID(father);
 
-                System.out.println("P: " + parentID + " C: " + childID);
+        for (Klass klass : klassController.getKlasses()) {
+
+            for (String father : klass.getImplementsList()) {
+
+                int childID = getItemID(klass.getName());
+                int parentID = getItemID(father);
+
                 if (parentID >= 0 && childID >= 0)
                     graph.insertEdge(parent,
                             "i",
@@ -146,11 +147,12 @@ public class GraphPanel extends JPanel {
     }
 
     private void createAnCompositionEdges(@NotNull mxGraph graph, Object parent) {
+
         for (Klass klass : klassController.getKlasses())
             klass.getFieldsList().forEach(father -> {
-                int parentID = -1, childID = -1;
-                childID = getItemID(klass.getName());
-                parentID = getItemID(father);
+
+                int childID = getItemID(klass.getName());
+                int parentID = getItemID(father);
 
                 if (parentID >= 0 && childID >= 0)
                     graph.insertEdge(parent,
@@ -169,7 +171,6 @@ public class GraphPanel extends JPanel {
                 if (objects.getKey().equals("fillColor")) objects.setValue("#99ff33");
                 if (objects.getKey().equals("strokeColor")) objects.setValue("#3d3d5c");
                 if (objects.getKey().equals("fontColor")) objects.setValue("#00264d");
-
             }
         }
         style.getDefaultEdgeStyle().put("endSize", 10);
