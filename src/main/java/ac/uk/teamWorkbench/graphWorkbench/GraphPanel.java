@@ -1,9 +1,12 @@
 package ac.uk.teamWorkbench.graphWorkbench;
 
-import ac.uk.teamWorkbench.SourceFileUtils;
+/* **********
+ * Copyright (c) 2020. All rights reserved.
+ * @Author Kacper
+ *  Description: GraphPanel responsible for storing, generating and perform action of graph in graphWindow
+ * **********/
+
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.psi.PsiElement;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
@@ -15,30 +18,30 @@ import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Map;
+
 
 @SuppressWarnings("CanBeFinal")
 public class GraphPanel extends JPanel {
 
     private ArrayList<Object> graphElements;
+    private KlassController klassController;
     private Project project;
-    private ToolWindow toolWindow;
-    private SourceFileUtils sourceFileUtils;
 
     private mxGraph graph = new mxGraph();
 
-    public GraphPanel(Project project, ToolWindow toolWindow) {
+    public GraphPanel(Project project) {
         this.project = project;
         this.toolWindow = toolWindow;
         SourceFileUtils.instantiateObject(project, toolWindow);
         this.sourceFileUtils = SourceFileUtils.getInstance();
     }
 
+
     public void build() {
         setSize(750, 750);
         graphElements = new ArrayList<>();
+        klassController.populateKlasses(project);
         add(addGraph());
     }
 
@@ -51,28 +54,18 @@ public class GraphPanel extends JPanel {
         graph.getModel().beginUpdate();
         try {
             createAnVertexes(graph, parent);
-            createAnExtendsEdges(graph, parent);
-            createAnImplementsEdges(graph, parent);
+            createAnInheritanceEdges(graph, parent);
+            createAnRealizationEdges(graph, parent);
+            createAnCompositionEdges(graph, parent);
         } finally {
             graph.getModel().endUpdate();
         }
-
 
         mxGraphComponent graphComponent = addComponentActionListener(graph);
         new mxHierarchicalLayout(graph).execute(graph.getDefaultParent());
 
         graphComponent.setEnabled(false);
         return graphComponent;
-    }
-
-    public void removeGraph() {
-       graph.getModel().beginUpdate();
-       try {
-           graph.removeCells(graph.getChildVertices(graph.getDefaultParent()));
-       } catch(Exception e) {
-           e.printStackTrace();
-       }
-       graph.getModel().endUpdate();
     }
 
     @NotNull
@@ -96,70 +89,81 @@ public class GraphPanel extends JPanel {
         return graphComponent;
     }
 
-    private void createAnExtendsEdges(@NotNull mxGraph graph, Object parent) {
-        for (PsiElement element : sourceFileUtils.getAllPsiClasses(project)) {
-            String child = sourceFileUtils.getPsiClassName(element);
-            ArrayList<String> fathers = (ArrayList<String>) sourceFileUtils.getPsiClassInheritanceList(element, "extends");
-            String father;
-            if (fathers.size() == 1) father = fathers.get(0);
-            else continue;
-            int childID = -1, fatherID = -1;
-            for (Object object : graphElements) {
-                if (((mxCell) object).getId().equals(child)) childID = graphElements.indexOf(object);
-                if (((mxCell) object).getId().equals(father)) fatherID = graphElements.indexOf(object);
-            }
-            if (fatherID >= 0 && childID >= 0)
-                graph.insertEdge(parent,                   //parent object
-                        "2",                           // id of edge
-                        "<<extends>>",               // text on that edge
-                        graphElements.get(fatherID),       // starting point
-                        graphElements.get(childID),        // ending point
-                        "");                         // style of edge
-
-        }
-    }
-
-    private void createAnImplementsEdges(@NotNull mxGraph graph, Object parent) {
-        for (PsiElement element : sourceFileUtils.getAllPsiClasses(project)) {
-            String child = sourceFileUtils.getPsiClassName(element);
-            ArrayList<String> fathers = (ArrayList<String>) sourceFileUtils.getPsiClassInheritanceList(element, "implements");
-            for (String father : fathers) {
-                int childID = -1, fatherID = -1;
-                for (Object object : graphElements) {
-                    if (((mxCell) object).getId().equals(child)) childID = graphElements.indexOf(object);
-                    if (((mxCell) object).getId().equals(father)) fatherID = graphElements.indexOf(object);
-                }
-                if (fatherID >= 0 && childID >= 0)
-                    graph.insertEdge(parent,                   //parent object
-                            "2",                           // id of edge
-                            "<<implements>>",               // text on that edge
-                            graphElements.get(fatherID),       // starting point
-                            graphElements.get(childID),        // ending point
-                            "fillColor=#2952a3");                         // style of edge
-            }
-        }
-
-    }
-
     private void createAnVertexes(@NotNull mxGraph graph, Object parent) {
-
-        Collection<PsiElement> classesNames = sourceFileUtils.getAllPsiClasses(project);
-        for (PsiElement element : classesNames) {
-            String id = sourceFileUtils.getPsiClassName(element);
-            graphElements.add(graph.insertVertex(parent,
-                    id,            // id of vertex
-                    (Arrays.toString(element.getChildren()).contains("PsiKeyword:interface")) ? "<<Interface>>\n" + id
-                            : (Arrays.toString(element.getChildren()).contains("PsiKeyword:enum")) ? "<<Enum>>\n" + id
-                            : id,            // Text in the square
-                    25,             // x position of top left corner
-                    25,             // y position of top left corner
-                    85,        // width of box
-                    35,         // height of box
-                    (Arrays.toString(element.getChildren()).contains("PsiKeyword:interface")) ? "fillColor=#ffcc66"
-                            : (Arrays.toString(element.getChildren()).contains("PsiKeyword:enum")) ? "fillColor=#33cccc"
-                            : ""));
+        try {
+            for (Klass klass : klassController.getKlasses())
+                graphElements.add(graph.insertVertex(parent,
+                        klass.getName(),            // id of vertex
+                        klass.getDisplayName(),            // Text in the square
+                        25,             // x position of top left corner
+                        25,             // y position of top left corner
+                        85,        // width of box
+                        45,         // height of box
+                        (klass.getType().equals("interface")) ? "fillColor=#ffcc66"
+                                : (klass.getType().equals("enum")) ? "fillColor=#33cccc"
+                                : ""));     //stylesheet color
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
 
+    private void createAnInheritanceEdges(@NotNull mxGraph graph, Object parent) {
+
+        for (Klass klass : klassController.getKlasses()) {
+
+            int childID = getItemID(klass.getName());
+            int parentID = getItemID(klass.getParentName());
+
+            if (parentID >= 0 && childID >= 0)
+                graph.insertEdge(parent,            //parent object
+                        "e",        // id of edge
+                        "inherit",              // text on that edge
+                        graphElements.get(childID),     // starting point
+                        graphElements.get(parentID),    // ending point
+                        "");                        // style of edge
+        }
+    }
+
+    private void createAnRealizationEdges(@NotNull mxGraph graph, Object parent) {
+
+        for (Klass klass : klassController.getKlasses()) {
+
+            for (String father : klass.getImplementsList()) {
+
+                int childID = getItemID(klass.getName());
+                int parentID = getItemID(father);
+
+                if (parentID >= 0 && childID >= 0)
+                    graph.insertEdge(parent,
+                            "i",
+                            "implements",
+                            graphElements.get(parentID),
+                            graphElements.get(childID),
+                            "dashed=true");
+            }
+        }
+    }
+
+    private int getItemID(String name) {
+        return graphElements.stream().filter(cell -> ((mxCell) cell).getId().equals(name)).findFirst().map(cell -> graphElements.indexOf(cell)).orElse(-1);
+    }
+
+    private void createAnCompositionEdges(@NotNull mxGraph graph, Object parent) {
+
+        for (Klass klass : klassController.getKlasses())
+            klass.getFieldsList().forEach(father -> {
+
+                int childID = getItemID(klass.getName());
+                int parentID = getItemID(father);
+
+                if (parentID >= 0 && childID >= 0)
+                    graph.insertEdge(parent,
+                            "f",
+                            "belongs to",
+                            graphElements.get(parentID),
+                            graphElements.get(childID),
+                            "endFill=1;endArrow=diamond");
+            });
     }
 
     private void getStylesheet(mxGraph graph) {
@@ -169,9 +173,12 @@ public class GraphPanel extends JPanel {
                 if (objects.getKey().equals("fillColor")) objects.setValue("#99ff33");
                 if (objects.getKey().equals("strokeColor")) objects.setValue("#3d3d5c");
                 if (objects.getKey().equals("fontColor")) objects.setValue("#00264d");
-
             }
         }
+        style.getDefaultEdgeStyle().put("endSize", 10);
+        style.getDefaultEdgeStyle().put("endFill", 0);
+        style.getDefaultEdgeStyle().put("fillColor", "#ffffff");
+        style.getDefaultEdgeStyle().put("endArrow", "block");
         graph.setStylesheet(style);
     }
 }
