@@ -73,59 +73,34 @@ public class ExecutionLoop implements Runnable {
 //        castDynamic(arguments[0], parameterTypes[0]);
 //        Object ppp = getInstance(parameterTypes[0], arguments[0].toString());
 
-
+        Object newObject = null;
         try {
-            Object newObject = x.newInstance(f);
+            newObject = x.newInstance(f);
             System.out.println("sucessfully instantiated an object: " + newObject.getClass());
         } catch (Exception e) {
             //TODO better error checking
             e.printStackTrace();
             return false;
         }
-
+        loadedObjects.add(newObject);
         return true;
     }
 
 
     //TODO maybe delete or move it somewhere else
-    private <T> T getInstance(Class<T> type, String o) {
-        T t = type.cast(o);
-        return t;
-    }
-
-    public void castDynamic(Object object, Class className) {
-        Class cls = null;
-        String objectString = object.toString();
-
-        Object result;
-
-//        if (className.equals("int")) {
-////        if (Integer.class instanceof className) {
-//            result = Integer.parseInt(objectString);
-//        } else if (className.equals("char")) {
-//            //TODO
-//        } else if (className.equals("byte")) {
-//            result = Byte.parseByte(objectString);
-//        } else if (className.equals("short")) {
-//            result = Short.parseShort(objectString);
-//        } else if (className.equals("boolean")) {
-//            result = Boolean.parseBoolean(objectString);
-//        } else if (className.equals("float")) {
-//            result = Float.parseFloat(objectString);
-//        } else if (className.equals("long")) {
-//            result = Long.parseLong(objectString);
-//        } else if (className.equals("double")) {
-//            result = Double.parseDouble(objectString);
-//        } else {
-//            try {
-//                cls = Class.forName(className);
-//            } catch (ClassNotFoundException e) {
-//                e.printStackTrace();
-//            }
-//        }
-
-        result = cls.cast(object);
-    }
+//    private <T> T getInstance(Class<T> type, String o) {
+//        T t = type.cast(o);
+//        return t;
+//    }
+//
+//    public void castDynamic(Object object, Class className) {
+//        Class cls = null;
+//        String objectString = object.toString();
+//
+//        Object result;
+//
+//        result = cls.cast(object);
+//    }
 
     public static Object toObject(Class<?> clazz, String value) throws Exception {
         if (clazz.isPrimitive()) return toPrimitive(clazz, value);
