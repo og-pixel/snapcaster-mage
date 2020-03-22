@@ -37,6 +37,7 @@ public class GraphPanel extends JPanel {
     public GraphPanel(Project project, ToolWindow toolWindow) {
         this.project = project;
         this.toolWindow = toolWindow;
+        this.klassController = new KlassController();
         SourceFileUtils.instantiateObject(project, toolWindow);
         this.sourceFileUtils = SourceFileUtils.getInstance();
     }
