@@ -1,6 +1,5 @@
-package ac.uk.teamWorkbench.objectWorkbench;
+package ac.uk.teamWorkbench.objectWorkbench.objectDisplay;
 
-import com.intellij.openapi.wm.ToolWindow;
 import javax.swing.*;
 
 /**

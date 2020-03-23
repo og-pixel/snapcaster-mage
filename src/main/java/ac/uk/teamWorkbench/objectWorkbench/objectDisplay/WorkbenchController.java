@@ -1,14 +1,18 @@
-package ac.uk.teamWorkbench.objectWorkbench;
+package ac.uk.teamWorkbench.objectWorkbench.objectDisplay;
+
+import ac.uk.teamWorkbench.objectWorkbench.objectCreation.ObjectCreationController;
+import ac.uk.teamWorkbench.objectWorkbench.objectCreation.ObjectCreationWindow;
+import ac.uk.teamWorkbench.workbenchRuntime.ExecutionLoop;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  * WorkbenchController
@@ -17,6 +21,8 @@ import java.util.List;
  * Handles logic and updates the GUI.
  */
 public class WorkbenchController {
+
+    private static final Logger LOGGER = Logger.getLogger(WorkbenchController.class.getName());
 
     private ObjectDisplayWindow GUI;
     private Validator validator;
@@ -117,7 +123,7 @@ public class WorkbenchController {
     private void newAddTabTask(int index) {
         //True if user pressed ok to create object
         ObjectCreationWindow objectCreationWindow = new ObjectCreationWindow(true);
-        ObjectCreationController controller = objectCreationWindow.getController();
+        ObjectCreationController controller = (ObjectCreationController) objectCreationWindow.getController();
         ExecutionLoop executionLoop = ExecutionLoop.getInstance();
 
 

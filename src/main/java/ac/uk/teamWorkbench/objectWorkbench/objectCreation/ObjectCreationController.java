@@ -1,5 +1,8 @@
-package ac.uk.teamWorkbench.objectWorkbench;
+package ac.uk.teamWorkbench.objectWorkbench.objectCreation;
 
+import ac.uk.teamWorkbench.objectWorkbench.ControllerTemplate;
+import ac.uk.teamWorkbench.workbenchRuntime.ClassReflection;
+import ac.uk.teamWorkbench.workbenchRuntime.ObjectPool;
 import com.intellij.ui.components.JBList;
 
 import javax.swing.*;
@@ -8,15 +11,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
-public class ObjectCreationController {
+public class ObjectCreationController extends ControllerTemplate {
+
+    private static final Logger LOGGER = Logger.getLogger(ObjectCreationController.class.getName());
 
     private ObjectCreationWindow GUI;
     private ObjectPool objectPool;
 
     //HashMap of classes in the Project
     private Map<String, ClassReflection> classReflectionMap;
-
     //TODO its meant to hold one's constructor parameters
     private Map<Integer, List<JTextField>> mapConstructorParameters;
 
@@ -30,12 +35,23 @@ public class ObjectCreationController {
         this.objectPool = ObjectPool.getInstance();
         this.classReflectionMap = objectPool.getClassReflectionMap();
         this.mapConstructorParameters = new HashMap<>();
+
+        start();
     }
+
+    @Override
+    public void init() {
+        DefaultListModel<String> javaListModel = GUI.getJavaClassListModel();
+        javaListModel.clear();
+        classReflectionMap.forEach((k, v) -> javaListModel.addElement(v.getClassName()));
+    }
+
 
     /**
      * Add Event Listeners
      */
-    void addListeners() {
+    @Override
+    public void addListeners() {
         JBList<String> classList = GUI.getClassListJBList();
         classList.addListSelectionListener(e -> {
             if (!classList.getValueIsAdjusting() &&
@@ -116,13 +132,6 @@ public class ObjectCreationController {
         }
     }
 
-    void populateClassList() {
-        DefaultListModel<String> javaListModel = GUI.getJavaClassListModel();
-        javaListModel.clear();
-        classReflectionMap.forEach((k, v) -> javaListModel.addElement(v.getClassName()));
-    }
-
-    //TODO i think this method and parameter should be in the GUI after all
     public Map<Integer, List<JTextField>> getMapConstructorParameters() {
         return mapConstructorParameters;
     }

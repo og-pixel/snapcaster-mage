@@ -1,4 +1,4 @@
-package ac.uk.teamWorkbench.objectWorkbench;
+package ac.uk.teamWorkbench.workbenchRuntime;
 
 import ac.uk.teamWorkbench.SourceFileUtils;
 import com.intellij.openapi.roots.OrderRootType;
@@ -18,12 +18,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Purpose of this class is to store all class reflections and update information if it does change
  * it is meant to prevent constant reloading of classes when user presses +
  */
 public class ObjectPool {
+
+    private static final Logger LOGGER = Logger.getLogger(ObjectPool.class.getName());
 
     private static ObjectPool instance = null;
 
@@ -52,7 +56,7 @@ public class ObjectPool {
         try {
             projectRoot = SourceFileUtils.getInstance().getCompilerModule().get(0);
         } catch (ArrayIndexOutOfBoundsException indexException) {
-            System.out.println(indexException.getMessage());
+            LOGGER.log(Level.WARNING, indexException.getMessage());
             return;
         }
 
@@ -126,7 +130,8 @@ public class ObjectPool {
 
     }
 
-    Map<String, VirtualFile> findCompiledClasses(VirtualFile root) {
+    private Map<String, VirtualFile> findCompiledClasses(VirtualFile root) {
+
         Map<String, VirtualFile> list = new HashMap<>();
         return findCompiledClasses(root.getChildren(), list);
     }
@@ -142,7 +147,7 @@ public class ObjectPool {
         return list;
     }
 
-    Class<?> loadClass(VirtualFile virtualFile, String className) {
+    private Class<?> loadClass(VirtualFile virtualFile, String className) {
         PsiManager psiManager = SourceFileUtils.getInstance().getPsiManager();
         PsiFile psiFile;
 

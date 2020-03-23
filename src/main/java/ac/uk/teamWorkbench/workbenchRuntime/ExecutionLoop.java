@@ -1,20 +1,19 @@
-package ac.uk.teamWorkbench.objectWorkbench;
-
-import ac.uk.teamWorkbench.graphWorkbench.GraphPanel;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.sun.jna.platform.win32.WinDef;
+package ac.uk.teamWorkbench.workbenchRuntime;
 
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Singleton as we expect only one execution loop.
  */
 public class ExecutionLoop implements Runnable {
+
+    private static final Logger LOGGER = Logger.getLogger(ExecutionLoop.class.getName());
+
 
     private static ExecutionLoop instance = null;
     private boolean isRunning;
@@ -40,8 +39,10 @@ public class ExecutionLoop implements Runnable {
         isRunning = true;
         while (isRunning) {
             try {
+                LOGGER.log(Level.INFO, "Starting Execution Loop");
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
+                LOGGER.log(Level.WARNING, "Failed to start Execution Loop" + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -70,10 +71,9 @@ public class ExecutionLoop implements Runnable {
         Object newObject = null;
         try {
             newObject = x.newInstance(f);
-            System.out.println("sucessfully instantiated an object: " + newObject.getClass());
+            LOGGER.log(Level.INFO, "Successfully instantiated an object: " + newObject.getClass());
         } catch (Exception e) {
-            //TODO better error checking
-            e.printStackTrace();
+            LOGGER.log(Level.WARNING, "Failed to instantiate the object: " + e.getMessage());
             return false;
         }
         loadedObjects.add(newObject);

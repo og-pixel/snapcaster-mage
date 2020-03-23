@@ -1,4 +1,4 @@
-package ac.uk.teamWorkbench.exception;
+package ac.uk.teamWorkbench.exceptions;
 
 /**
  * Exception called when a singleton object has not been instantiated at least once.

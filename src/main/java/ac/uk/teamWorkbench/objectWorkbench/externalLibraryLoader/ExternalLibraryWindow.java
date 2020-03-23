@@ -1,20 +1,19 @@
-package ac.uk.teamWorkbench.objectWorkbench.externalLibraryWindow;
+package ac.uk.teamWorkbench.objectWorkbench.externalLibraryLoader;
 
+import ac.uk.teamWorkbench.objectWorkbench.ControllerTemplate;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBList;
-import com.sun.jna.Library;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ExternalLibraryWindow extends DialogWrapper {
 
-    private ExternalLibraryController controller;
+    private ControllerTemplate controller;
     private JPanel content;
     private JBList<String> libraryNamesList;
     private JBList<String> loadedLibrariesList;
+
     private JButton removeLibraryButton;
     private JButton addLibraryButton;
     private DefaultListModel<String> libraryNamesListModel;
@@ -33,12 +32,6 @@ public class ExternalLibraryWindow extends DialogWrapper {
         init();
         setTitle("External Library Chooser");
         controller = new ExternalLibraryController(this);
-        controller.addButtonListener(addLibraryButton, removeLibraryButton);
-        test();
-    }
-
-    void test() {
-        controller.populateLibraryList();
     }
 
     @Nullable
@@ -63,8 +56,16 @@ public class ExternalLibraryWindow extends DialogWrapper {
         return loadedLibrariesList;
     }
 
-    public ExternalLibraryController getController(){
+    public ControllerTemplate getController(){
         return controller;
+    }
+
+    public JButton getRemoveLibraryButton() {
+        return removeLibraryButton;
+    }
+
+    public JButton getAddLibraryButton() {
+        return addLibraryButton;
     }
 
 }
