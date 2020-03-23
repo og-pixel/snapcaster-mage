@@ -19,6 +19,8 @@ public class ExternalLibraryController extends ControllerTemplate {
     private ExternalLibraryWindow GUI;
     private List<Library> libraryList;
 
+    //TODO change it to show those loaded libraries to the object creation
+    // as i load external libraries on startup now
     public ExternalLibraryController(ExternalLibraryWindow GUI) {
         this.GUI = GUI;
         this.libraryList = new ArrayList<>();

@@ -3,6 +3,7 @@ package ac.uk.teamWorkbench.objectWorkbench.objectDisplay;
 import ac.uk.teamWorkbench.objectWorkbench.objectCreation.ObjectCreationController;
 import ac.uk.teamWorkbench.objectWorkbench.objectCreation.ObjectCreationWindow;
 import ac.uk.teamWorkbench.workbenchRuntime.ExecutionLoop;
+import ac.uk.teamWorkbench.workbenchRuntime.ObjectCreator;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,6 +38,7 @@ public class WorkbenchController {
     private JMenuItem nameChanger;
 
     private ExecutionLoop executionLoop;
+    private Thread executionLoopThread;
 
     public WorkbenchController(ObjectDisplayWindow GUI) {
         init();
@@ -118,19 +120,15 @@ public class WorkbenchController {
      *
      * @param index - index of the tab
      */
-    //TODO I need to work on this method, it looks silly
-    // and parameters passed look awful
     private void newAddTabTask(int index) {
         //True if user pressed ok to create object
         ObjectCreationWindow objectCreationWindow = new ObjectCreationWindow(true);
         ObjectCreationController controller = (ObjectCreationController) objectCreationWindow.getController();
-        ExecutionLoop executionLoop = ExecutionLoop.getInstance();
 
-
-        String objectName;
+        String className;
         if (objectCreationWindow.showAndGet()) {
             removeTab(index);
-            objectName = objectCreationWindow.getSelectedClassName();
+            className = objectCreationWindow.getSelectedClassName();
             int selectedConstructorIndex = objectCreationWindow.getSelectedConstructor();
 
             List<JTextField> fields = controller.getMapConstructorParameters().get(selectedConstructorIndex);
@@ -140,8 +138,8 @@ public class WorkbenchController {
                 parameters[i] = fields.get(i).getText();
             }
 
-            if(executionLoop.instantiateObject(objectName, selectedConstructorIndex, parameters)){
-                addTab(objectName);
+            if(executionLoop.instantiateObject(className, selectedConstructorIndex, parameters)){
+                addTab(className);
             }
 
         } else {
@@ -263,10 +261,10 @@ public class WorkbenchController {
     }
 
     public void addButtonListener(JButton executeButton, JButton compileButton) {
+        if(executionLoopThread == null) executionLoopThread = new Thread(executionLoop);
+
         executeButton.addActionListener(e -> {
-            //TODO not finished
-            new Thread(executionLoop).start();
-//            executionLoop.startLoop();
+            if(!executionLoopThread.isAlive()) executionLoopThread.start();
         });
 
         compileButton.addActionListener(e -> {

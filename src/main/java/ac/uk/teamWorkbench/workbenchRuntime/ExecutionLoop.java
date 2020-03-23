@@ -14,15 +14,12 @@ public class ExecutionLoop implements Runnable {
 
     private static final Logger LOGGER = Logger.getLogger(ExecutionLoop.class.getName());
 
-
     private static ExecutionLoop instance = null;
-    private boolean isRunning;
 
-    private List<Object> loadedObjects;
+    private boolean isRunning = false;
+    private ObjectCreator objectCreator;
 
     private ExecutionLoop() {
-        loadedObjects = new ArrayList<>();
-        isRunning = false;
     }
 
     public static ExecutionLoop getInstance() {
@@ -36,73 +33,31 @@ public class ExecutionLoop implements Runnable {
     }
 
     private void startLoop() {
+        objectCreator = new ObjectCreator();
         isRunning = true;
+
+        LOGGER.log(Level.INFO, "Starting Execution Loop");
         while (isRunning) {
             try {
-                LOGGER.log(Level.INFO, "Starting Execution Loop");
-                Thread.sleep(1000);
+                Thread.sleep(5000);
             } catch (InterruptedException e) {
                 LOGGER.log(Level.WARNING, "Failed to start Execution Loop" + e.getMessage());
-                e.printStackTrace();
             }
         }
+        LOGGER.log(Level.INFO, "Execution Loop Finished");
     }
 
-    //TODO plenty of sanity checks
-    public boolean instantiateObject(String objectName, int chosenConstructor, Object[] arguments) {
-        Map<String, ClassReflection> classReflectionMap = ObjectPool.getInstance().getClassReflectionMap();
-        ClassReflection classReflection = classReflectionMap.get(objectName);
-
-        Class<?> clazz = classReflection.getClazz();
-        Constructor<?> x = clazz.getDeclaredConstructors()[chosenConstructor];
-
-        Class<?>[] parameterTypes = x.getParameterTypes();
-
-
-        Object[] f = new Object[parameterTypes.length];
-        for (int i = 0; i < parameterTypes.length; i++) {
-            try {
-                f[i] = toObject(parameterTypes[i], arguments[i].toString());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-        Object newObject = null;
-        try {
-            newObject = x.newInstance(f);
-            LOGGER.log(Level.INFO, "Successfully instantiated an object: " + newObject.getClass());
-        } catch (Exception e) {
-            LOGGER.log(Level.WARNING, "Failed to instantiate the object: " + e.getMessage());
+    public boolean instantiateObject(String className, int chosenConstructor, Object[] arguments) {
+        if (isRunning)
+            return objectCreator.instantiateObject(className, chosenConstructor, arguments);
+        else{
+            LOGGER.log(Level.INFO, "Execution Loop is not instantiated!");
             return false;
         }
-        loadedObjects.add(newObject);
-        return true;
     }
 
-
-    public static Object toObject(Class<?> clazz, String value) throws Exception {
-        if (clazz.isPrimitive()) return toPrimitive(clazz, value);
-
-        if (Boolean.class == clazz) return Boolean.parseBoolean(value);
-        if (Byte.class == clazz) return Byte.parseByte(value);
-        if (Short.class == clazz) return Short.parseShort(value);
-        if (Integer.class == clazz) return Integer.parseInt(value);
-        if (Long.class == clazz) return Long.parseLong(value);
-        if (Float.class == clazz) return Float.parseFloat(value);
-        if (Double.class == clazz) return Double.parseDouble(value);
-        return value;
+    public boolean isRunning() {
+        return isRunning;
     }
 
-    public static Object toPrimitive(Class<?> clazz, String value) throws Exception {
-        if (clazz == Boolean.TYPE) return Boolean.parseBoolean(value);
-        if (clazz == Byte.TYPE) return Byte.parseByte(value);
-        if (clazz == Short.TYPE) return Short.parseShort(value);
-        if (clazz == Integer.TYPE) return Integer.parseInt(value);
-        if (clazz == Long.TYPE) return Long.parseLong(value);
-        if (clazz == Float.TYPE) return Float.parseFloat(value);
-        if (clazz == Double.TYPE) return Double.parseDouble(value);
-
-        throw new Exception("Casting to primitive cast should never fail as it happens after checking if element is primitive");
-    }
 }

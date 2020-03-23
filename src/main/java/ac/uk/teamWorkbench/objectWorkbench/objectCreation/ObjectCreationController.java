@@ -46,7 +46,6 @@ public class ObjectCreationController extends ControllerTemplate {
         classReflectionMap.forEach((k, v) -> javaListModel.addElement(v.getClassName()));
     }
 
-
     /**
      * Add Event Listeners
      */
