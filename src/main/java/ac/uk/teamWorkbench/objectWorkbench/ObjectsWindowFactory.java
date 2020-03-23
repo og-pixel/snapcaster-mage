@@ -17,7 +17,7 @@ public class ObjectsWindowFactory implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         ObjectDisplayWindow objectDisplayWindow = new ObjectDisplayWindow();
-        SourceFileUtils.getInstance().instantiateObject(project, toolWindow);
+        SourceFileUtils.instantiateObject(project, toolWindow);
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(objectDisplayWindow.getContentWindow(),"",false);

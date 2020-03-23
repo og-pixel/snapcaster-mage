@@ -67,12 +67,6 @@ public class ExecutionLoop implements Runnable {
             }
         }
 
-        System.out.println(Arrays.toString(f));
-
-
-//        castDynamic(arguments[0], parameterTypes[0]);
-//        Object ppp = getInstance(parameterTypes[0], arguments[0].toString());
-
         Object newObject = null;
         try {
             newObject = x.newInstance(f);
@@ -86,21 +80,6 @@ public class ExecutionLoop implements Runnable {
         return true;
     }
 
-
-    //TODO maybe delete or move it somewhere else
-//    private <T> T getInstance(Class<T> type, String o) {
-//        T t = type.cast(o);
-//        return t;
-//    }
-//
-//    public void castDynamic(Object object, Class className) {
-//        Class cls = null;
-//        String objectString = object.toString();
-//
-//        Object result;
-//
-//        result = cls.cast(object);
-//    }
 
     public static Object toObject(Class<?> clazz, String value) throws Exception {
         if (clazz.isPrimitive()) return toPrimitive(clazz, value);
@@ -124,7 +103,6 @@ public class ExecutionLoop implements Runnable {
         if (clazz == Float.TYPE) return Float.parseFloat(value);
         if (clazz == Double.TYPE) return Double.parseDouble(value);
 
-        throw new Exception("Should not happen! work milosz!");
-//        return null;
+        throw new Exception("Casting to primitive cast should never fail as it happens after checking if element is primitive");
     }
 }

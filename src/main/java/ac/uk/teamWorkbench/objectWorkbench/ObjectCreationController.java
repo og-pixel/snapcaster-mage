@@ -49,7 +49,7 @@ public class ObjectCreationController {
 
         JTabbedPane constructorTabList = GUI.getConstructorsTabList();
         constructorTabList.addChangeListener(e -> {
-            if(constructorTabList.getSelectedIndex() != -1){
+            if (constructorTabList.getSelectedIndex() != -1) {
 //                populateParameterValues();
             }
         });
@@ -119,9 +119,7 @@ public class ObjectCreationController {
     void populateClassList() {
         DefaultListModel<String> javaListModel = GUI.getJavaClassListModel();
         javaListModel.clear();
-        for (Map.Entry<String, ClassReflection> entry : classReflectionMap.entrySet()) {
-            javaListModel.addElement(entry.getValue().getClassName());
-        }
+        classReflectionMap.forEach((k, v) -> javaListModel.addElement(v.getClassName()));
     }
 
     //TODO i think this method and parameter should be in the GUI after all

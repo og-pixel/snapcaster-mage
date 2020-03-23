@@ -43,7 +43,7 @@ public class SourceFileUtils {
             //Root of the project
             VirtualFile projectRoot = ModuleRootManager.getInstance(
                     ModuleManager.getInstance(project).getModules()[0]).getContentRoots()[0];
-        }catch (NullPointerException e){
+        } catch (NullPointerException e) {
             System.out.println("Unable to find root of the project.\n" +
                     "Please make sure your project is first on the module options.");
             System.exit(1);
@@ -53,7 +53,7 @@ public class SourceFileUtils {
         ModuleManager moduleManager = ModuleManager.getInstance(project);
         for (int i = 0; i < moduleManager.getModules().length; i++) {
             Module module = moduleManager.getModules()[i];
-            if(Objects.requireNonNull(CompilerModuleExtension.getInstance(module)).getCompilerOutputPath() != null){
+            if (Objects.requireNonNull(CompilerModuleExtension.getInstance(module)).getCompilerOutputPath() != null) {
                 this.compilerModule.add(Objects.requireNonNull(CompilerModuleExtension.getInstance(module)).getCompilerOutputPath());
             }
         }
@@ -93,9 +93,11 @@ public class SourceFileUtils {
     public static Collection<PsiFile> getAllPSIFiles(Project project) {
         Collection<VirtualFile> virtualFiles = getAllFilesByExtInProjectScope(project, "java");
         Collection<PsiFile> psiFiles = new ArrayList<>();
-        for (VirtualFile vf : virtualFiles) {
-            psiFiles.add(PsiManager.getInstance(project).findFile(vf));
-        }
+
+        virtualFiles.forEach(e -> psiFiles.add(PsiManager.getInstance(project).findFile(e)));
+//        for (VirtualFile vf : virtualFiles) {
+//            psiFiles.add(PsiManager.getInstance(project).findFile(vf));
+//        }
         return psiFiles;
     }
 
