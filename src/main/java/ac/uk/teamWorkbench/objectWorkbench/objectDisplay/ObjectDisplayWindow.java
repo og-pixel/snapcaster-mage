@@ -30,5 +30,6 @@ public class ObjectDisplayWindow {
     }
 
     public JTabbedPane getTabbedPane() { return this.tabbedPane; }
+    public JSplitPane getSplitPane() { return  this.splitPane; }
     public JPanel getContentWindow() { return this.contentWindow; }
 }
