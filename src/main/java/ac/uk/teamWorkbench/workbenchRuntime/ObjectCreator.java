@@ -14,6 +14,8 @@ public class ObjectCreator {
 
     private List<Object> loadedObjects;
 
+    private Class<?>[] paramTypes;
+
     public ObjectCreator(){
         loadedObjects = new ArrayList<>();
     }
@@ -50,6 +52,8 @@ public class ObjectCreator {
         if(isCorrectType(clazz)) {
             Constructor<?> x = clazz.getDeclaredConstructors()[chosenConstructor];
             Class<?>[] parameterTypes = x.getParameterTypes();
+
+            setParamTypes(parameterTypes);
 
             Object[] parameters = new Object[parameterTypes.length];
             for (int i = 0; i < parameterTypes.length; i++) {
@@ -99,4 +103,16 @@ public class ObjectCreator {
 
         throw new Exception("Casting to primitive cast should never fail as it happens after checking if element is primitive");
     }
+
+    /* Sets a list of parameter types expected by the object's constructor */
+
+    private void  setParamTypes(Class<?>[] paramTypes) {
+        this.paramTypes = paramTypes;
+    }
+
+    /* Gets a list of parameter types expected by the object's constructor */
+    public Class<?>[] getParamTypes(){
+        return paramTypes;
+    }
+
 }
