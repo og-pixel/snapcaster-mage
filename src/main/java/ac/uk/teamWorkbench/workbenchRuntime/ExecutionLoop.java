@@ -20,6 +20,7 @@ public class ExecutionLoop implements Runnable {
     private ObjectCreator objectCreator;
 
     private ExecutionLoop() {
+        startLoop();
     }
 
     public static ExecutionLoop getInstance() {
@@ -29,7 +30,7 @@ public class ExecutionLoop implements Runnable {
 
     @Override
     public void run() {
-        startLoop();
+        //startLoop();
     }
 
     private void startLoop() {
@@ -37,13 +38,13 @@ public class ExecutionLoop implements Runnable {
         isRunning = true;
 
         LOGGER.log(Level.INFO, "Starting Execution Loop");
-        while (isRunning) {
+        /* while (isRunning) {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
                 LOGGER.log(Level.WARNING, "Failed to start Execution Loop" + e.getMessage());
             }
-        }
+        } */
         LOGGER.log(Level.INFO, "Execution Loop Finished");
     }
 
@@ -54,6 +55,10 @@ public class ExecutionLoop implements Runnable {
             LOGGER.log(Level.INFO, "Execution Loop is not instantiated!");
             return false;
         }
+    }
+
+    public  Class<?>[] getParamTypeList(){
+        return objectCreator.getParamTypes();
     }
 
     public boolean isRunning() {
