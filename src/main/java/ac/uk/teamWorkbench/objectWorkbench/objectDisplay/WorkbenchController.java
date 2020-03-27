@@ -5,6 +5,7 @@ import ac.uk.teamWorkbench.objectWorkbench.objectCreation.ObjectCreationWindow;
 import ac.uk.teamWorkbench.workbenchRuntime.ClassReflection;
 import ac.uk.teamWorkbench.workbenchRuntime.ExecutionLoop;
 import ac.uk.teamWorkbench.workbenchRuntime.ObjectCreator;
+import ac.uk.teamWorkbench.workbenchRuntime.ObjectPool;
 import com.sun.xml.bind.v2.TODO;
 
 import javax.swing.*;
@@ -14,9 +15,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -45,7 +45,9 @@ public class WorkbenchController {
 
     private ExecutionLoop executionLoop;
     private Thread executionLoopThread;
+
     private LeftPane leftPane;
+    private RightPane rightPane;
 
     public WorkbenchController(ObjectDisplayWindow GUI) {
         init();
@@ -58,6 +60,7 @@ public class WorkbenchController {
         this.rightClickMenu = new JPopupMenu();
         this.executionLoop = ExecutionLoop.getInstance();
         this.leftPane = LeftPane.getInstance();
+        this.rightPane = RightPane.getInstance();
     }
 
     /**
@@ -132,7 +135,7 @@ public class WorkbenchController {
         ObjectCreationWindow objectCreationWindow = new ObjectCreationWindow(true);
         ObjectCreationController controller = (ObjectCreationController) objectCreationWindow.getController();
 
-        String className;
+        String className = "";
         Object[] parameters = new Object[0];
         boolean isInstantiated = false;
 
@@ -157,6 +160,8 @@ public class WorkbenchController {
         }
 
         if(isInstantiated){
+            ///////////// Handles the left panel of the split pane window functionality ///////////
+
             //Retrieve list of parameters types required by constructor of the created object
             Class<?>[] paramTypes = executionLoop.getParamTypeList();
             //Draw JLabels containing object variables and data types onto JPanel on the a UI and returns it
@@ -167,7 +172,18 @@ public class WorkbenchController {
             //Clear the left component of the JSplitPane and add leftPanel as a new component
             updateLeftPanel(leftPanel);
 
-            //TODO - Implement functionality to handle right panel
+            /////////  Handles the right panel of the split pane window functionality  ///////////////
+
+            //Get Map of all classes that can be reflected in the project
+            Map<String, ClassReflection> classReflectionMap = ObjectPool.getInstance().getClassReflectionMap();
+            //Find the class by its name and retrieve the methods attached to it
+            ClassReflection classReflection = classReflectionMap.get(className);
+            Class<?> clazz = classReflection.getClazz();
+            Method[] methods = clazz.getMethods();
+
+            JPanel panel = rightPane.drawButtons(methods);
+            GUI.getSplitPane().remove(GUI.getSplitPane().getRightComponent());
+            GUI.getSplitPane().setRightComponent(panel);
         }
 
         addNewTabButton();
