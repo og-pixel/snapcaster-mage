@@ -6,17 +6,21 @@ import java.awt.*;
 public class LeftPane extends JPanel {
 
     private GridBagConstraints cons = new GridBagConstraints();
+    private static LeftPane instance;
 
-    public LeftPane(Object[] parameters, Class<?>[] paramTypes){
+    public LeftPane(){
         setLayout(new GridBagLayout());
 
         cons.weighty = 0.1;
         cons.weighty = 0.1;
         cons.insets = new Insets(10,10 ,0,0);
-
-        drawLabels(parameters, paramTypes);
     }
-    private void drawLabels(Object[] params, Class<?>[] paramTypes){
+
+    public static LeftPane getInstance(){
+        if(instance == null) instance = new LeftPane();
+        return instance;
+    }
+    public void drawLabels(Object[] params, Class<?>[] paramTypes){
         for(int i = 0; i < params.length; i++){
             cons.gridx = 0;
             cons.gridy = i;
@@ -25,7 +29,6 @@ public class LeftPane extends JPanel {
             cons.gridx = 1;
             cons.gridy = i;
             add(new JLabel("Value: " + params[i]), cons);
-
         }
     }
 }
