@@ -56,6 +56,16 @@ public class LeftPane extends JPanel {
      * Retrieves a JPanel from the JPanel ArrayList by index
      */
     public JPanel getPanel(int index){
+        if(panelArray.isEmpty()){
+            return new JPanel();
+        }
         return panelArray.get(index);
+    }
+
+    public void removePanel(int index){
+        panelArray.remove(index);
+    }
+    public void removeAllPanels(){
+        panelArray.clear();
     }
 }
