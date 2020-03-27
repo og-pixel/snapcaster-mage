@@ -41,27 +41,44 @@
         </constraints>
         <properties>
           <continuousLayout value="true"/>
-          <dividerLocation value="400"/>
+          <dividerLocation value="136"/>
           <enabled value="true"/>
+          <oneTouchExpandable value="false"/>
         </properties>
         <border type="none"/>
         <children>
-          <grid id="3df7f" binding="leftPane" layout-manager="GridBagLayout">
+          <scrollpane id="f475">
             <constraints>
               <splitpane position="left"/>
             </constraints>
             <properties/>
-            <border type="none"/>
-            <children/>
-          </grid>
-          <grid id="916d2" binding="rightPane" layout-manager="GridBagLayout">
+            <border type="none">
+              <font/>
+            </border>
+            <children>
+              <grid id="3df7f" binding="leftPane" layout-manager="GridBagLayout">
+                <constraints/>
+                <properties/>
+                <border type="none"/>
+                <children/>
+              </grid>
+            </children>
+          </scrollpane>
+          <scrollpane id="d00a5">
             <constraints>
               <splitpane position="right"/>
             </constraints>
             <properties/>
             <border type="none"/>
-            <children/>
-          </grid>
+            <children>
+              <grid id="916d2" binding="rightPane" layout-manager="GridBagLayout">
+                <constraints/>
+                <properties/>
+                <border type="none"/>
+                <children/>
+              </grid>
+            </children>
+          </scrollpane>
         </children>
       </splitpane>
       <grid id="396eb" layout-manager="GridLayoutManager" row-count="1" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
