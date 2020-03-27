@@ -2,8 +2,10 @@ package ac.uk.teamWorkbench.objectWorkbench.objectDisplay;
 
 import ac.uk.teamWorkbench.objectWorkbench.objectCreation.ObjectCreationController;
 import ac.uk.teamWorkbench.objectWorkbench.objectCreation.ObjectCreationWindow;
+import ac.uk.teamWorkbench.workbenchRuntime.ClassReflection;
 import ac.uk.teamWorkbench.workbenchRuntime.ExecutionLoop;
 import ac.uk.teamWorkbench.workbenchRuntime.ObjectCreator;
+import com.sun.xml.bind.v2.TODO;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +14,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -39,6 +43,7 @@ public class WorkbenchController {
 
     private ExecutionLoop executionLoop;
     private Thread executionLoopThread;
+    private LeftPane leftPane;
 
     public WorkbenchController(ObjectDisplayWindow GUI) {
         init();
@@ -50,6 +55,7 @@ public class WorkbenchController {
         this.dialogFactory = new DialogFactory();
         this.rightClickMenu = new JPopupMenu();
         this.executionLoop = ExecutionLoop.getInstance();
+        this.leftPane = LeftPane.getInstance();
     }
 
     /**
@@ -69,7 +75,6 @@ public class WorkbenchController {
         int newIndex = GUI.getTabbedPane().getTabCount() - 1;
         setSelectedTabIndex(newIndex);
     }
-
     /**
      * Adds a new untitled tab
      */
@@ -126,13 +131,16 @@ public class WorkbenchController {
         ObjectCreationController controller = (ObjectCreationController) objectCreationWindow.getController();
 
         String className;
+        Object[] parameters = new Object[0];
+        boolean isInstantiated = false;
+
         if (objectCreationWindow.showAndGet()) {
             removeTab(index);
             className = objectCreationWindow.getSelectedClassName();
             int selectedConstructorIndex = objectCreationWindow.getSelectedConstructor();
 
             List<JTextField> fields = controller.getMapConstructorParameters().get(selectedConstructorIndex);
-            Object[] parameters = new Object[fields.size()];
+             parameters = new Object[fields.size()];
 
             for (int i = 0; i < fields.size(); i++) {
                 parameters[i] = fields.get(i).getText();
@@ -140,12 +148,27 @@ public class WorkbenchController {
 
             if(executionLoop.instantiateObject(className, selectedConstructorIndex, parameters)){
                 addTab(className);
+                isInstantiated = true;
             }
 
         } else {
             removeTab(index);
         }
         addNewTabButton();
+
+        if(isInstantiated){
+            //Retrieve list of parameters types required by constructor of the created object
+            Class<?>[] paramTypes = executionLoop.getParamTypeList();
+            //Draw JLabels containing object variables and data types onto JPanel on the a UI and returns it
+            JPanel leftPanel = leftPane.drawLabels(parameters, paramTypes);
+            //Store the JLabel for later reference
+            leftPane.addPanel(leftPanel);
+
+            //Clear the left component of the JSplitPane and add leftPanel as a new component
+            GUI.getSplitPane().remove(GUI.getSplitPane().getLeftComponent());
+            GUI.getSplitPane().setLeftComponent(leftPanel);
+        }
+
     }
 
     /**
