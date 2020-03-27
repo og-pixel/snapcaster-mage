@@ -8,6 +8,8 @@ import ac.uk.teamWorkbench.workbenchRuntime.ObjectCreator;
 import com.sun.xml.bind.v2.TODO;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -140,21 +142,19 @@ public class WorkbenchController {
             int selectedConstructorIndex = objectCreationWindow.getSelectedConstructor();
 
             List<JTextField> fields = controller.getMapConstructorParameters().get(selectedConstructorIndex);
-             parameters = new Object[fields.size()];
+            parameters = new Object[fields.size()];
 
             for (int i = 0; i < fields.size(); i++) {
                 parameters[i] = fields.get(i).getText();
             }
 
-            if(executionLoop.instantiateObject(className, selectedConstructorIndex, parameters)){
+            if (executionLoop.instantiateObject(className, selectedConstructorIndex, parameters)) {
                 addTab(className);
                 isInstantiated = true;
             }
-
         } else {
             removeTab(index);
         }
-        addNewTabButton();
 
         if(isInstantiated){
             //Retrieve list of parameters types required by constructor of the created object
@@ -165,10 +165,12 @@ public class WorkbenchController {
             leftPane.addPanel(leftPanel);
 
             //Clear the left component of the JSplitPane and add leftPanel as a new component
-            GUI.getSplitPane().remove(GUI.getSplitPane().getLeftComponent());
-            GUI.getSplitPane().setLeftComponent(leftPanel);
+            updateLeftPanel(leftPanel);
+
+            //TODO - Implement functionality to handle right panel
         }
 
+        addNewTabButton();
     }
 
     /**
@@ -219,6 +221,11 @@ public class WorkbenchController {
      */
     private void addNewTabButton() {
         GUI.getTabbedPane().addTab("+", new JPanel());
+    }
+
+    private void updateLeftPanel(JPanel panel){
+        GUI.getSplitPane().remove(GUI.getSplitPane().getLeftComponent());
+        GUI.getSplitPane().setLeftComponent(panel);
     }
 
     /**
@@ -273,8 +280,14 @@ public class WorkbenchController {
                 }
                 try {
                     int tabIndex = getSelectedTabIndex();
+                    //If tab name is equal to '+'
                     if (validator.isValidAddRequest(getSelectedTabTitle(tabIndex))) {
                         newAddTabTask(tabIndex);
+                    }
+                    else{
+                    //Otherwise update the split screen left window
+                        updateLeftPanel(leftPane.getPanel(tabIndex));
+                        //TODO - Implement functionality for right panel to be updated
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -290,10 +303,7 @@ public class WorkbenchController {
             if(!executionLoopThread.isAlive()) executionLoopThread.start();
         });
 
-        compileButton.addActionListener(e -> {
-
-            System.out.println("TODO");
-        });
+        compileButton.addActionListener(e -> System.out.println("TODO"));
 
     }
 
@@ -331,7 +341,18 @@ public class WorkbenchController {
                 if (dialogFactory.getUserConfirmation(GUI.getTabbedPane(),
                         "Are you sure you want to do this? (This action cannot be undone)",
                         "Close All Tabs?") == 0) {
+                    //Remove all tabs on the JTabbedPane
                     removeAllTabs();
+
+                    //Remove All JPanels stored
+                    leftPane.removeAllPanels();
+
+                    //Update the left UI panel
+                    updateLeftPanel(new JPanel());
+
+                    //TODO - clear the right panel
+
+
                 }
             }
         });
@@ -342,7 +363,16 @@ public class WorkbenchController {
                 if (dialogFactory.getUserConfirmation(GUI.getTabbedPane(),
                         "Are you sure you want to do this? (This action cannot be undone)",
                         "Close This Tab? - " + getSelectedTabTitle(getSelectedTabIndex())) == 0) {
+
+                    //Remove tab at selected index
                     removeTab(getSelectedTabIndex());
+                    //Remove panel at selected index
+                    leftPane.removePanel(getSelectedTabIndex());
+                    //Clear the left UI panel
+                    updateLeftPanel(new JPanel());
+
+                    //TODO - Clear the right UI panel
+
                 }
             }
         });
