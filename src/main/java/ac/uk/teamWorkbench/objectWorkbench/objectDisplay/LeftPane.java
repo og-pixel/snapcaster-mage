@@ -1,5 +1,7 @@
 package ac.uk.teamWorkbench.objectWorkbench.objectDisplay;
 
+import net.miginfocom.layout.Grid;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -35,11 +37,13 @@ public class LeftPane extends JPanel {
         for(int i = 0; i < params.length; i++){
             cons.gridx = 0;
             cons.gridy = i;
-            panel.add(new JLabel("Type: " + paramTypes[i] + "    "), cons);
+            cons.anchor = GridBagConstraints.FIRST_LINE_END;
+            panel.add(new JLabel("Type : " + paramTypes[i].getSimpleName() + "   "), cons);
 
             cons.gridx = 1;
             cons.gridy = i;
-            panel.add(new JLabel("Value: " + params[i]), cons);
+            cons.anchor = GridBagConstraints.FIRST_LINE_START;
+            panel.add(new JLabel("Value : " + params[i]), cons);
         }
 
         return panel;
@@ -48,7 +52,7 @@ public class LeftPane extends JPanel {
     /**
      * Stores a JPanel to the JPanel ArrayList
      */
-    public void addPanel(JPanel panel){
+    public void storePanel(JPanel panel){
         panelArray.add(panel);
     }
 
