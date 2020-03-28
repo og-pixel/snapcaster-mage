@@ -3,12 +3,15 @@ package ac.uk.teamWorkbench.objectWorkbench.objectDisplay;
 import javax.swing.*;
 import java.awt.*;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 
 public class RightPane extends JPanel {
 
     private static RightPane instance;
+    private ArrayList<JPanel> panelArray;
 
     public RightPane(){
+        panelArray = new ArrayList<>();
 
     }
 
@@ -29,5 +32,24 @@ public class RightPane extends JPanel {
             }
         }
         return panel;
+    }
+
+    public void storePanel(JPanel panel){
+        panelArray.add(panel);
+    }
+
+    public JPanel getPanel(int index){
+        if(panelArray.isEmpty()){
+            return new JPanel();
+        }
+        return panelArray.get(index);
+    }
+
+    public void removePanel(int index){
+        panelArray.remove(index);
+    }
+
+    public void removeAllPanels(){
+        panelArray.clear();
     }
 }
