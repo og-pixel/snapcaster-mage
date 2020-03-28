@@ -43,7 +43,7 @@ public class LeftPane extends JPanel {
             cons.gridx = 1;
             cons.gridy = i;
             cons.anchor = GridBagConstraints.FIRST_LINE_START;
-            panel.add(new JLabel("Value : " + params[i]), cons);
+            panel.add(new JLabel("Value : " + params[i] + "   "), cons);
         }
 
         return panel;
