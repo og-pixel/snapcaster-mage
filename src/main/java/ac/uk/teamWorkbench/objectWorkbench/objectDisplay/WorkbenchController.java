@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.List;
@@ -169,11 +170,9 @@ public class WorkbenchController {
 
             /////////  Handles the right panel of the split pane window functionality  ///////////////
 
-            //Get Map of all classes that can be reflected in the project
-            Map<String, ClassReflection> classReflectionMap = ObjectPool.getInstance().getClassReflectionMap();
-            //Find the class by its name and retrieve the methods attached to it
-            ClassReflection classReflection = classReflectionMap.get(className);
-            Class<?> clazz = classReflection.getClazz();
+            //Get a reference to a reflected class by class name
+            Class<?> clazz = getClassReflection(className);
+            //Retrieve the methods attached to the class;
             Method[] methods = clazz.getMethods();
 
             //Draw buttons containing method names on the panel and return it
@@ -246,6 +245,15 @@ public class WorkbenchController {
     private void updateRightPanel(JPanel panel){
         GUI.getSplitPane().remove(GUI.getSplitPane().getRightComponent());
         GUI.getSplitPane().setRightComponent(panel);
+    }
+
+    private Class<?> getClassReflection(String className){
+        //Get Map of all classes that can be reflected in the project
+        Map<String, ClassReflection> classReflectionMap = ObjectPool.getInstance().getClassReflectionMap();
+        //Find the class by its name and retrieve the methods attached to it
+        ClassReflection classReflection = classReflectionMap.get(className);
+        Class<?> clazz = classReflection.getClazz();
+        return clazz;
     }
 
     /**
@@ -334,7 +342,37 @@ public class WorkbenchController {
                 for(int i = 0; i < panel.getComponents().length; i++){
                     if(event.getSource() == panel.getComponent(i)){
                         JButton button = (JButton) panel.getComponent(i);
+
+                        //TODO method invocation requires:
+                        // 1) Reference to Class<?> object using the class name, look at ClassReflection?
+                        // 2) Method = Call to class object get declared methods, takes method name and param data types
+                        // 3) Call to invoke, takes object <loaded object? and actual parameter values to pass
+
+                        Integer result = 0;
+                        //Get the created object by the tab index
+                        Object object = executionLoop.getObject(GUI.getTabbedPane().getSelectedIndex());
                         String methodName = button.getText();
+                        //Find the class name from the object
+                        String className = object.getClass().getName();
+                        //Get the class reference
+                        Class<?> clazz = getClassReflection(className);
+
+                        //Invoke the method
+                        try{
+                            //TODO program works if setMileage is the method selected
+                            //Needs to be more generic to support any method
+                            Method method = clazz.getMethod(methodName, Integer.class);
+                            method.invoke(object, 94000);
+
+                            Method getMethod = clazz.getMethod("getMileage");
+                            result = (Integer) getMethod.invoke(object);
+                            System.out.println(result.toString());
+                        }
+                        catch(NoSuchMethodException nsme){ nsme.getMessage(); } catch (IllegalAccessException e) {
+                            e.printStackTrace();
+                        } catch (InvocationTargetException e) {
+                            e.printStackTrace();
+                        }
 
                         break;
                     }
