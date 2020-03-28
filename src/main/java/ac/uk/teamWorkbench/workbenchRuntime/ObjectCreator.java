@@ -105,14 +105,24 @@ public class ObjectCreator {
     }
 
     /* Sets a list of parameter types expected by the object's constructor */
-
-    private void  setParamTypes(Class<?>[] paramTypes) {
+    private void setParamTypes(Class<?>[] paramTypes) {
         this.paramTypes = paramTypes;
     }
 
     /* Gets a list of parameter types expected by the object's constructor */
     public Class<?>[] getParamTypes(){
         return paramTypes;
+    }
+
+    public Object getObject(int index){
+        return loadedObjects.get(index);
+    }
+
+    public void removeObject(int index){
+        loadedObjects.remove(index);
+    }
+    public void removeAllObjects(){
+        loadedObjects.clear();
     }
 
 }

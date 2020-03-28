@@ -57,6 +57,18 @@ public class ExecutionLoop implements Runnable {
         }
     }
 
+    public Object getObject(int index){
+        return objectCreator.getObject(index);
+    }
+
+    public void removeObject(int index){
+        objectCreator.removeObject(index);
+    }
+
+    public void removeAllObjects(){
+        objectCreator.removeAllObjects();
+    }
+
     public  Class<?>[] getParamTypeList(){
         return objectCreator.getParamTypes();
     }
