@@ -154,12 +154,12 @@ public class WorkbenchController {
             removeTab(index);
         }
 
-        if(isInstantiated){
+        if(isInstantiated) {
             ///////////// Handles the left panel of the split pane window functionality ///////////
 
             //Retrieve list of parameters types required by constructor of the created object
             Class<?>[] paramTypes = executionLoop.getParamTypeList();
-            //Draw JLabels containing object variables and data types onto JPanel on the a UI and returns it
+            //Draw JLabels containing object variables and data types onto a JPanel and returns it
             JPanel leftPanel = leftPane.drawLabels(parameters, paramTypes);
             //Store the JLabel for later reference
             leftPane.storePanel(leftPanel);
@@ -176,9 +176,13 @@ public class WorkbenchController {
             Class<?> clazz = classReflection.getClazz();
             Method[] methods = clazz.getMethods();
 
-            JPanel panel = rightPane.drawButtons(methods);
-            GUI.getSplitPane().remove(GUI.getSplitPane().getRightComponent());
-            GUI.getSplitPane().setRightComponent(panel);
+            //Draw buttons containing method names on the panel and return it
+            JPanel rightPanel = rightPane.drawButtons(methods);
+            //Store panel for later reference
+            rightPane.storePanel(rightPanel);
+
+            //Clear the right component of the JSplitPane and add rightPanel as a new component
+            updateRightPanel(rightPanel);
         }
 
         addNewTabButton();
@@ -239,6 +243,11 @@ public class WorkbenchController {
         GUI.getSplitPane().setLeftComponent(panel);
     }
 
+    private void updateRightPanel(JPanel panel){
+        GUI.getSplitPane().remove(GUI.getSplitPane().getRightComponent());
+        GUI.getSplitPane().setRightComponent(panel);
+    }
+
     /**
      * Populates rightClickMenu JPopupDialog
      */
@@ -296,9 +305,9 @@ public class WorkbenchController {
                         newAddTabTask(tabIndex);
                     }
                     else{
-                    //Otherwise update the split screen left window
+                    //Otherwise update the split screen left and right windows
                         updateLeftPanel(leftPane.getPanel(tabIndex));
-                        //TODO - Implement functionality for right panel to be updated
+                        updateRightPanel(rightPane.getPanel(tabIndex));
                     }
                 } catch (Exception ex) {
                     ex.printStackTrace();
@@ -315,6 +324,23 @@ public class WorkbenchController {
         });
 
         compileButton.addActionListener(e -> System.out.println("TODO"));
+
+        rightPane.addButtonListener(new RightPaneListener() {
+            @Override
+            public void buttonEventOccurred(ActionEvent event) {
+                //Get the panel currently being looked at
+                JPanel panel = (JPanel) GUI.getSplitPane().getRightComponent();
+                //Find out which button threw the event and get the text stored.
+                for(int i = 0; i < panel.getComponents().length; i++){
+                    if(event.getSource() == panel.getComponent(i)){
+                        JButton button = (JButton) panel.getComponent(i);
+                        String methodName = button.getText();
+
+                        break;
+                    }
+                }
+            }
+        });
 
     }
 
@@ -355,13 +381,19 @@ public class WorkbenchController {
                     //Remove all tabs on the JTabbedPane
                     removeAllTabs();
 
+                    //Get the divider location
+                    int divLocation = GUI.getSplitPane().getDividerLocation();
+
                     //Remove All JPanels stored
                     leftPane.removeAllPanels();
+                    rightPane.removeAllPanels();
 
-                    //Update the left UI panel
+                    //set divider location
+                    GUI.getSplitPane().setDividerLocation(divLocation);
+
+                    //Update the left and right UI display panels
                     updateLeftPanel(new JPanel());
-
-                    //TODO - clear the right panel
+                    updateRightPanel(new JPanel());
 
 
                 }
@@ -377,12 +409,19 @@ public class WorkbenchController {
 
                     //Remove tab at selected index
                     removeTab(getSelectedTabIndex());
-                    //Remove panel at selected index
-                    leftPane.removePanel(getSelectedTabIndex());
-                    //Clear the left UI panel
-                    updateLeftPanel(new JPanel());
 
-                    //TODO - Clear the right UI panel
+                    //Get the divider location
+                    int divLocation = GUI.getSplitPane().getDividerLocation();
+
+                    //Remove panels at selected index
+                    leftPane.removePanel(getSelectedTabIndex());
+                    rightPane.removePanel(getSelectedTabIndex());
+                    //Clear the left and right UI panel
+                    updateLeftPanel(new JPanel());
+                    updateRightPanel(new JPanel());
+
+                    //Set the divider location
+                    GUI.getSplitPane().setDividerLocation(divLocation);
 
                 }
             }

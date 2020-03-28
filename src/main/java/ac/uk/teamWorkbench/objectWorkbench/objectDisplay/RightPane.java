@@ -2,13 +2,16 @@ package ac.uk.teamWorkbench.objectWorkbench.objectDisplay;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-public class RightPane extends JPanel {
+public class RightPane extends JPanel implements ActionListener {
 
     private static RightPane instance;
     private ArrayList<JPanel> panelArray;
+    private RightPaneListener listener;
 
     public RightPane(){
         panelArray = new ArrayList<>();
@@ -21,14 +24,15 @@ public class RightPane extends JPanel {
     }
 
     public JPanel drawButtons(Method[] methods){
-        final String spacer = " ";
         JPanel panel = new JPanel();
         for(int i = 0; i < methods.length; i++){
             String methodName = methods[i].getName();
             if(methodName.equals("main")){ break; }
             else{
-                panel.add(new JButton(methodName));
-                panel.add(new JLabel(spacer));
+                JButton button = new JButton(methodName);
+                button.addActionListener(this);
+                panel.add(button);
+                panel.add(new JLabel(" "));
             }
         }
         return panel;
@@ -51,5 +55,16 @@ public class RightPane extends JPanel {
 
     public void removeAllPanels(){
         panelArray.clear();
+    }
+
+    public void addButtonListener(RightPaneListener listener){
+        this.listener = listener;
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent actionEvent) {
+        if(listener != null){
+            listener.buttonEventOccurred(actionEvent);
+        }
     }
 }
