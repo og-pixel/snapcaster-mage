@@ -4,13 +4,9 @@ import ac.uk.teamWorkbench.objectWorkbench.objectCreation.ObjectCreationControll
 import ac.uk.teamWorkbench.objectWorkbench.objectCreation.ObjectCreationWindow;
 import ac.uk.teamWorkbench.workbenchRuntime.ClassReflection;
 import ac.uk.teamWorkbench.workbenchRuntime.ExecutionLoop;
-import ac.uk.teamWorkbench.workbenchRuntime.ObjectCreator;
 import ac.uk.teamWorkbench.workbenchRuntime.ObjectPool;
-import com.sun.xml.bind.v2.TODO;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
@@ -18,7 +14,6 @@ import java.awt.event.MouseEvent;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -167,7 +162,7 @@ public class WorkbenchController {
             //Draw JLabels containing object variables and data types onto JPanel on the a UI and returns it
             JPanel leftPanel = leftPane.drawLabels(parameters, paramTypes);
             //Store the JLabel for later reference
-            leftPane.addPanel(leftPanel);
+            leftPane.storePanel(leftPanel);
 
             //Clear the left component of the JSplitPane and add leftPanel as a new component
             updateLeftPanel(leftPanel);
