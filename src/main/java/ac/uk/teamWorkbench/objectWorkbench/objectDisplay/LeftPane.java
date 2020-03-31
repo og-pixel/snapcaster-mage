@@ -4,6 +4,7 @@ import net.miginfocom.layout.Grid;
 
 import javax.swing.*;
 import java.awt.*;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 
 public class LeftPane extends JPanel {
@@ -30,7 +31,7 @@ public class LeftPane extends JPanel {
     /**
      * Draws JLabels to a JPanel and returns the JPanel
      */
-    public JPanel drawLabels(Object[] params, Class<?>[] paramTypes){
+    public JPanel drawLabels(Object[] params, Class<?>[] paramTypes, Field[] fields){
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
 
@@ -43,7 +44,7 @@ public class LeftPane extends JPanel {
             cons.gridx = 1;
             cons.gridy = i;
             cons.anchor = GridBagConstraints.FIRST_LINE_START;
-            panel.add(new JLabel("Value : " + params[i] + "   "), cons);
+            panel.add(new JLabel(fields[i].getName() + " : " + params[i] + "   "), cons);
         }
 
         return panel;

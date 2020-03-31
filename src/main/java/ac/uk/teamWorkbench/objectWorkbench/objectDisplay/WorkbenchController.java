@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -157,14 +158,16 @@ public class WorkbenchController {
 
         if(isInstantiated) {
             ///////////// Handles the left panel of the split pane window functionality ///////////
+            //Retrieve a list of field of field names from the instantiated object
+            Object object = executionLoop.getObject(getSelectedTabIndex());
+            Field[] fields = object.getClass().getDeclaredFields();
 
             //Retrieve list of parameters types required by constructor of the created object
             Class<?>[] paramTypes = executionLoop.getParamTypeList();
             //Draw JLabels containing object variables and data types onto a JPanel and returns it
-            JPanel leftPanel = leftPane.drawLabels(parameters, paramTypes);
+            JPanel leftPanel = leftPane.drawLabels(parameters, paramTypes, fields);
             //Store the JLabel for later reference
             leftPane.storePanel(leftPanel);
-
             //Clear the left component of the JSplitPane and add leftPanel as a new component
             updateLeftPanel(leftPanel);
 
@@ -174,14 +177,15 @@ public class WorkbenchController {
             Class<?> clazz = getClassReflection(className);
             //Retrieve the methods attached to the class;
             Method[] methods = clazz.getMethods();
-
             //Draw buttons containing method names on the panel and return it
             JPanel rightPanel = rightPane.drawButtons(methods);
             //Store panel for later reference
             rightPane.storePanel(rightPanel);
-
             //Clear the right component of the JSplitPane and add rightPanel as a new component
             updateRightPanel(rightPanel);
+
+
+
         }
 
         addNewTabButton();
@@ -392,7 +396,8 @@ public class WorkbenchController {
                     List<Method> methods = findMethods(methodName, clazz);
                     //Invoke the setter and/or getter method
                     Object obj = invokeMethod(methodName, methods, clazz, object);
-                    System.out.println(obj.toString());
+
+                    //TODO update the left panel with the new value
 
                     break;
                 } //End of if statement
