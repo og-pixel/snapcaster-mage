@@ -252,8 +252,46 @@ public class WorkbenchController {
         Map<String, ClassReflection> classReflectionMap = ObjectPool.getInstance().getClassReflectionMap();
         //Find the class by its name and retrieve the methods attached to it
         ClassReflection classReflection = classReflectionMap.get(className);
-        Class<?> clazz = classReflection.getClazz();
-        return clazz;
+        return classReflection.getClazz();
+    }
+
+    //TODO method will only work for one parameter, as that is what is supplied to .invoke()
+    //Create a window that will ask for the number of parameters that the method requires
+    private Object invokeMethod(String methodName, List<Method> methods, Class<?> clazz, Object object){
+        //For each of the methods in the list
+        for(Method method : methods) {
+            try {
+                //If the method is a setter
+                if (method.getName().contains("set")) {
+                    //Get a new value from the user
+                    String input = JOptionPane.showInputDialog(new JPanel(), "Please enter a new value: ");
+                    //Retrieve an object based on the first method parameter and value data type provided by user
+                    Object result = executionLoop.getObjectType(method.getParameterTypes()[0], input);
+                    //Call the method using the created object and the result object
+                    method.invoke(object, result);
+                    //Return the new value that was set using the method
+                    return input;
+                }
+                else if(method.getName().contains("get")){
+                    return method.invoke(object);
+                }
+
+            } catch (IllegalAccessException | InvocationTargetException e) { }
+        }
+
+        return null;
+    }
+
+    private List<Method> findMethods(String methodName, Class<?> clazz){
+        List<Method> methods = new ArrayList<>();
+        for(int index = 0; index < clazz.getMethods().length; index++){
+            String name = clazz.getMethods()[index].getName();
+            if(name.equals(methodName)){
+                //If it has the same name, add it to the methods list
+                methods.add(clazz.getMethods()[index]);
+            }
+        }
+        return methods;
     }
 
     /**
@@ -333,53 +371,33 @@ public class WorkbenchController {
 
         compileButton.addActionListener(e -> System.out.println("TODO"));
 
-        rightPane.addButtonListener(new RightPaneListener() {
-            @Override
-            public void buttonEventOccurred(ActionEvent event) {
-                //Get the panel currently being looked at
-                JPanel panel = (JPanel) GUI.getSplitPane().getRightComponent();
-                //Find out which button threw the event and get the text stored.
-                for(int i = 0; i < panel.getComponents().length; i++){
-                    if(event.getSource() == panel.getComponent(i)){
-                        JButton button = (JButton) panel.getComponent(i);
+        rightPane.addButtonListener(event -> {
+            //Get the panel currently being looked at
+            JPanel panel = (JPanel) GUI.getSplitPane().getRightComponent();
+            //Find out from the panel which button threw the event
+            for(int i = 0; i < panel.getComponents().length; i++){
+                Component component = panel.getComponent(i);
+                if(event.getSource() == component){
+                    //Get a reference to the button
+                    JButton button = (JButton) component;
+                    //Get the created object by the selected tab index
+                    Object object = executionLoop.getObject(GUI.getTabbedPane().getSelectedIndex());
+                    String methodName = button.getText();
+                    //Find the class name using the created object reference
+                    String className = object.getClass().getName();
+                    //Get a reference to the reflection clazz
+                    Class<?> clazz = getClassReflection(className);
 
-                        //TODO method invocation requires:
-                        // 1) Reference to Class<?> object using the class name, look at ClassReflection?
-                        // 2) Method = Call to class object get declared methods, takes method name and param data types
-                        // 3) Call to invoke, takes object <loaded object? and actual parameter values to pass
+                    //Retrieve the list of methods with the same name from 'clazz'
+                    List<Method> methods = findMethods(methodName, clazz);
+                    //Invoke the setter and/or getter method
+                    Object obj = invokeMethod(methodName, methods, clazz, object);
+                    System.out.println(obj.toString());
 
-                        Integer result = 0;
-                        //Get the created object by the tab index
-                        Object object = executionLoop.getObject(GUI.getTabbedPane().getSelectedIndex());
-                        String methodName = button.getText();
-                        //Find the class name from the object
-                        String className = object.getClass().getName();
-                        //Get the class reference
-                        Class<?> clazz = getClassReflection(className);
-
-                        //Invoke the method
-                        try{
-                            //TODO program works if setMileage is the method selected
-                            //Needs to be more generic to support any method
-                            Method method = clazz.getMethod(methodName, Integer.class);
-                            method.invoke(object, 94000);
-
-                            Method getMethod = clazz.getMethod("getMileage");
-                            result = (Integer) getMethod.invoke(object);
-                            System.out.println(result.toString());
-                        }
-                        catch(NoSuchMethodException nsme){ nsme.getMessage(); } catch (IllegalAccessException e) {
-                            e.printStackTrace();
-                        } catch (InvocationTargetException e) {
-                            e.printStackTrace();
-                        }
-
-                        break;
-                    }
-                }
-            }
+                    break;
+                } //End of if statement
+            } //End of Loop
         });
-
     }
 
     /**
@@ -433,6 +451,9 @@ public class WorkbenchController {
                     updateLeftPanel(new JPanel());
                     updateRightPanel(new JPanel());
 
+                    //Remove all created objects
+                    executionLoop.removeAllObjects();
+
 
                 }
             }
@@ -457,6 +478,9 @@ public class WorkbenchController {
                     //Clear the left and right UI panel
                     updateLeftPanel(new JPanel());
                     updateRightPanel(new JPanel());
+
+                    //remove created object
+                    executionLoop.removeObject(getSelectedTabIndex());
 
                     //Set the divider location
                     GUI.getSplitPane().setDividerLocation(divLocation);

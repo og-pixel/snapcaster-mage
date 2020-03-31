@@ -77,4 +77,13 @@ public class ExecutionLoop implements Runnable {
         return isRunning;
     }
 
+    public Object getObjectType(Class<?> clazz, String value){
+        try {
+            return objectCreator.getObjectType(clazz, value);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

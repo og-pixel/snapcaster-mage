@@ -79,6 +79,11 @@ public class ObjectCreator {
         return false;
     }
 
+    public Object getObjectType(Class<?> clazz, String value) throws Exception{
+        return toObject(clazz, value);
+
+    }
+
     private Object toObject(Class<?> clazz, String value) throws Exception {
         if (clazz.isPrimitive()) return toPrimitive(clazz, value);
 
