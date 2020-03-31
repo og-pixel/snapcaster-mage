@@ -132,8 +132,9 @@ public class ObjectCreator {
     public void updateObject(Object object, int index){
         if(!loadedObjects.isEmpty()) {
             loadedObjects.remove(index);
+            loadedObjects.add(index, object);
         }
-        loadedObjects.add(index, object);
+
     }
 
 }

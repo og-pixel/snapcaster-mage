@@ -183,11 +183,7 @@ public class WorkbenchController {
             rightPane.storePanel(rightPanel);
             //Clear the right component of the JSplitPane and add rightPanel as a new component
             updateRightPanel(rightPanel);
-
-
-
         }
-
         addNewTabButton();
     }
 
@@ -241,20 +237,54 @@ public class WorkbenchController {
         GUI.getTabbedPane().addTab("+", new JPanel());
     }
 
+    /**
+     * Updates the panel component on the left side of the split pane window
+     *
+     * @param panel - The JPanel to be added to the UI
+     */
     private void updateLeftPanel(JPanel panel){
         GUI.getSplitPane().remove(GUI.getSplitPane().getLeftComponent());
         GUI.getSplitPane().setLeftComponent(panel);
     }
 
-    private JPanel updateLetPanel(){
-       return new JPanel();
+    /**
+     * Updates a value displayed on the left component of the split pane window
+     *
+     * @param variableName - The name of the variable to be displayed
+     * @param newValue - The value to be displayed
+     * @return lpane - A JPanel object
+     */
+    private JPanel redrawLeftPanel(String variableName, Object newValue){
+        //Get the left panel from the left pane class
+        JPanel lpane = leftPane.getPanel(getSelectedTabIndex());
+        //For each element in the left panel
+        for(int in = 0; in < lpane.getComponents().length; in++){
+            JLabel label = (JLabel) lpane.getComponent(in);
+            //If the label contains the same text as the variable name
+            if(label.getText().contains(variableName)){
+                //Set the text of the label as the variable name and its new value
+                label.setText(variableName + " : " + newValue);
+                break;
+            }
+        }
+        return lpane;
     }
 
+    /**
+     * Updates the panel component on the left side of the split pane window
+     * @param panel - A reference to the JPanel to be updated
+     */
     private void updateRightPanel(JPanel panel){
         GUI.getSplitPane().remove(GUI.getSplitPane().getRightComponent());
         GUI.getSplitPane().setRightComponent(panel);
     }
 
+    /**
+     * Retrieves an array of classes that are reflectable in the project
+     *
+     * @param className - A string value used to retrieve the class
+     * @return classReflection.getClazz()
+     */
     private Class<?> getClassReflection(String className){
         //Get Map of all classes that can be reflected in the project
         Map<String, ClassReflection> classReflectionMap = ObjectPool.getInstance().getClassReflectionMap();
@@ -263,9 +293,15 @@ public class WorkbenchController {
         return classReflection.getClazz();
     }
 
-    //TODO method will only work for one parameter, as that is what is supplied to .invoke()
+    /**
+     * Invokes a getter or setter method using Java Reflection
+     *
+     * @param methods - A list of possible methods to execute
+     * @param object - A dynamically instantiated object from the class loader
+     * @return null or an object of type 'Object'
+     */
     //Create a window that will ask for the number of parameters that the method requires
-    private Object invokeMethod(String methodName, List<Method> methods, Class<?> clazz, Object object){
+    private Object invokeMethod(List<Method> methods, Object object){
         //For each of the methods in the list
         for(Method method : methods) {
             try {
@@ -284,18 +320,26 @@ public class WorkbenchController {
                     return method.invoke(object);
                 }
 
-            } catch (IllegalAccessException | InvocationTargetException e) { }
+            } catch (IllegalAccessException | InvocationTargetException ignored) { }
         }
 
         return null;
     }
 
+    /**
+     * Retrieves a list of methods matching the method name
+     *
+     * @param methodName - A method name to match on
+     * @param clazz - An object reference of type ClassReflection
+     * @return methods - A list of matching method objects
+     */
     private List<Method> findMethods(String methodName, Class<?> clazz){
         List<Method> methods = new ArrayList<>();
+        //For each method in the list of methods
         for(int index = 0; index < clazz.getMethods().length; index++){
             String name = clazz.getMethods()[index].getName();
+            //If the method has the same name, add it to the methods list
             if(name.equals(methodName)){
-                //If it has the same name, add it to the methods list
                 methods.add(clazz.getMethods()[index]);
             }
         }
@@ -370,6 +414,12 @@ public class WorkbenchController {
         });
     }
 
+    /**
+     * Listens for button presses while the program is executing
+     *
+     * @param executeButton - Represents the UI execute button on the workbench
+     * @param compileButton - Represents the UI compile button on the workbench
+     */
     public void addButtonListener(JButton executeButton, JButton compileButton) {
         if(executionLoopThread == null) executionLoopThread = new Thread(executionLoop);
 
@@ -379,6 +429,10 @@ public class WorkbenchController {
 
         compileButton.addActionListener(e -> System.out.println("TODO"));
 
+        /**
+         * Listens out for events on the right component of the split pane window
+         * If a button is pressed, the code retrieves and executes the corresponding method and updates the display
+         */
         rightPane.addButtonListener(event -> {
             //Get the panel currently being looked at
             JPanel panel = (JPanel) GUI.getSplitPane().getRightComponent();
@@ -399,35 +453,18 @@ public class WorkbenchController {
                     //Retrieve the list of methods with the same name from 'clazz'
                     List<Method> methods = findMethods(methodName, clazz);
                     //Invoke the setter and/or getter method
-                    Object obj = invokeMethod(methodName, methods, clazz, object);
+                    Object obj = invokeMethod(methods, object);
 
                     //Convert the method name to lowercase and remove the 'get' or 'set' prefix
                     String variableName = methodName.toLowerCase().substring(3);
-                    //Get the left panel from the left pane class
-                    JPanel lpane = (JPanel) leftPane.getPanel(getSelectedTabIndex());
-                    //For each elemetn in the left panel
-                    for(int in = 0; in < lpane.getComponents().length; in++){
-                        JLabel label = (JLabel) lpane.getComponent(in);
-                        //If the JLabel component contains 'Type', go to the next iteration
-                        if(label.getText().contains("Type")){ continue; }
-                        //Otherwise check if the label contains the same text as the variable name
-                        else if(label.getText().contains(variableName)){
-                            //If it does, find the field name and update the text in the label
-                            String fieldName = object.getClass().getDeclaredFields()[in-1].getName();
-                            label.setText(variableName + " : " + obj);
-                            break;
-                        }
-                    }
+                    //Update the left panel with a new value
+                    JPanel lpane = redrawLeftPanel(variableName, obj);
 
                     //Remove and re-add the panel from the left panel array
                     leftPane.removePanel(getSelectedTabIndex());
                     leftPane.storePanel(lpane, getSelectedTabIndex());
                     //Update the display on the UI to reflect the change
                     updateLeftPanel(lpane);
-
-                    //Remove and re-add the dynamically created object back to the array
-                    executionLoop.removeObject(getSelectedTabIndex());
-                    executionLoop.updateObject(object, getSelectedTabIndex());
 
                     break;
                 } //End of if statement
@@ -519,7 +556,6 @@ public class WorkbenchController {
 
                     //Set the divider location
                     GUI.getSplitPane().setDividerLocation(divLocation);
-
                 }
             }
         });
