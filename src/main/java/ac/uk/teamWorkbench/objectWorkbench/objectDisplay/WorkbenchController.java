@@ -246,6 +246,10 @@ public class WorkbenchController {
         GUI.getSplitPane().setLeftComponent(panel);
     }
 
+    private JPanel updateLetPanel(){
+       return new JPanel();
+    }
+
     private void updateRightPanel(JPanel panel){
         GUI.getSplitPane().remove(GUI.getSplitPane().getRightComponent());
         GUI.getSplitPane().setRightComponent(panel);
@@ -397,7 +401,33 @@ public class WorkbenchController {
                     //Invoke the setter and/or getter method
                     Object obj = invokeMethod(methodName, methods, clazz, object);
 
-                    //TODO update the left panel with the new value
+                    //Convert the method name to lowercase and remove the 'get' or 'set' prefix
+                    String variableName = methodName.toLowerCase().substring(3);
+                    //Get the left panel from the left pane class
+                    JPanel lpane = (JPanel) leftPane.getPanel(getSelectedTabIndex());
+                    //For each elemetn in the left panel
+                    for(int in = 0; in < lpane.getComponents().length; in++){
+                        JLabel label = (JLabel) lpane.getComponent(in);
+                        //If the JLabel component contains 'Type', go to the next iteration
+                        if(label.getText().contains("Type")){ continue; }
+                        //Otherwise check if the label contains the same text as the variable name
+                        else if(label.getText().contains(variableName)){
+                            //If it does, find the field name and update the text in the label
+                            String fieldName = object.getClass().getDeclaredFields()[in-1].getName();
+                            label.setText(variableName + " : " + obj);
+                            break;
+                        }
+                    }
+
+                    //Remove and re-add the panel from the left panel array
+                    leftPane.removePanel(getSelectedTabIndex());
+                    leftPane.storePanel(lpane, getSelectedTabIndex());
+                    //Update the display on the UI to reflect the change
+                    updateLeftPanel(lpane);
+
+                    //Remove and re-add the dynamically created object back to the array
+                    executionLoop.removeObject(getSelectedTabIndex());
+                    executionLoop.updateObject(object, getSelectedTabIndex());
 
                     break;
                 } //End of if statement

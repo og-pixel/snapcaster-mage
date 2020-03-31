@@ -56,6 +56,7 @@ public class LeftPane extends JPanel {
     public void storePanel(JPanel panel){
         panelArray.add(panel);
     }
+    public void storePanel(JPanel panel, int index){ panelArray.add(index, panel);}
 
     /**
      * Retrieves a JPanel from the JPanel ArrayList by index

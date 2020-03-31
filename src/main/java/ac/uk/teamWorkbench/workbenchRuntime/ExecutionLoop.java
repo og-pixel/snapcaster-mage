@@ -69,6 +69,10 @@ public class ExecutionLoop implements Runnable {
         objectCreator.removeAllObjects();
     }
 
+    public void updateObject(Object object, int index){
+        objectCreator.updateObject(object, index);
+    }
+
     public  Class<?>[] getParamTypeList(){
         return objectCreator.getParamTypes();
     }
