@@ -1,5 +1,6 @@
-package ac.uk.teamWorkbench.objectWorkbench;
+package ac.uk.teamWorkbench.objectWorkbench.objectCreation;
 
+import ac.uk.teamWorkbench.objectWorkbench.ControllerTemplate;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBList;
 import org.jetbrains.annotations.Nullable;
@@ -14,7 +15,7 @@ import javax.swing.*;
 public class ObjectCreationWindow extends DialogWrapper {
 
     //Window Creation Controller
-    private ObjectCreationController controller;
+    private ControllerTemplate controller;
 
     //Pane items
     private JPanel content;
@@ -43,21 +44,17 @@ public class ObjectCreationWindow extends DialogWrapper {
         classListJBList = new JBList<>(javaClassListModel);
         methodListJBList = new JBList<>(javaMethodsListModel);
         variableListJBList = new JBList<>(javaVariablesListModel);
-
-//        parametervalues = new ArrayList<>();
     }
 
     /**
      * Constructor
      */
-    protected ObjectCreationWindow(boolean canBeParent) {
+    public ObjectCreationWindow(boolean canBeParent) {
         super(canBeParent);
         init();
         setTitle("Instantiate Object");
-        controller = new ObjectCreationController(this);
 
-        controller.populateClassList();
-        controller.addListeners();
+        controller = new ObjectCreationController(this);
     }
 
     //Getters
@@ -95,7 +92,7 @@ public class ObjectCreationWindow extends DialogWrapper {
         return constructorsTabList;
     }
 
-    public ObjectCreationController getController() {
+    public ControllerTemplate getController() {
         return controller;
     }
 

@@ -1,4 +1,4 @@
-package ac.uk.teamWorkbench.objectWorkbench;
+package ac.uk.teamWorkbench.objectWorkbench.objectDisplay;
 
 import java.util.ArrayList;
 

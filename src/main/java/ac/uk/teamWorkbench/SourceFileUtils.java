@@ -4,7 +4,7 @@ package ac.uk.teamWorkbench;
  * @Modification: Kacper
  */
 
-import ac.uk.teamWorkbench.exception.NotInstantiatedException;
+import ac.uk.teamWorkbench.exceptions.NotInstantiatedException;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
@@ -21,9 +21,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 //Utility class for querying the java source files in the project tree.
 public class SourceFileUtils {
+
+    private static final Logger LOGGER = Logger.getLogger(SourceFileUtils.class.getName());
 
     //Singleton Instance reference
     private static SourceFileUtils instance = null;
@@ -31,6 +35,7 @@ public class SourceFileUtils {
 
     //Information useful for the entire project
     private Project project;
+    private ToolWindow toolWindow;
 
     private PsiManager psiManager;
 
@@ -39,13 +44,15 @@ public class SourceFileUtils {
     //Singleton
     private SourceFileUtils(Project project, ToolWindow toolWindow) {
         this.project = project;
+        this.toolWindow = toolWindow;
         try {
             //Root of the project
             VirtualFile projectRoot = ModuleRootManager.getInstance(
                     ModuleManager.getInstance(project).getModules()[0]).getContentRoots()[0];
-        }catch (NullPointerException e){
-            System.out.println("Unable to find root of the project.\n" +
-                    "Please make sure your project is first on the module options.");
+        } catch (NullPointerException e) {
+
+            LOGGER.log(Level.WARNING, "Unable to find root of the project.\n" +
+                    "Please make sure your project is first on the module options." + e.getMessage());
             System.exit(1);
         }
         this.psiManager = PsiManager.getInstance(project);
@@ -53,7 +60,7 @@ public class SourceFileUtils {
         ModuleManager moduleManager = ModuleManager.getInstance(project);
         for (int i = 0; i < moduleManager.getModules().length; i++) {
             Module module = moduleManager.getModules()[i];
-            if(Objects.requireNonNull(CompilerModuleExtension.getInstance(module)).getCompilerOutputPath() != null){
+            if (Objects.requireNonNull(CompilerModuleExtension.getInstance(module)).getCompilerOutputPath() != null) {
                 this.compilerModule.add(Objects.requireNonNull(CompilerModuleExtension.getInstance(module)).getCompilerOutputPath());
             }
         }
@@ -93,9 +100,8 @@ public class SourceFileUtils {
     public static Collection<PsiFile> getAllPSIFiles(Project project) {
         Collection<VirtualFile> virtualFiles = getAllFilesByExtInProjectScope(project, "java");
         Collection<PsiFile> psiFiles = new ArrayList<>();
-        for (VirtualFile vf : virtualFiles) {
-            psiFiles.add(PsiManager.getInstance(project).findFile(vf));
-        }
+
+        virtualFiles.forEach(e -> psiFiles.add(PsiManager.getInstance(project).findFile(e)));
         return psiFiles;
     }
 

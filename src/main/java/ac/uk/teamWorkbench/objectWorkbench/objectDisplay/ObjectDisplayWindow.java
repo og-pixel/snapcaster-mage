@@ -1,6 +1,5 @@
-package ac.uk.teamWorkbench.objectWorkbench;
+package ac.uk.teamWorkbench.objectWorkbench.objectDisplay;
 
-import com.intellij.openapi.wm.ToolWindow;
 import javax.swing.*;
 
 /**
@@ -31,5 +30,6 @@ public class ObjectDisplayWindow {
     }
 
     public JTabbedPane getTabbedPane() { return this.tabbedPane; }
+    public JSplitPane getSplitPane() { return  this.splitPane; }
     public JPanel getContentWindow() { return this.contentWindow; }
 }
