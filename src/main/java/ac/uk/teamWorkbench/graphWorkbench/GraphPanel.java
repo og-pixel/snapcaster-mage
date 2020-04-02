@@ -6,9 +6,7 @@ package ac.uk.teamWorkbench.graphWorkbench;
  *  Description: GraphPanel responsible for storing, generating and perform action of graph in graphWindow
  * **********/
 
-import ac.uk.teamWorkbench.SourceFileUtils;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.ToolWindow;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
@@ -29,17 +27,19 @@ public class GraphPanel extends JPanel {
     private ArrayList<Object> graphElements;
     private KlassController klassController;
     private Project project;
-    private ToolWindow toolWindow;
-    private SourceFileUtils sourceFileUtils;
 
     private mxGraph graph = new mxGraph();
 
-    public GraphPanel(Project project, ToolWindow toolWindow) {
+    public GraphPanel(Project project) {
         this.project = project;
+        workbench-panels
         this.toolWindow = toolWindow;
         this.klassController = new KlassController();
         SourceFileUtils.instantiateObject(project, toolWindow);
         this.sourceFileUtils = SourceFileUtils.getInstance();
+
+        klassController = new KlassController();
+        master
     }
 
 
