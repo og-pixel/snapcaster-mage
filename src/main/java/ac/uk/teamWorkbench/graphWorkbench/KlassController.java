@@ -61,4 +61,7 @@ public class KlassController {
             }
     }
 
+    public void clearKlasses() {
+        klasses.clear();
+    }
 }

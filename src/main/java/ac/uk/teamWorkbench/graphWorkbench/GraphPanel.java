@@ -1,10 +1,10 @@
 package ac.uk.teamWorkbench.graphWorkbench;
 
-/* **********
+/*
  * Copyright (c) 2020. All rights reserved.
- * @Author Kacper
+ * @Author Kacper Szymański
  *  Description: GraphPanel responsible for storing, generating and perform action of graph in graphWindow
- * **********/
+ */
 
 import com.intellij.openapi.project.Project;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
@@ -26,20 +26,29 @@ public class GraphPanel extends JPanel {
 
     private ArrayList<Object> graphElements;
     private KlassController klassController;
-    private Project project;
 
-    private mxGraph graph = new mxGraph();
+    private mxGraph graph;
 
-    public GraphPanel(Project project) {
-        this.project = project;
-        this.klassController = new KlassController();
+    public GraphPanel() {
         klassController = new KlassController();
+        graphElements = new ArrayList<>();
     }
 
 
-    public void build() {
+    /**
+     * Clear all components, and populate them with new data from @param
+     *
+     * @param project current project
+     */
+    public void build(Project project) {
+        //clear panel
+        removeAll();
+        graphElements.clear();
+        klassController.clearKlasses();
+        graph = new mxGraph();
+
+        //populate panel
         setSize(750, 750);
-        graphElements = new ArrayList<>();
         klassController.populateKlasses(project);
         add(addGraph());
     }
